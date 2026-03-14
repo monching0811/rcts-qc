@@ -1,0 +1,516 @@
+/*
+ * RCTS-QC | dashboard.css
+ * Treasurer & Auditor portal dashboard-specific styles.
+ */
+
+/* ─── Treasurer nav accent ───────────────────────────────────────── */
+.treasurer-portal .nav-active-link {
+  color: var(--gold) !important;
+}
+.auditor-portal .nav-active-link {
+  color: var(--purple) !important;
+}
+
+/* ─── Page header with live badge ────────────────────────────────── */
+.dash-header {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  margin-bottom: var(--sp-6);
+}
+.dash-header h1 {
+  font-family: var(--font-display);
+  font-size: 24px;
+}
+.dash-header p {
+  font-size: 12px;
+  color: var(--muted);
+  margin-top: 3px;
+}
+
+/* ─── KPI strip ──────────────────────────────────────────────────── */
+.kpi-strip {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+  gap: 14px;
+  margin-bottom: var(--sp-5);
+}
+
+/* Accent variants */
+.kpi-green {
+  --kpi-accent: var(--green);
+}
+.kpi-gold {
+  --kpi-accent: var(--gold);
+}
+.kpi-red {
+  --kpi-accent: var(--red);
+}
+.kpi-blue {
+  --kpi-accent: var(--blue);
+}
+.kpi-orange {
+  --kpi-accent: var(--orange);
+}
+.kpi-purple {
+  --kpi-accent: var(--purple);
+}
+
+/* ─── Two-column layout ──────────────────────────────────────────── */
+.dash-two-col {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--sp-5);
+  margin-bottom: var(--sp-5);
+  align-items: start;
+}
+@media (max-width: 900px) {
+  .dash-two-col {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* ─── Ledger table extensions ────────────────────────────────────── */
+.entry-credit {
+  color: var(--green);
+  font-weight: 600;
+}
+.entry-debit {
+  color: var(--red);
+  font-weight: 600;
+}
+
+.type-pill-credit {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 10px;
+  padding: 2px 8px;
+  border-radius: 6px;
+  font-weight: 700;
+  background: rgba(46, 204, 113, 0.1);
+  color: var(--green);
+}
+.type-pill-debit {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 10px;
+  padding: 2px 8px;
+  border-radius: 6px;
+  font-weight: 700;
+  background: rgba(231, 76, 60, 0.1);
+  color: var(--red);
+}
+
+.fund-tag {
+  font-size: 10px;
+  padding: 2px 7px;
+  border-radius: 5px;
+  background: rgba(201, 168, 76, 0.1);
+  color: var(--gold2);
+}
+.cat-tag {
+  font-size: 10px;
+  padding: 2px 7px;
+  border-radius: 5px;
+  background: rgba(52, 152, 219, 0.1);
+  color: #74b9ff;
+}
+
+/* ─── Disbursement components ────────────────────────────────────── */
+.program-group {
+  background: rgba(10, 22, 40, 0.5);
+  border: 1px solid rgba(201, 168, 76, 0.1);
+  border-radius: var(--r-md);
+  margin-bottom: var(--sp-4);
+  overflow: hidden;
+}
+.program-group-header {
+  padding: 14px 18px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-bottom: 1px solid rgba(201, 168, 76, 0.08);
+}
+.prog-name {
+  font-size: 14px;
+  font-weight: 600;
+}
+.prog-meta {
+  font-size: 11px;
+  color: var(--muted);
+  margin-top: 2px;
+}
+.prog-amount {
+  font-family: var(--font-display);
+  font-size: 18px;
+  color: var(--gold);
+}
+.prog-count {
+  font-size: 11px;
+  color: var(--muted);
+}
+.prog-action {
+  padding: 13px 18px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: rgba(201, 168, 76, 0.03);
+}
+
+/* Priority badges */
+.priority-emergency {
+  font-size: 10px;
+  padding: 3px 9px;
+  border-radius: 7px;
+  font-weight: 700;
+  background: rgba(231, 76, 60, 0.15);
+  color: var(--red);
+}
+.priority-normal {
+  font-size: 10px;
+  padding: 3px 9px;
+  border-radius: 7px;
+  font-weight: 700;
+  background: rgba(52, 152, 219, 0.12);
+  color: #74b9ff;
+}
+
+/* Stress test result pill */
+.stress-ok {
+  color: var(--green);
+}
+.stress-warn {
+  color: var(--orange);
+}
+.stress-crit {
+  color: var(--red);
+}
+
+/* ─── Revenue bar chart ──────────────────────────────────────────── */
+.rev-bar-row {
+  margin-bottom: var(--sp-3);
+}
+.rev-bar-header {
+  display: flex;
+  justify-content: space-between;
+  font-size: 12px;
+  margin-bottom: 5px;
+}
+.rev-bar-header .lbl {
+  color: var(--muted);
+}
+.rev-bar-header .val {
+  color: var(--white);
+  font-weight: 500;
+}
+.rev-bar-track {
+  height: 6px;
+  border-radius: 3px;
+  background: rgba(201, 168, 76, 0.08);
+  overflow: hidden;
+}
+.rev-bar-fill {
+  height: 100%;
+  border-radius: 3px;
+  background: linear-gradient(90deg, var(--gold), var(--gold2));
+  transition: width 0.8s ease;
+}
+
+/* ─── Fund cards ─────────────────────────────────────────────────── */
+.fund-card {
+  border-radius: var(--r-lg);
+  padding: var(--sp-5);
+}
+.fund-general {
+  background: linear-gradient(
+    135deg,
+    rgba(52, 152, 219, 0.14),
+    rgba(41, 128, 185, 0.06)
+  );
+  border: 1px solid rgba(52, 152, 219, 0.22);
+}
+.fund-sef {
+  background: linear-gradient(
+    135deg,
+    rgba(46, 204, 113, 0.11),
+    rgba(39, 174, 96, 0.05)
+  );
+  border: 1px solid rgba(46, 204, 113, 0.2);
+}
+.fund-drrm {
+  background: linear-gradient(
+    135deg,
+    rgba(231, 76, 60, 0.11),
+    rgba(192, 57, 43, 0.05)
+  );
+  border: 1px solid rgba(231, 76, 60, 0.2);
+}
+.fund-trust {
+  background: linear-gradient(
+    135deg,
+    rgba(201, 168, 76, 0.11),
+    rgba(180, 140, 50, 0.05)
+  );
+  border: 1px solid rgba(201, 168, 76, 0.2);
+}
+.fund-name {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  opacity: 0.75;
+  margin-bottom: var(--sp-3);
+}
+.fund-balance {
+  font-family: var(--font-display);
+  font-size: 22px;
+}
+
+/* ─── QRF meter ──────────────────────────────────────────────────── */
+.qrf-track {
+  height: 12px;
+  border-radius: 6px;
+  background: rgba(231, 76, 60, 0.1);
+  border: 1px solid rgba(231, 76, 60, 0.15);
+  overflow: hidden;
+  margin: var(--sp-3) 0;
+}
+.qrf-fill {
+  height: 100%;
+  border-radius: 6px;
+  background: linear-gradient(90deg, var(--red), var(--orange), var(--green));
+  transition: width 0.8s ease;
+}
+
+/* ─── e-SRE report styles ────────────────────────────────────────── */
+.esre-header {
+  text-align: center;
+  border-bottom: 2px solid rgba(201, 168, 76, 0.18);
+  padding-bottom: var(--sp-5);
+  margin-bottom: var(--sp-5);
+}
+.esre-header h2 {
+  font-family: var(--font-display);
+  font-size: 18px;
+  color: var(--gold);
+}
+.esre-header p {
+  font-size: 12px;
+  color: var(--muted);
+  margin-top: 3px;
+}
+.esre-summary-3 {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 14px;
+  margin-bottom: var(--sp-5);
+}
+.esre-box {
+  background: rgba(10, 22, 40, 0.55);
+  border: 1px solid rgba(162, 155, 254, 0.1);
+  border-radius: var(--r-md);
+  padding: 14px;
+  text-align: center;
+}
+.esre-box .lbl {
+  font-size: 10px;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+}
+.esre-box .val {
+  font-family: var(--font-display);
+  font-size: 19px;
+  margin-top: 5px;
+}
+.esre-footer {
+  font-size: 10px;
+  color: var(--muted);
+  text-align: center;
+  margin-top: var(--sp-4);
+  line-height: 1.75;
+}
+
+/* ─── Auditor portal overrides ───────────────────────────────────── */
+.auditor-card {
+  border-color: rgba(162, 155, 254, 0.12) !important;
+}
+.auditor-card th {
+  color: var(--purple) !important;
+}
+.immutable-banner {
+  background: rgba(162, 155, 254, 0.07);
+  border: 1px solid rgba(162, 155, 254, 0.18);
+  border-radius: var(--r-sm);
+  padding: 11px 16px;
+  font-size: 12px;
+  color: var(--purple);
+  display: flex;
+  align-items: center;
+  gap: var(--sp-3);
+  margin-bottom: var(--sp-5);
+}
+.hash-cell {
+  font-family: "Courier New", monospace;
+  font-size: 10px;
+  color: var(--muted);
+  max-width: 140px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  cursor: pointer;
+  transition: color var(--t-fast);
+}
+.hash-cell:hover {
+  color: var(--purple);
+}
+
+/* ─── Dept tabs ──────────────────────────────────────────────────── */
+.dept-tabs {
+  display: flex;
+  gap: var(--sp-2);
+  margin-bottom: var(--sp-5);
+  flex-wrap: wrap;
+}
+.dept-tab {
+  background: rgba(17, 34, 64, 0.7);
+  border: var(--border-gold);
+  border-radius: var(--r-sm);
+  padding: 9px 17px;
+  cursor: pointer;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--muted);
+  font-family: var(--font-body);
+  transition: all var(--t-fast);
+}
+.dept-tab:hover {
+  border-color: rgba(201, 168, 76, 0.3);
+  color: var(--white);
+}
+.dept-tab.active {
+  background: rgba(201, 168, 76, 0.12);
+  border-color: var(--gold);
+  color: var(--gold);
+}
+
+/* ─── Filter bar ─────────────────────────────────────────────────── */
+.filter-bar {
+  background: rgba(17, 34, 64, 0.7);
+  border: 1px solid rgba(201, 168, 76, 0.1);
+  border-radius: var(--r-md);
+  padding: 13px 18px;
+  margin-bottom: var(--sp-4);
+  display: flex;
+  gap: var(--sp-3);
+  align-items: center;
+  flex-wrap: wrap;
+}
+.filter-bar label {
+  font-size: 11px;
+  color: var(--muted);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+.filter-control {
+  background: rgba(10, 22, 40, 0.7);
+  border: 1px solid rgba(201, 168, 76, 0.16);
+  border-radius: var(--r-sm);
+  padding: 7px 11px;
+  color: var(--white);
+  font-family: var(--font-body);
+  font-size: 12px;
+  outline: none;
+  transition: border-color var(--t-fast);
+}
+.filter-control:focus {
+  border-color: var(--gold);
+}
+
+/* ─── Pagination ─────────────────────────────────────────────────── */
+.pagination {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 18px;
+  border-top: 1px solid rgba(201, 168, 76, 0.1);
+}
+.pagination .page-info {
+  font-size: 12px;
+  color: var(--muted);
+}
+.page-btns {
+  display: flex;
+  gap: 6px;
+}
+.page-btn {
+  background: rgba(201, 168, 76, 0.08);
+  border: 1px solid rgba(201, 168, 76, 0.2);
+  border-radius: 6px;
+  padding: 5px 13px;
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--gold);
+  cursor: pointer;
+  font-family: var(--font-body);
+  transition: background var(--t-fast);
+}
+.page-btn:hover:not(:disabled) {
+  background: rgba(201, 168, 76, 0.18);
+}
+.page-btn:disabled {
+  opacity: 0.3;
+  cursor: not-allowed;
+}
+
+/* ─── Signal log (inbound) ───────────────────────────────────────── */
+.signal-row {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--sp-3);
+  padding: 10px 0;
+  border-bottom: 1px solid rgba(162, 155, 254, 0.06);
+  font-size: 12px;
+}
+.signal-row:last-child {
+  border-bottom: none;
+}
+.signal-from {
+  font-size: 10px;
+  padding: 2px 8px;
+  border-radius: 6px;
+  background: rgba(162, 155, 254, 0.1);
+  color: var(--purple);
+  font-weight: 700;
+  white-space: nowrap;
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+.signal-action {
+  font-weight: 600;
+  color: var(--white);
+}
+.signal-ts {
+  font-size: 11px;
+  color: var(--muted);
+  margin-top: 2px;
+}
+
+/* ─── Summary strip (4-col) ──────────────────────────────────────── */
+.summary-strip {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 14px;
+  margin-bottom: var(--sp-5);
+}
+@media (max-width: 700px) {
+  .summary-strip {
+    grid-template-columns: 1fr 1fr;
+  }
+  .kpi-strip {
+    grid-template-columns: 1fr 1fr;
+  }
+}

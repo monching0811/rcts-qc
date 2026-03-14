@@ -1,0 +1,47 @@
+{
+  "subsystem": "Subsystem 1 - PWD & Senior Citizen Services",
+  "module": "PWD and Senior Citizen Services",
+  "description": "Discount eligibility registry. RCTS Module B (Business Tax) and Module A (RPT) query this to auto-apply discounts.",
+  "discount_rules": {
+    "SeniorCitizen": {
+      "discount_rate": 0.20,
+      "applicable_to": ["RPT", "BusinessTax", "MarketRental"],
+      "legal_basis": "RA 9994 - Expanded Senior Citizens Act"
+    },
+    "PWD": {
+      "discount_rate": 0.20,
+      "applicable_to": ["RPT", "BusinessTax", "MarketRental"],
+      "legal_basis": "RA 10754 - PWD Act"
+    }
+  },
+  "eligible_citizens": [
+    {
+      "qcitizen_id": "QC-2024-000002",
+      "full_name": "Maria Santos",
+      "discount_type": "SeniorCitizen",
+      "discount_rate": 0.20,
+      "osca_id": "OSCA-QC-2015-00234",
+      "verified": true,
+      "valid_until": "lifetime"
+    },
+    {
+      "qcitizen_id": "QC-2024-000003",
+      "full_name": "Pedro Reyes",
+      "discount_type": "PWD",
+      "discount_rate": 0.20,
+      "pwd_id": "PWD-QC-2020-00891",
+      "disability_type": "Physical",
+      "verified": true,
+      "valid_until": "2026-12-31"
+    },
+    {
+      "qcitizen_id": "QC-2024-000006",
+      "full_name": "Cynthia Flores",
+      "discount_type": "SeniorCitizen",
+      "discount_rate": 0.20,
+      "osca_id": "OSCA-QC-2018-00567",
+      "verified": true,
+      "valid_until": "lifetime"
+    }
+  ]
+}

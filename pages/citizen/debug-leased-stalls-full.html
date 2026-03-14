@@ -1,0 +1,194 @@
+<!doctype html>
+<html>
+  <head>
+    <title>RCTS-QC | Business Tax (Debug Mode)</title>
+    <style>
+      body {
+        font-family: "DM Sans", sans-serif;
+        background: #f5f5f5;
+        padding: 20px;
+      }
+      .debug-panel {
+        background: white;
+        padding: 20px;
+        border-radius: 12px;
+        margin: 20px 0;
+        border: 2px solid #e8c878;
+      }
+      .test-row {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 10px;
+        border-bottom: 1px solid #eee;
+      }
+      .status {
+        font-weight: bold;
+      }
+      .status.pass {
+        color: green;
+      }
+      .status.fail {
+        color: red;
+      }
+      pre {
+        background: #f5f5f5;
+        padding: 10px;
+        border-radius: 6px;
+        font-size: 12px;
+        max-height: 200px;
+        overflow-y: auto;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="debug-panel">
+      <h2>🔍 RCTS-QC Debug: Leased Stalls Troubleshooting</h2>
+
+      <div class="test-row">
+        <span>Session Storage (Citizen)</span>
+        <span id="test1" class="status">Testing...</span>
+      </div>
+      <pre id="test1-details"></pre>
+
+      <div class="test-row">
+        <span>Subsystem 10 API (Stalls)</span>
+        <span id="test2" class="status">Testing...</span>
+      </div>
+      <pre id="test2-details"></pre>
+
+      <div class="test-row">
+        <span>Payment API (Bills)</span>
+        <span id="test3" class="status">Testing...</span>
+      </div>
+      <pre id="test3-details"></pre>
+
+      <div class="test-row">
+        <span>Asset-Bill Linking</span>
+        <span id="test4" class="status">Testing...</span>
+      </div>
+      <pre id="test4-details"></pre>
+
+      <h3 style="margin-top: 30px; color: #c9a84c">Next Steps:</h3>
+      <p id="next-steps">Running tests...</p>
+    </div>
+
+    <script>
+      (async () => {
+        let allPass = true;
+        const citizen = JSON.parse(
+          sessionStorage.getItem("rcts_citizen") || "{}",
+        );
+
+        // TEST 1:Citizen
+        if (citizen.qcitizen_id) {
+          document.getElementById("test1").className = "status pass";
+          document.getElementById("test1").textContent = "✅ PASS";
+          document.getElementById("test1-details").textContent = JSON.stringify(
+            citizen,
+            null,
+            2,
+          );
+        } else {
+          document.getElementById("test1").className = "status fail";
+          document.getElementById("test1").textContent = "❌ FAIL";
+          document.getElementById("test1-details").textContent =
+            "No citizen data in sessionStorage. User may not be logged in.";
+          allPass = false;
+        }
+
+        // TEST 2: S10 API
+        try {
+          const s10_url = `../../mock-data/subsystem10/public-assets-api.php?action=get_stalls_by_citizen&qcitizen_id=${citizen.qcitizen_id}`;
+          const s10_res = await fetch(s10_url);
+          const s10_data = await s10_res.json();
+
+          if (s10_data.success && s10_data.data) {
+            document.getElementById("test2").className = "status pass";
+            document.getElementById("test2").textContent =
+              `✅ PASS - ${s10_data.data.length} stalls`;
+            document.getElementById("test2-details").textContent =
+              JSON.stringify(s10_data.data, null, 2).substring(0, 500);
+          } else {
+            throw new Error(s10_data.message || "Unknown error");
+          }
+        } catch (e) {
+          document.getElementById("test2").className = "status fail";
+          document.getElementById("test2").textContent = "❌ FAIL";
+          document.getElementById("test2-details").textContent =
+            "Error: " + e.message;
+          allPass = false;
+        }
+
+        // TEST 3: Payment API
+        try {
+          const bill_url = `../../api/endpoints/payment.php?action=get_pending_bills&qcitizen_id=${citizen.qcitizen_id}`;
+          const bill_res = await fetch(bill_url);
+          const bill_data = await bill_res.json();
+
+          if (bill_data.success && bill_data.data.bills) {
+            document.getElementById("test3").className = "status pass";
+            document.getElementById("test3").textContent =
+              `✅ PASS - ${bill_data.data.bills.length} bills`;
+            document.getElementById("test3-details").textContent =
+              JSON.stringify(bill_data.data.bills, null, 2).substring(0, 500);
+          } else {
+            throw new Error(bill_data.message || "Unknown error");
+          }
+        } catch (e) {
+          document.getElementById("test3").className = "status fail";
+          document.getElementById("test3").textContent = "❌ FAIL";
+          document.getElementById("test3-details").textContent =
+            "Error: " + e.message;
+          allPass = false;
+        }
+
+        // TEST 4: Asset-Bill Linking
+        try {
+          const s10_res = await fetch(
+            `../../mock-data/subsystem10/public-assets-api.php?action=get_stalls_by_citizen&qcitizen_id=${citizen.qcitizen_id}`,
+          );
+          const s10_data = await s10_res.json();
+          const stalls = s10_data.data || [];
+
+          const bill_res = await fetch(
+            `../../api/endpoints/payment.php?action=get_pending_bills&qcitizen_id=${citizen.qcitizen_id}`,
+          );
+          const bill_data = await bill_res.json();
+          const bills = bill_data.data?.bills || [];
+          const mkt_bills = bills.filter((b) => b.bill_type === "MarketRental");
+
+          let matched = 0;
+          const billsByAsset = {};
+          mkt_bills.forEach((b) => (billsByAsset[b.asset_id] = b));
+
+          stalls.forEach((s) => {
+            if (billsByAsset[s.stall_asset_id]) matched++;
+          });
+
+          document.getElementById("test4").className = "status pass";
+          document.getElementById("test4").textContent =
+            `✅ PASS - ${matched}/${stalls.length} stalls have bills`;
+          document.getElementById("test4-details").textContent =
+            `Stalls: ${stalls.length}\nMarket Bills: ${mkt_bills.length}\nMatched: ${matched}`;
+        } catch (e) {
+          document.getElementById("test4").className = "status fail";
+          document.getElementById("test4").textContent = "❌ FAIL";
+          document.getElementById("test4-details").textContent =
+            "Error: " + e.message;
+          allPass = false;
+        }
+
+        // Final status
+        const nextSteps = document.getElementById("next-steps");
+        if (allPass) {
+          nextSteps.innerHTML =
+            '<strong style="color: green;">✅ All tests passed!</strong><br>Go to <a href="business-tax.html">business-tax.html</a> and hard-refresh (Ctrl+Shift+R) to reload the page with the fix.';
+        } else {
+          nextSteps.innerHTML =
+            '<strong style="color: red;">❌ One or more tests failed.</strong><br>Check the errors above. If the Payment API is failing, make sure XAMPP is running and the database is connected.';
+        }
+      })();
+    </script>
+  </body>
+</html>

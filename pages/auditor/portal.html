@@ -1,0 +1,525 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1.0" />
+    <title>RCTS-QC | COA Auditor Portal</title>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=DM+Sans:wght@300;400;500;600&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      :root {
+        --navy: #0a1628;
+        --navy2: #112240;
+        --gold: #c9a84c;
+        --gold2: #e8c878;
+        --white: #f5f3ee;
+        --muted: #8892a4;
+        --green: #2ecc71;
+        --red: #e74c3c;
+        --purple: #a29bfe;
+      }
+      *,
+      *::before,
+      *::after {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+      }
+      body {
+        font-family: "DM Sans", sans-serif;
+        background: var(--navy);
+        color: var(--white);
+        min-height: 100vh;
+      }
+      body::before {
+        content: "";
+        position: fixed;
+        inset: 0;
+        background-image: repeating-linear-gradient(
+          45deg,
+          transparent,
+          transparent 40px,
+          rgba(201, 168, 76, 0.03) 40px,
+          rgba(201, 168, 76, 0.03) 41px
+        );
+        pointer-events: none;
+        z-index: 0;
+      }
+      nav {
+        position: relative;
+        z-index: 20;
+        background: var(--navy2);
+        border-bottom: 1px solid rgba(201, 168, 76, 0.15);
+        padding: 0 28px;
+        display: flex;
+        align-items: center;
+        height: 60px;
+        gap: 0;
+      }
+      .nav-brand {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        text-decoration: none;
+        color: inherit;
+        margin-right: 24px;
+      }
+      .nav-seal {
+        width: 32px;
+        height: 32px;
+        border-radius: 50%;
+        background: linear-gradient(135deg, #a29bfe, #6c5ce7);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 12px;
+        font-weight: 700;
+        color: var(--white);
+        font-family: "Playfair Display", serif;
+      }
+      .nav-brand span {
+        font-size: 12px;
+        font-weight: 600;
+      }
+      .nav-links {
+        display: flex;
+        align-items: center;
+        gap: 2px;
+        flex: 1;
+      }
+      .nav-links a {
+        padding: 7px 12px;
+        font-size: 12px;
+        color: var(--muted);
+        text-decoration: none;
+        border-radius: 6px;
+        transition:
+          color 0.2s,
+          background 0.2s;
+      }
+      .nav-links a:hover,
+      .nav-links a.active {
+        color: var(--purple);
+        background: rgba(162, 155, 254, 0.08);
+      }
+      .staff-badge {
+        font-size: 10px;
+        padding: 2px 8px;
+        border-radius: 8px;
+        background: rgba(162, 155, 254, 0.15);
+        color: var(--purple);
+        font-weight: 600;
+      }
+      .btn-logout {
+        background: none;
+        border: 1px solid rgba(162, 155, 254, 0.25);
+        border-radius: 6px;
+        padding: 5px 12px;
+        font-size: 11px;
+        color: var(--muted);
+        cursor: pointer;
+        font-family: "DM Sans", sans-serif;
+      }
+      main {
+        position: relative;
+        z-index: 10;
+        max-width: 1100px;
+        margin: 0 auto;
+        padding: 28px;
+      }
+      .page-header {
+        margin-bottom: 24px;
+      }
+      .page-header h1 {
+        font-family: "Playfair Display", serif;
+        font-size: 24px;
+      }
+      .page-header p {
+        font-size: 13px;
+        color: var(--muted);
+        margin-top: 4px;
+      }
+      .readonly-banner {
+        background: rgba(162, 155, 254, 0.08);
+        border: 1px solid rgba(162, 155, 254, 0.2);
+        border-radius: 8px;
+        padding: 12px 16px;
+        font-size: 12px;
+        color: var(--purple);
+        margin-bottom: 22px;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+      .card {
+        background: rgba(17, 34, 64, 0.7);
+        border: 1px solid rgba(201, 168, 76, 0.12);
+        border-radius: 12px;
+        padding: 20px;
+        margin-bottom: 18px;
+      }
+      .card-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 14px;
+        padding-bottom: 12px;
+        border-bottom: 1px solid rgba(201, 168, 76, 0.1);
+      }
+      .card-header h3 {
+        font-family: "Playfair Display", serif;
+        font-size: 15px;
+      }
+      .btn-sm {
+        background: rgba(162, 155, 254, 0.1);
+        border: 1px solid rgba(162, 155, 254, 0.25);
+        border-radius: 6px;
+        padding: 5px 12px;
+        font-size: 11px;
+        font-weight: 600;
+        color: var(--purple);
+        cursor: pointer;
+        font-family: "DM Sans", sans-serif;
+        transition: background 0.2s;
+      }
+      .btn-sm:hover {
+        background: rgba(162, 155, 254, 0.2);
+      }
+      .kpi-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+        gap: 14px;
+        margin-bottom: 22px;
+      }
+      .kpi-card {
+        background: rgba(17, 34, 64, 0.75);
+        border: 1px solid rgba(162, 155, 254, 0.1);
+        border-radius: 10px;
+        padding: 16px 18px;
+      }
+      .kpi-val {
+        font-family: "Playfair Display", serif;
+        font-size: 18px;
+        color: var(--purple);
+      }
+      .kpi-lbl {
+        font-size: 10px;
+        color: var(--muted);
+        text-transform: uppercase;
+        letter-spacing: 0.07em;
+        margin-top: 3px;
+      }
+      .audit-table {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: 12px;
+      }
+      .audit-table th {
+        padding: 8px 12px;
+        text-align: left;
+        font-size: 10px;
+        font-weight: 600;
+        color: var(--muted);
+        letter-spacing: 0.07em;
+        text-transform: uppercase;
+        border-bottom: 1px solid rgba(201, 168, 76, 0.1);
+      }
+      .audit-table td {
+        padding: 10px 12px;
+        border-bottom: 1px solid rgba(201, 168, 76, 0.05);
+        font-size: 12px;
+      }
+      .audit-table tr:last-child td {
+        border-bottom: none;
+      }
+      .credit {
+        color: var(--green);
+      }
+      .debit {
+        color: var(--red);
+      }
+      .bc-hash {
+        font-family: monospace;
+        font-size: 10px;
+        color: var(--muted);
+        max-width: 140px;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+      }
+      .filter-row {
+        display: flex;
+        gap: 10px;
+        margin-bottom: 16px;
+        flex-wrap: wrap;
+      }
+      .filter-row select,
+      .filter-row input {
+        background: rgba(17, 34, 64, 0.8);
+        border: 1px solid rgba(201, 168, 76, 0.18);
+        border-radius: 7px;
+        padding: 7px 12px;
+        color: var(--white);
+        font-family: "DM Sans", sans-serif;
+        font-size: 12px;
+        outline: none;
+      }
+      .esre-summary {
+        display: grid;
+        grid-template-columns: 1fr 1fr 1fr;
+        gap: 14px;
+        margin-bottom: 16px;
+      }
+      .esre-box {
+        background: rgba(10, 22, 40, 0.5);
+        border: 1px solid rgba(162, 155, 254, 0.12);
+        border-radius: 8px;
+        padding: 14px;
+      }
+      .esre-box .val {
+        font-family: "Playfair Display", serif;
+        font-size: 17px;
+        color: var(--white);
+        margin-top: 4px;
+      }
+      .esre-box .lbl {
+        font-size: 10px;
+        color: var(--muted);
+        text-transform: uppercase;
+        letter-spacing: 0.06em;
+      }
+      .loading {
+        text-align: center;
+        padding: 28px;
+        color: var(--muted);
+      }
+    </style>
+  </head>
+  <body>
+    <nav>
+      <a class="nav-brand" href="../../index.html"
+        ><div class="nav-seal">🔍</div>
+        <span>RCTS-QC Audit</span></a
+      >
+      <div class="nav-links">
+        <a href="portal.html" class="active">Audit Portal</a>
+        <a href="audit-trail.html">Full Audit Trail</a>
+      </div>
+      <div
+        style="display: flex; align-items: center; gap: 10px; margin-left: auto"
+      >
+        <span class="staff-badge">COA Auditor · Read-Only</span>
+        <span id="nav-name" style="font-size: 12px; color: var(--white)"
+          >—</span
+        >
+        <button
+          class="btn-logout"
+          onclick="
+            sessionStorage.clear();
+            location.href = 'login.html';
+          "
+        >
+          Sign Out
+        </button>
+      </div>
+    </nav>
+    <main>
+      <div class="page-header">
+        <h1>COA Audit Portal</h1>
+        <p>
+          Commission on Audit — Read-Only access to RCTS financial records and
+          e-SRE data.
+        </p>
+      </div>
+
+      <div class="readonly-banner">
+        🔒 Read-Only Mode — No modifications can be made from this portal. All
+        records are immutable and blockchain-registered.
+      </div>
+
+      <div class="kpi-grid">
+        <div class="kpi-card">
+          <div class="kpi-lbl">Total Receipts (YTD)</div>
+          <div class="kpi-val" id="a-receipts">₱—</div>
+        </div>
+        <div class="kpi-card">
+          <div class="kpi-lbl">Total Expenditures (YTD)</div>
+          <div class="kpi-val" id="a-expend">₱—</div>
+        </div>
+        <div class="kpi-card">
+          <div class="kpi-lbl">Net Balance</div>
+          <div class="kpi-val" id="a-balance">₱—</div>
+        </div>
+        <div class="kpi-card">
+          <div class="kpi-lbl">Transactions Recorded</div>
+          <div class="kpi-val" id="a-txncount">—</div>
+        </div>
+      </div>
+
+      <!-- e-SRE Section -->
+      <div class="card">
+        <div class="card-header">
+          <h3>📄 Statement of Receipts & Expenditures (e-SRE)</h3>
+          <button class="btn-sm" onclick="loadESRE()">Generate Report</button>
+        </div>
+        <div class="filter-row">
+          <select id="esre-year">
+            <option value="2025">2025</option>
+            <option value="2024">2024</option>
+          </select>
+          <select id="esre-month">
+            <option value="">Full Year</option>
+            <option value="01">January</option>
+            <option value="02">February</option>
+            <option value="03">March</option>
+            <option value="04">April</option>
+            <option value="05">May</option>
+            <option value="06">June</option>
+            <option value="07">July</option>
+            <option value="08">August</option>
+            <option value="09">September</option>
+            <option value="10">October</option>
+            <option value="11">November</option>
+            <option value="12">December</option>
+          </select>
+        </div>
+        <div id="esre-container">
+          <div style="font-size: 13px; color: var(--muted)">
+            Select period and click Generate Report.
+          </div>
+        </div>
+      </div>
+
+      <!-- Ledger Audit Trail -->
+      <div class="card">
+        <div class="card-header">
+          <h3>🔗 Immutable Ledger Audit Trail</h3>
+          <button class="btn-sm" onclick="loadAuditTrail()">Refresh</button>
+        </div>
+        <div id="audit-container">
+          <div class="loading">Loading audit trail...</div>
+        </div>
+      </div>
+    </main>
+
+    <script>
+      const citizen = JSON.parse(
+        sessionStorage.getItem("rcts_citizen") || "{}",
+      );
+      if (citizen.role !== "auditor") {
+        alert("COA Auditor access only.");
+        location.href = "../citizen/login.html";
+      }
+      document.getElementById("nav-name").textContent =
+        citizen.full_name || "Auditor";
+
+      const fmt = (n) =>
+        "₱" +
+        Number(n || 0).toLocaleString("en-PH", { minimumFractionDigits: 2 });
+
+      async function loadSummary() {
+        try {
+          const res = await fetch(
+            "../../api/endpoints/dashboard.php?action=esre_data&year=2025",
+          );
+          const data = await res.json();
+          const d = data.data;
+          document.getElementById("a-receipts").textContent = fmt(
+            d.total_receipts,
+          );
+          document.getElementById("a-expend").textContent = fmt(
+            d.total_expenditures,
+          );
+          document.getElementById("a-balance").textContent = fmt(d.net_balance);
+          document.getElementById("a-txncount").textContent =
+            (d.receipts?.length || 0) + (d.expenditures?.length || 0);
+        } catch (e) {}
+      }
+
+      async function loadESRE() {
+        const year = document.getElementById("esre-year").value;
+        const month = document.getElementById("esre-month").value;
+        const container = document.getElementById("esre-container");
+        container.innerHTML = '<div class="loading">Generating e-SRE...</div>';
+        try {
+          const url = `../../api/endpoints/dashboard.php?action=esre_data&year=${year}${month ? "&month=" + month : ""}`;
+          const res = await fetch(url);
+          const data = await res.json();
+          const d = data.data;
+          container.innerHTML = `
+      <div class="esre-summary">
+        <div class="esre-box"><div class="lbl">Total Receipts</div><div class="val credit">${fmt(d.total_receipts)}</div></div>
+        <div class="esre-box"><div class="lbl">Total Expenditures</div><div class="val debit">${fmt(d.total_expenditures)}</div></div>
+        <div class="esre-box"><div class="lbl">Net Balance</div><div class="val" style="color:${d.net_balance >= 0 ? "var(--green)" : "var(--red)"}">${fmt(d.net_balance)}</div></div>
+      </div>
+      <table class="audit-table">
+        <thead><tr><th>Type</th><th>Category</th><th>Fund</th><th>Amount</th><th>Timestamp</th></tr></thead>
+        <tbody>
+          ${[
+            ...d.receipts.map((r) => ({ ...r, etype: "Receipt" })),
+            ...d.expenditures.map((r) => ({ ...r, etype: "Expenditure" })),
+          ]
+            .map(
+              (r) => `<tr>
+              <td class="${r.etype === "Receipt" ? "credit" : "debit"}">${r.etype}</td>
+              <td>${r.revenue_category}</td>
+              <td>${r.fund_id}</td>
+              <td class="${r.etype === "Receipt" ? "credit" : "debit"}" style="font-weight:600">${fmt(r.amount)}</td>
+              <td>${new Date(r.entry_timestamp).toLocaleString("en-PH")}</td>
+            </tr>`,
+            )
+            .join("")}
+        </tbody>
+      </table>
+      <div style="margin-top:12px;font-size:11px;color:var(--muted)">Generated: ${d.generated_at} · Standard: ${d.standard} · LGU: ${d.lgu}</div>`;
+        } catch (e) {
+          container.innerHTML =
+            '<div style="color:var(--red);font-size:13px">Error generating e-SRE.</div>';
+        }
+      }
+
+      async function loadAuditTrail() {
+        try {
+          const res = await fetch(
+            "../../api/endpoints/dashboard.php?action=ledger_feed&limit=15",
+          );
+          const data = await res.json();
+          const entries = data.data?.entries || [];
+          if (!entries.length) {
+            document.getElementById("audit-container").innerHTML =
+              '<div style="text-align:center;padding:20px;color:var(--muted)">No entries.</div>';
+            return;
+          }
+          const rows = entries
+            .map(
+              (e) => `
+      <tr>
+        <td style="font-family:monospace;font-size:11px">${e.ledger_entry_id}</td>
+        <td>${new Date(e.entry_timestamp).toLocaleString("en-PH")}</td>
+        <td class="${e.entry_type === "Credit" ? "credit" : "debit"}">${e.entry_type}</td>
+        <td>${e.revenue_category}</td>
+        <td>${e.gl_account_code}</td>
+        <td>${e.fund_id}</td>
+        <td class="${e.entry_type === "Credit" ? "credit" : "debit"}" style="font-weight:600">${fmt(e.amount)}</td>
+        <td class="bc-hash" title="${e.transaction_id || "—"}">${e.transaction_id || "—"}</td>
+      </tr>`,
+            )
+            .join("");
+          document.getElementById("audit-container").innerHTML = `
+      <table class="audit-table">
+        <thead><tr><th>Entry ID</th><th>Timestamp</th><th>Type</th><th>Category</th><th>GL Code</th><th>Fund</th><th>Amount</th><th>Txn ID</th></tr></thead>
+        <tbody>${rows}</tbody>
+      </table>`;
+        } catch (e) {
+          document.getElementById("audit-container").innerHTML =
+            '<div style="color:var(--red);font-size:13px;text-align:center;padding:20px">Could not load audit trail.</div>';
+        }
+      }
+
+      loadSummary();
+      loadAuditTrail();
+    </script>
+  </body>
+</html>

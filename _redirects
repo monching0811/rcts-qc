@@ -1,0 +1,5 @@
+# Netlify redirects for RCTS SPA
+/*    /index.html   200
+
+# API redirects to Railway (update with actual Railway URL)
+/api/*  https://your-railway-app.railway.app/api/:splat  200

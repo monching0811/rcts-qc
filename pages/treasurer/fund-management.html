@@ -1,0 +1,628 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1.0" />
+    <title>RCTS-QC | Fund Management</title>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=DM+Sans:wght@300;400;500;600&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      :root {
+        --bg-primary: #ffffff;
+        --bg-secondary: #f5f5f5;
+        --bg-card: #ffffff;
+        --text-primary: #1a1a1a;
+        --text-secondary: #555555;
+        --text-muted: #666666;
+        --gold: #c9a84c;
+        --gold2: #e8c878;
+        --white: #ffffff;
+        --muted: #666666;
+        --green: #2ecc71;
+        --red: #e74c3c;
+        --orange: #f39c12;
+        --blue: #3498db;
+        --border-color: #dddddd;
+        --accent-color: #c9a84c;
+      }
+      *,
+      *::before,
+      *::after {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+      }
+      body {
+        font-family: "DM Sans", sans-serif;
+        background: #f5f5f5;
+        color: #1a1a1a;
+        min-height: 100vh;
+      }
+      body::before {
+        content: "";
+        position: fixed;
+        inset: 0;
+        background-image: repeating-linear-gradient(
+          45deg,
+          transparent,
+          transparent 40px,
+          rgba(201, 168, 76, 0.03) 40px,
+          rgba(201, 168, 76, 0.03) 41px
+        );
+        pointer-events: none;
+        z-index: 0;
+      }
+      nav {
+        position: relative;
+        z-index: 20;
+        background: #ffffff;
+        border-bottom: 1px solid #dddddd;
+        padding: 0 28px;
+        display: flex;
+        align-items: center;
+        height: 60px;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.08);
+      }
+      .nav-brand {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        text-decoration: none;
+        color: inherit;
+        margin-right: 24px;
+      }
+      .nav-seal {
+        width: 32px;
+        height: 32px;
+        border-radius: 50%;
+        background: linear-gradient(135deg, var(--gold), var(--gold2));
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 12px;
+        font-weight: 700;
+        color: var(--navy);
+        font-family: "Playfair Display", serif;
+      }
+      .nav-brand span {
+        font-size: 12px;
+        font-weight: 600;
+        color: #1a1a1a;
+      }
+      .nav-links {
+        display: flex;
+        align-items: center;
+        gap: 2px;
+        flex: 1;
+      }
+      .nav-links a {
+        padding: 7px 12px;
+        font-size: 12px;
+        color: var(--text-secondary);
+        text-decoration: none;
+        border-radius: 6px;
+        transition:
+          color 0.2s,
+          background 0.2s;
+      }
+      .nav-links a:hover,
+      .nav-links a.active {
+        color: var(--gold);
+        background: rgba(201, 168, 76, 0.08);
+      }
+      .btn-logout {
+        background: none;
+        border: 1px solid #dddddd;
+        border-radius: 6px;
+        padding: 5px 12px;
+        font-size: 11px;
+        color: #555555;
+        cursor: pointer;
+        font-family: "DM Sans", sans-serif;
+      }
+      main {
+        position: relative;
+        z-index: 10;
+        max-width: 1100px;
+        margin: 0 auto;
+        padding: 28px;
+      }
+      .page-header {
+        margin-bottom: 22px;
+      }
+      .page-header h1 {
+        font-family: "Playfair Display", serif;
+        font-size: 24px;
+        color: #1a1a1a;
+      }
+      .page-header p {
+        font-size: 12px;
+        color: #666666;
+        margin-top: 3px;
+      }
+      /* Fund cards */
+      .fund-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+        gap: 16px;
+        margin-bottom: 24px;
+      }
+      .fund-card {
+        background: #ffffff;
+        border: 1px solid #dddddd;
+        border-radius: 12px;
+        padding: 22px;
+        position: relative;
+        overflow: hidden;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+      }
+      .fund-card.general {
+        background: linear-gradient(
+          135deg,
+          rgba(52, 152, 219, 0.08),
+          rgba(41, 128, 185, 0.04)
+        );
+        border-color: rgba(52, 152, 219, 0.25);
+      }
+      .fund-card.sef {
+        background: linear-gradient(
+          135deg,
+          rgba(46, 204, 113, 0.06),
+          rgba(39, 174, 96, 0.03)
+        );
+        border-color: rgba(46, 204, 113, 0.22);
+      }
+      .fund-card.drrm {
+        background: linear-gradient(
+          135deg,
+          rgba(231, 76, 60, 0.06),
+          rgba(192, 57, 43, 0.03)
+        );
+        border-color: rgba(231, 76, 60, 0.22);
+      }
+      .fund-card.trust {
+        background: linear-gradient(
+          135deg,
+          rgba(201, 168, 76, 0.06),
+          rgba(180, 140, 50, 0.03)
+        );
+        border-color: rgba(201, 168, 76, 0.22);
+      }
+      .fund-name {
+        font-size: 11px;
+        font-weight: 700;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        margin-bottom: 10px;
+        color: #666666;
+      }
+      .fund-balance {
+        font-family: "Playfair Display", serif;
+        font-size: 22px;
+        color: #1a1a1a;
+      }
+      .fund-balance.general-c {
+        color: #74b9ff;
+      }
+      .fund-balance.sef-c {
+        color: var(--green);
+      }
+      .fund-balance.drrm-c {
+        color: #ff7675;
+      }
+      .fund-balance.trust-c {
+        color: var(--gold);
+      }
+      .fund-status {
+        display: inline-flex;
+        align-items: center;
+        gap: 5px;
+        font-size: 10px;
+        padding: 3px 8px;
+        border-radius: 7px;
+        margin-top: 8px;
+        font-weight: 700;
+      }
+      .fs-locked {
+        background: rgba(136, 146, 164, 0.12);
+        color: var(--muted);
+      }
+      .fs-active {
+        background: rgba(46, 204, 113, 0.12);
+        color: var(--green);
+      }
+      .fs-depleted {
+        background: rgba(231, 76, 60, 0.12);
+        color: var(--red);
+      }
+      /* QRF panel */
+      .card {
+        background: #ffffff;
+        border: 1px solid #dddddd;
+        border-radius: 12px;
+        padding: 22px;
+        margin-bottom: 18px;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+      }
+      .card-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 16px;
+        padding-bottom: 12px;
+        border-bottom: 1px solid #eeeeee;
+      }
+      .card-header h3 {
+        font-family: "Playfair Display", serif;
+        font-size: 15px;
+        color: #1a1a1a;
+      }
+      .qrf-meter {
+        margin: 16px 0;
+      }
+      .qrf-label {
+        display: flex;
+        justify-content: space-between;
+        font-size: 12px;
+        margin-bottom: 6px;
+        color: #666666;
+      }
+      .qrf-bar-track {
+        height: 12px;
+        border-radius: 6px;
+        background: rgba(231, 76, 60, 0.1);
+        border: 1px solid rgba(231, 76, 60, 0.15);
+        overflow: hidden;
+      }
+      .qrf-bar-fill {
+        height: 100%;
+        border-radius: 6px;
+        background: linear-gradient(
+          90deg,
+          var(--red),
+          var(--orange),
+          var(--green)
+        );
+        transition: width 0.8s;
+      }
+      .info-grid {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 12px;
+        margin-top: 14px;
+      }
+      .info-box {
+        background: #f5f5f5;
+        border-radius: 8px;
+        padding: 12px;
+      }
+      .info-box .lbl {
+        font-size: 10px;
+        color: #666666;
+        text-transform: uppercase;
+        letter-spacing: 0.06em;
+      }
+      .info-box .val {
+        font-size: 14px;
+        font-weight: 600;
+        margin-top: 4px;
+        color: #1a1a1a;
+      }
+      .btn-sm {
+        background: rgba(201, 168, 76, 0.1);
+        border: 1px solid rgba(201, 168, 76, 0.25);
+        border-radius: 6px;
+        padding: 6px 14px;
+        font-size: 11px;
+        font-weight: 600;
+        color: var(--gold);
+        cursor: pointer;
+        font-family: "DM Sans", sans-serif;
+        transition: background 0.2s;
+      }
+      .btn-sm:hover {
+        background: rgba(201, 168, 76, 0.2);
+      }
+      .collection-breakdown {
+        display: grid;
+        gap: 10px;
+      }
+      .coll-row {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 10px 14px;
+        background: #f5f5f5;
+        border-radius: 8px;
+        font-size: 13px;
+        color: #1a1a1a;
+      }
+      .coll-name {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+      }
+      .coll-icon {
+        width: 30px;
+        height: 30px;
+        border-radius: 7px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 14px;
+        background: rgba(201, 168, 76, 0.1);
+      }
+      .loading {
+        text-align: center;
+        padding: 32px;
+        color: #666666;
+      }
+      .staff-badge {
+        font-size: 10px;
+        padding: 2px 8px;
+        border-radius: 8px;
+        background: rgba(201, 168, 76, 0.15);
+        color: var(--gold);
+        font-weight: 600;
+      }
+    </style>
+  </head>
+  <body>
+    <nav>
+      <a class="nav-brand" href="../../index.html"
+        ><div class="nav-seal">QC</div>
+        <span>RCTS-QC Treasury</span></a
+      >
+      <div class="nav-links">
+        <a href="dashboard.html">Dashboard</a>
+        <a href="live-ledger.html">Live Ledger</a>
+        <a href="disbursement.html">Disbursements</a>
+        <a href="reports.html">Reports / e-SRE</a>
+        <a href="fund-management.html" class="active">Fund Management</a>
+        <a href="market-billing.html">Market Billing</a>
+      </div>
+      <div
+        style="display: flex; align-items: center; gap: 10px; margin-left: auto"
+      >
+        <span class="staff-badge">Treasury Staff</span>
+        <span id="nav-name" style="font-size: 12px; color: #1a1a1a">—</span>
+        <button
+          class="btn-logout"
+          onclick="
+            sessionStorage.clear();
+            location.href = '../citizen/login.html';
+          "
+        >
+          Sign Out
+        </button>
+      </div>
+    </nav>
+    <main>
+      <div class="page-header">
+        <h1>Fund Management</h1>
+        <p>
+          Monitor fund balances, QRF availability, and collection performance
+          across all revenue streams.
+        </p>
+      </div>
+
+      <!-- Fund balance cards -->
+      <div class="fund-grid">
+        <div class="fund-card general">
+          <div class="fund-name">General Fund</div>
+          <div class="fund-balance general-c" id="f-general">₱—</div>
+          <div class="fund-status fs-active">● Active</div>
+        </div>
+        <div class="fund-card sef">
+          <div class="fund-name">Special Education Fund</div>
+          <div class="fund-balance sef-c" id="f-sef">₱—</div>
+          <div class="fund-status fs-active">● Active</div>
+        </div>
+        <div class="fund-card drrm">
+          <div class="fund-name">DRRM Quick Response Fund</div>
+          <div class="fund-balance drrm-c" id="f-drrm">₱—</div>
+          <div class="fund-status fs-locked" id="f-drrm-status">● Locked</div>
+        </div>
+        <div class="fund-card trust">
+          <div class="fund-name">Trust Fund</div>
+          <div class="fund-balance trust-c" id="f-trust">₱—</div>
+          <div class="fund-status fs-locked">● Locked</div>
+        </div>
+      </div>
+
+      <!-- QRF panel -->
+      <div class="card">
+        <div class="card-header">
+          <h3>🆘 Quick Response Fund (QRF) Monitor</h3>
+          <button class="btn-sm" onclick="loadData()">↺ Refresh</button>
+        </div>
+        <div class="qrf-meter">
+          <div class="qrf-label">
+            <span style="font-size: 12px; color: var(--muted)"
+              >QRF Utilization</span
+            >
+            <span id="qrf-pct" style="font-size: 12px; color: var(--white)"
+              >—</span
+            >
+          </div>
+          <div class="qrf-bar-track">
+            <div class="qrf-bar-fill" id="qrf-bar" style="width: 0%"></div>
+          </div>
+        </div>
+        <div class="info-grid">
+          <div class="info-box">
+            <div class="lbl">QRF Balance</div>
+            <div class="val" id="qrf-balance" style="color: var(--red)">₱—</div>
+          </div>
+          <div class="info-box">
+            <div class="lbl">QRF Status</div>
+            <div class="val" id="qrf-status">—</div>
+          </div>
+          <div class="info-box">
+            <div class="lbl">Pending DRRM Payouts</div>
+            <div class="val" id="qrf-pending">₱—</div>
+          </div>
+        </div>
+        <div
+          style="
+            margin-top: 14px;
+            font-size: 12px;
+            color: var(--muted);
+            line-height: 1.7;
+            background: rgba(231, 76, 60, 0.05);
+            border: 1px solid rgba(231, 76, 60, 0.12);
+            border-radius: 7px;
+            padding: 12px;
+          "
+        >
+          🔒 The QRF can only be unlocked when Subsystem 6 (DRRM) sends a
+          disaster declaration signal. Once unlocked, Emergency-priority
+          disbursements bypass the standard liquidity queue.
+        </div>
+      </div>
+
+      <!-- Collection breakdown -->
+      <div class="card">
+        <div class="card-header">
+          <h3>📊 Revenue Collection Breakdown (MTD)</h3>
+        </div>
+        <div class="collection-breakdown" id="coll-breakdown">
+          <div class="loading">Loading...</div>
+        </div>
+      </div>
+
+      <!-- Liquidity snapshot -->
+      <div class="card">
+        <div class="card-header"><h3>💧 Liquidity Snapshot</h3></div>
+        <div id="liquidity-snap"><div class="loading">Loading...</div></div>
+      </div>
+    </main>
+
+    <script>
+      const citizen = JSON.parse(
+        sessionStorage.getItem("rcts_citizen") || "{}",
+      );
+      if (!["treasurer", "revenue_officer", "admin"].includes(citizen.role))
+        location.href = "../citizen/login.html";
+      document.getElementById("nav-name").textContent =
+        citizen.full_name || "—";
+
+      const fmt = (n) =>
+        "₱" +
+        Number(n || 0).toLocaleString("en-PH", { minimumFractionDigits: 2 });
+      const QRF_MAX = 10000000; // ₱10M baseline
+
+      async function loadData() {
+        try {
+          const [sumRes, liqRes] = await Promise.all([
+            fetch("../../api/endpoints/dashboard.php?action=live_summary"),
+            fetch(
+              "../../api/endpoints/dashboard.php?action=liquidity_check&proposed_payout=0",
+            ),
+          ]);
+          const sum = (await sumRes.json()).data;
+          const liq = (await liqRes.json()).data;
+
+          // Fund estimates (based on revenue categories)
+          const generalFund = (sum.total_collected_mtd || 0) * 0.8;
+          const sefFund = (sum.collection_by_type?.RPT || 0) * 0.333;
+          document.getElementById("f-general").textContent = fmt(generalFund);
+          document.getElementById("f-sef").textContent = fmt(sefFund);
+          document.getElementById("f-drrm").textContent = fmt(
+            sum.qrf_balance || 0,
+          );
+          document.getElementById("f-trust").textContent = fmt(
+            (sum.total_collected_mtd || 0) * 0.05,
+          );
+          document.getElementById("f-drrm-status").textContent =
+            "● " + (sum.qrf_status || "Locked");
+          document.getElementById("f-drrm-status").className =
+            "fund-status " +
+            (sum.qrf_status === "Active"
+              ? "fs-active"
+              : sum.qrf_status === "Depleted"
+                ? "fs-depleted"
+                : "fs-locked");
+
+          // QRF meter
+          const qrfPct = Math.max(
+            0,
+            Math.min(100, ((sum.qrf_balance || 0) / QRF_MAX) * 100),
+          );
+          document.getElementById("qrf-bar").style.width = qrfPct + "%";
+          document.getElementById("qrf-pct").textContent =
+            qrfPct.toFixed(1) + "% of ₱" + QRF_MAX / 1000000 + "M baseline";
+          document.getElementById("qrf-balance").textContent = fmt(
+            sum.qrf_balance || 0,
+          );
+          document.getElementById("qrf-status").textContent =
+            sum.qrf_status || "Locked";
+          document.getElementById("qrf-pending").textContent = fmt(
+            sum.pending_bills_total || 0,
+          );
+
+          // Collection breakdown
+          const cats = sum.collection_by_type || {};
+          const icons = {
+            RPT: "🏠",
+            BusinessTax: "🏢",
+            MarketRental: "🛒",
+            TrafficFine: "🚦",
+            FacilityFee: "🏛️",
+          };
+          const total = Object.values(cats).reduce((s, v) => s + v, 0) || 1;
+          document.getElementById("coll-breakdown").innerHTML = Object.entries(
+            cats,
+          ).length
+            ? Object.entries(cats)
+                .map(
+                  ([k, v]) => `
+        <div class="coll-row">
+          <div class="coll-name">
+            <div class="coll-icon" style="background:rgba(201,168,76,.1)">${icons[k] || "💰"}</div>
+            <span>${k}</span>
+          </div>
+          <div style="display:flex;align-items:center;gap:14px">
+            <div style="width:100px;height:6px;border-radius:3px;background:rgba(201,168,76,.1);overflow:hidden"><div style="height:100%;width:${(v / total) * 100}%;background:linear-gradient(90deg,var(--gold),var(--gold2));border-radius:3px"></div></div>
+            <span style="font-weight:700;color:var(--gold);min-width:100px;text-align:right">${fmt(v)}</span>
+          </div>
+        </div>`,
+                )
+                .join("")
+            : '<div style="text-align:center;padding:20px;color:var(--muted)">No collections recorded yet.</div>';
+
+          // Liquidity snapshot
+          const liqClass =
+            liq.stress_result === "OK"
+              ? "var(--green)"
+              : liq.stress_result === "Warning"
+                ? "var(--orange)"
+                : "var(--red)";
+          document.getElementById("liquidity-snap").innerHTML = `
+      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px">
+        <div style="background:rgba(10,22,40,.5);border-radius:8px;padding:14px">
+          <div style="font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.06em">Current Cash Position</div>
+          <div style="font-family:'Playfair Display',serif;font-size:18px;color:var(--green);margin-top:5px">${fmt(liq.current_cash_position)}</div>
+        </div>
+        <div style="background:rgba(10,22,40,.5);border-radius:8px;padding:14px">
+          <div style="font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.06em">Pending Disbursements</div>
+          <div style="font-family:'Playfair Display',serif;font-size:18px;color:var(--orange);margin-top:5px">${fmt(liq.total_pending_disburse)}</div>
+        </div>
+        <div style="background:rgba(10,22,40,.5);border-radius:8px;padding:14px">
+          <div style="font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.06em">Stress Result</div>
+          <div style="font-family:'Playfair Display',serif;font-size:18px;color:${liqClass};margin-top:5px">${liq.stress_result}</div>
+          <div style="font-size:11px;color:var(--muted);margin-top:3px">${liq.recommendation}</div>
+        </div>
+      </div>`;
+        } catch (e) {
+          console.error(e);
+        }
+      }
+
+      loadData();
+      setInterval(loadData, 30000);
+    </script>
+  </body>
+</html>

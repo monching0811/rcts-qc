@@ -1,0 +1,209 @@
+<!doctype html>
+<html>
+  <head>
+    <title>Debug: Session & Stalls</title>
+    <style>
+      body {
+        font-family: monospace;
+        padding: 20px;
+        background: #f5f5f5;
+      }
+      .box {
+        background: white;
+        padding: 15px;
+        margin: 10px 0;
+        border-radius: 8px;
+        border: 2px solid #ddd;
+      }
+      .success {
+        border-color: green;
+      }
+      .fail {
+        border-color: red;
+      }
+      pre {
+        background: #f0f0f0;
+        padding: 10px;
+        border-radius: 4px;
+        max-height: 300px;
+        overflow-y: auto;
+      }
+      button {
+        padding: 10px 20px;
+        background: #c9a84c;
+        border: none;
+        border-radius: 6px;
+        cursor: pointer;
+        color: white;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>🔍 Session & Stalls Debug</h1>
+
+    <div class="box">
+      <h3>1️⃣ Check sessionStorage</h3>
+      <button onclick="checkSession()">Check Now</button>
+      <pre id="session-output">Waiting for check...</pre>
+    </div>
+
+    <div class="box">
+      <h3>2️⃣ Manually Test S10 API</h3>
+      <p>
+        Citizen ID (from above):
+        <strong id="citizen-id-display">Not loaded yet</strong>
+      </p>
+      <button onclick="testS10API()">Test S10 API</button>
+      <pre id="s10-output">Waiting...</pre>
+    </div>
+
+    <div class="box">
+      <h3>3️⃣ Manually Test Payment API</h3>
+      <button onclick="testPaymentAPI()">Test Payment API</button>
+      <pre id="payment-output">Waiting...</pre>
+    </div>
+
+    <div class="box">
+      <h3>4️⃣ View business-tax.html</h3>
+      <p><strong>Make sure you:</strong></p>
+      <ol>
+        <li>Logged in successfully on the login page</li>
+        <li>
+          Navigate to <a href="business-tax.html">Business Tax Page</a> in THIS
+          SAME BROWSER TAB
+        </li>
+        <li>
+          The "Your Leased Stalls" section should appear with stalls & bills
+        </li>
+      </ol>
+      <p>
+        <strong>Note:</strong> sessionStorage is per-tab. Opening debug page in
+        new tab won't work!
+      </p>
+    </div>
+
+    <script>
+      function checkSession() {
+        const output = document.getElementById("session-output");
+        const citizenIdDisplay = document.getElementById("citizen-id-display");
+
+        const stored = sessionStorage.getItem("rcts_citizen");
+        const citizen = stored ? JSON.parse(stored) : {};
+
+        if (stored) {
+          output.textContent = JSON.stringify(citizen, null, 2);
+          if (citizen.qcitizen_id) {
+            citizenIdDisplay.textContent = citizen.qcitizen_id;
+            output.parentElement.classList.add("success");
+            output.parentElement.classList.remove("fail");
+          } else {
+            citizenIdDisplay.textContent = "NO qcitizen_id FIELD!";
+            output.parentElement.classList.add("fail");
+            output.parentElement.classList.remove("success");
+          }
+        } else {
+          output.textContent =
+            "❌ ERROR: No citizen data in sessionStorage\n\nYou need to:\n1. Go to login.html\n2. Log in as Brylle\n3. Return to THIS tab after login\n\nNote: sessionStorage is per-tab!";
+          citizenIdDisplay.textContent = "None";
+          output.parentElement.classList.add("fail");
+          output.parentElement.classList.remove("success");
+        }
+      }
+
+      async function testS10API() {
+        const output = document.getElementById("s10-output");
+        const stored = sessionStorage.getItem("rcts_citizen");
+        const citizen = stored ? JSON.parse(stored) : {};
+
+        if (!citizen.qcitizen_id) {
+          output.textContent =
+            '❌ ERROR: No qcitizen_id in session. Run "Check Now" first.';
+          document
+            .querySelector("#s10-output")
+            .parentElement.classList.add("fail");
+          return;
+        }
+
+        try {
+          output.textContent = `Fetching: ?qcitizen_id=${citizen.qcitizen_id}\n\nWaiting...`;
+          const url = `../../mock-data/subsystem10/public-assets-api.php?action=get_stalls_by_citizen&qcitizen_id=${citizen.qcitizen_id}&t=${Date.now()}`;
+          console.log("URL:", url);
+
+          const res = await fetch(url);
+          const data = await res.json();
+
+          output.textContent = JSON.stringify(data, null, 2);
+          if (data.success && data.data.length > 0) {
+            document
+              .querySelector("#s10-output")
+              .parentElement.classList.add("success");
+            document
+              .querySelector("#s10-output")
+              .parentElement.classList.remove("fail");
+          } else {
+            document
+              .querySelector("#s10-output")
+              .parentElement.classList.add("fail");
+            document
+              .querySelector("#s10-output")
+              .parentElement.classList.remove("success");
+          }
+        } catch (e) {
+          output.textContent = `❌ ERROR: ${e.message}`;
+          document
+            .querySelector("#s10-output")
+            .parentElement.classList.add("fail");
+        }
+      }
+
+      async function testPaymentAPI() {
+        const output = document.getElementById("payment-output");
+        const stored = sessionStorage.getItem("rcts_citizen");
+        const citizen = stored ? JSON.parse(stored) : {};
+
+        if (!citizen.qcitizen_id) {
+          output.textContent =
+            '❌ ERROR: No qcitizen_id in session. Run "Check Now" first.';
+          document
+            .querySelector("#payment-output")
+            .parentElement.classList.add("fail");
+          return;
+        }
+
+        try {
+          output.textContent = `Fetching bills for: ${citizen.qcitizen_id}\n\nWaiting...`;
+          const url = `../../api/endpoints/payment.php?action=get_pending_bills&qcitizen_id=${citizen.qcitizen_id}&t=${Date.now()}`;
+          console.log("URL:", url);
+
+          const res = await fetch(url);
+          const data = await res.json();
+
+          output.textContent = JSON.stringify(data, null, 2);
+          if (data.success && data.data.bills && data.data.bills.length > 0) {
+            document
+              .querySelector("#payment-output")
+              .parentElement.classList.add("success");
+            document
+              .querySelector("#payment-output")
+              .parentElement.classList.remove("fail");
+          } else {
+            document
+              .querySelector("#payment-output")
+              .parentElement.classList.add("fail");
+            document
+              .querySelector("#payment-output")
+              .parentElement.classList.remove("success");
+          }
+        } catch (e) {
+          output.textContent = `❌ ERROR: ${e.message}`;
+          document
+            .querySelector("#payment-output")
+            .parentElement.classList.add("fail");
+        }
+      }
+
+      // Auto-check on load
+      window.addEventListener("load", checkSession);
+    </script>
+  </body>
+</html>

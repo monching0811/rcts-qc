@@ -1,0 +1,526 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>RCTS-QC | Business Tax Integration Tester</title>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=DM+Sans:wght@300;400;500;600&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      :root {
+        --navy: #0a1628;
+        --gold: #c9a84c;
+        --gold2: #e8c878;
+        --white: #ffffff;
+        --green: #2ecc71;
+        --red: #e74c3c;
+        --blue: #3498db;
+        --orange: #f39c12;
+      }
+      * {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+      }
+      body {
+        font-family: "DM Sans", sans-serif;
+        background: #f5f5f5;
+        color: #1a1a1a;
+        padding: 20px;
+      }
+      h1 {
+        font-family: "Playfair Display", serif;
+        color: var(--navy);
+        margin-bottom: 8px;
+      }
+      .subtitle {
+        color: #666;
+        margin-bottom: 24px;
+        font-size: 14px;
+      }
+      .card {
+        background: var(--white);
+        border: 1px solid #e0e0e0;
+        border-radius: 12px;
+        padding: 20px;
+        margin-bottom: 16px;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+      }
+      .card h3 {
+        font-family: "Playfair Display", serif;
+        font-size: 16px;
+        margin-bottom: 12px;
+        padding-bottom: 8px;
+        border-bottom: 1px solid #eee;
+      }
+      .btn {
+        background: linear-gradient(135deg, var(--gold), var(--gold2));
+        border: none;
+        border-radius: 6px;
+        padding: 10px 18px;
+        font-size: 13px;
+        font-weight: 600;
+        color: var(--navy);
+        cursor: pointer;
+        margin-right: 8px;
+        margin-bottom: 8px;
+      }
+      .btn:hover {
+        opacity: 0.9;
+      }
+      .btn-blue {
+        background: linear-gradient(135deg, var(--blue), #5dade2);
+        color: white;
+      }
+      .btn-green {
+        background: linear-gradient(135deg, var(--green), #58d68d);
+        color: white;
+      }
+      .btn-orange {
+        background: linear-gradient(135deg, var(--orange), #f7dc6f);
+        color: var(--navy);
+      }
+      .btn-red {
+        background: linear-gradient(135deg, var(--red), #ec7063);
+        color: white;
+      }
+
+      .output {
+        background: #1e1e1e;
+        color: #d4d4d4;
+        padding: 16px;
+        border-radius: 8px;
+        font-family: "Consolas", monospace;
+        font-size: 12px;
+        white-space: pre-wrap;
+        overflow-x: auto;
+        max-height: 400px;
+        overflow-y: auto;
+      }
+      .output .success {
+        color: var(--green);
+      }
+      .output .error {
+        color: var(--red);
+      }
+      .output .info {
+        color: var(--blue);
+      }
+
+      .step {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        padding: 12px;
+        background: #f9f9f9;
+        border-radius: 8px;
+        margin-bottom: 8px;
+      }
+      .step-num {
+        width: 28px;
+        height: 28px;
+        background: var(--navy);
+        color: var(--gold);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 700;
+        font-size: 14px;
+      }
+      .step.done .step-num {
+        background: var(--green);
+        color: white;
+      }
+      .step-text {
+        flex: 1;
+        font-size: 14px;
+      }
+
+      .flow-diagram {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        padding: 20px;
+        background: linear-gradient(135deg, #f8f9fa, #e9ecef);
+        border-radius: 8px;
+        margin-bottom: 20px;
+        flex-wrap: wrap;
+      }
+      .flow-box {
+        padding: 10px 16px;
+        border-radius: 8px;
+        font-size: 12px;
+        font-weight: 600;
+        text-align: center;
+      }
+      .flow-s2 {
+        background: #3498db;
+        color: white;
+      }
+      .flow-s4 {
+        background: #9b59b6;
+        color: white;
+      }
+      .flow-rcts {
+        background: var(--navy);
+        color: var(--gold);
+      }
+      .flow-pay {
+        background: var(--green);
+        color: white;
+      }
+      .flow-arrow {
+        color: #999;
+        font-size: 20px;
+      }
+
+      .status-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 12px;
+        margin-bottom: 16px;
+      }
+      .status-item {
+        padding: 12px;
+        background: #f9f9f9;
+        border-radius: 8px;
+        border-left: 4px solid #ccc;
+      }
+      .status-item.green {
+        border-left-color: var(--green);
+      }
+      .status-item.red {
+        border-left-color: var(--red);
+      }
+      .status-item.blue {
+        border-left-color: var(--blue);
+      }
+      .status-label {
+        font-size: 11px;
+        color: #666;
+        text-transform: uppercase;
+      }
+      .status-value {
+        font-size: 14px;
+        font-weight: 600;
+        margin-top: 4px;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>🏢 Business Tax Integration Tester</h1>
+    <p class="subtitle">
+      Test the Zero-Touch Business Tax flow: S2 (Permits) → S4 (Health) → RCTS →
+      Payment
+    </p>
+
+    <div class="flow-diagram">
+      <div class="flow-box flow-s2">S2<br />Permits</div>
+      <div class="flow-arrow">→</div>
+      <div class="flow-box flow-s4">S4<br />Health</div>
+      <div class="flow-arrow">→</div>
+      <div class="flow-box flow-rcts">RCTS<br />Billing</div>
+      <div class="flow-arrow">→</div>
+      <div class="flow-box flow-pay">QC-Pay<br />Payment</div>
+    </div>
+
+    <div class="card">
+      <h3>📋 Integration Status</h3>
+      <div class="status-grid">
+        <div class="status-item blue" id="status-s2">
+          <div class="status-label">Subsystem 2 (Permits)</div>
+          <div class="status-value">—</div>
+        </div>
+        <div class="status-item blue" id="status-s4">
+          <div class="status-label">Subsystem 4 (Health)</div>
+          <div class="status-value">—</div>
+        </div>
+        <div class="status-item blue" id="status-rcts">
+          <div class="status-label">RCTS Business Entity</div>
+          <div class="status-value">—</div>
+        </div>
+        <div class="status-item blue" id="status-bill">
+          <div class="status-label">Business Tax Bill</div>
+          <div class="status-value">—</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h3>🧪 Test Actions</h3>
+
+      <div class="step">
+        <div class="step-num">1</div>
+        <div class="step-text">
+          <strong>Sync Business from S2</strong><br />
+          <small
+            >Simulate BPLO approving a business permit and pushing to
+            RCTS</small
+          >
+        </div>
+        <button class="btn btn-blue" onclick="syncFromS2()">
+          Sync from S2
+        </button>
+      </div>
+
+      <div class="step">
+        <div class="step-num">2</div>
+        <div class="step-text">
+          <strong>Push Health Clearance (S4)</strong><br />
+          <small
+            >Simulate Health Dept passing inspection → triggers auto-bill
+            generation</small
+          >
+        </div>
+        <button class="btn btn-green" onclick="pushS4Clearance()">
+          Push S4 Clearance
+        </button>
+      </div>
+
+      <div class="step">
+        <div class="step-num">3</div>
+        <div class="step-text">
+          <strong>Full Auto-Approval Flow</strong><br />
+          <small>Simulate complete S2→S4→RCTS flow with one click</small>
+        </div>
+        <button class="btn btn-orange" onclick="fullApproval()">
+          Full Flow
+        </button>
+      </div>
+
+      <div class="step">
+        <div class="step-num">4</div>
+        <div class="step-text">
+          <strong>Check Current Status</strong><br />
+          <small
+            >View all business entities, clearances, and bills in
+            database</small
+          >
+        </div>
+        <button class="btn" onclick="checkStatus()">Check Status</button>
+      </div>
+
+      <div class="step">
+        <div class="step-num">5</div>
+        <div class="step-text">
+          <strong>Reset Test Data</strong><br />
+          <small>Clear test records to start fresh</small>
+        </div>
+        <button class="btn btn-red" onclick="resetData()">Reset</button>
+      </div>
+    </div>
+
+    <div class="card">
+      <h3>📤 API Response</h3>
+      <div class="output" id="output">Click a test button to run...</div>
+    </div>
+
+    <script>
+      const API_BASE = "../api/endpoints";
+
+      function log(msg, type = "") {
+        const out = document.getElementById("output");
+        const cls =
+          type === "error"
+            ? "error"
+            : type === "success"
+              ? "success"
+              : type === "info"
+                ? "info"
+                : "";
+        out.innerHTML += `<span class="${cls}">${msg}</span>\n`;
+        out.scrollTop = out.scrollHeight;
+      }
+
+      function clearLog() {
+        document.getElementById("output").innerHTML = "";
+      }
+
+      async function syncFromS2() {
+        clearLog();
+        log("🔄 Syncing business from Subsystem 2 (Permits)...", "info");
+
+        try {
+          const res = await fetch(
+            `../mock-data/subsystem2/permits-api.php?action=sync_all`,
+          );
+          const data = await res.json();
+
+          log("✅ S2 Response:", "success");
+          log(JSON.stringify(data, null, 2));
+
+          document.querySelector("#status-s2 .status-value").textContent =
+            data.synced + " synced";
+          document.querySelector("#status-s2").classList.add("green");
+
+          // Check RCTS
+          checkStatus();
+        } catch (e) {
+          log("❌ Error: " + e.message, "error");
+        }
+      }
+
+      async function pushS4Clearance() {
+        clearLog();
+        log("🔄 Pushing Health Clearance from Subsystem 4...", "info");
+
+        try {
+          // Push clearance directly to RCTS
+          const payload = {
+            source: "S4-Clearances",
+            action: "s4_clearance_passed",
+            clearance_ref_id: "CLR-TEST-" + Date.now(),
+            business_bin: "BIN-QC-2024-001",
+            qcitizen_id: "QC-2024-000001",
+            clearance_type: "Health",
+            status_flag: "Passed",
+            inspection_date: new Date().toISOString(),
+            inspector_name: "Dr. Reyes - QC Health Dept",
+          };
+
+          const res = await fetch(
+            `${API_BASE}/inbound.php?action=s4_clearance_passed`,
+            {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+                "X-API-Key": "DEV-BYPASS-KEY-LOCAL",
+              },
+              body: JSON.stringify(payload),
+            },
+          );
+
+          const data = await res.json();
+
+          log("✅ S4 Clearance Response:", "success");
+          log(JSON.stringify(data, null, 2));
+
+          document.querySelector("#status-s4 .status-value").textContent =
+            "Passed";
+          document.querySelector("#status-s4").classList.add("green");
+
+          // Check if bill was generated
+          setTimeout(checkStatus, 500);
+        } catch (e) {
+          log("❌ Error: " + e.message, "error");
+        }
+      }
+
+      async function fullApproval() {
+        clearLog();
+        log("🚀 Running FULL Zero-Touch Approval Flow...", "info");
+        log("Step 1: S2 approves → RCTS receives business", "info");
+
+        try {
+          // Use the simulate_full_approval endpoint
+          const res = await fetch(
+            `${API_BASE}/business-tax.php?action=simulate_full_approval`,
+            {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+                "X-API-Key": "DEV-BYPASS-KEY-LOCAL",
+              },
+              body: JSON.stringify({
+                bin_number: "BIN-QC-2024-TEST",
+                qcitizen_id: "QC-2024-000001",
+              }),
+            },
+          );
+
+          const data = await res.json();
+
+          log("✅ Full Flow Result:", "success");
+          log(JSON.stringify(data, null, 2));
+
+          // Update status
+          document.querySelector("#status-s2 .status-value").textContent =
+            "Approved";
+          document.querySelector("#status-s2").classList.add("green");
+
+          document.querySelector("#status-s4 .status-value").textContent =
+            "Passed (2)";
+          document.querySelector("#status-s4").classList.add("green");
+
+          document.querySelector("#status-rcts .status-value").textContent =
+            "Created";
+          document.querySelector("#status-rcts").classList.add("green");
+
+          document.querySelector("#status-bill .status-value").textContent =
+            "Generated";
+          document.querySelector("#status-bill").classList.add("green");
+
+          log("\n🎉 ZERO-TOUCH SUCCESS!", "success");
+          log("The system automatically:", "success");
+          log("  1. Received business data from S2", "success");
+          log("  2. Received clearance PASS from S4", "success");
+          log("  3. Auto-generated Unified Order of Payment", "success");
+          log("\n💳 The citizen can now pay via the Payment Gateway!");
+        } catch (e) {
+          log("❌ Error: " + e.message, "error");
+        }
+      }
+
+      async function checkStatus() {
+        clearLog();
+        log("🔍 Checking Integration Status...", "info");
+
+        try {
+          const res = await fetch(
+            `${API_BASE}/business-tax.php?action=test_flow&qcitizen_id=QC-2024-000001`,
+          );
+          const data = await res.json();
+
+          log("✅ Status Data:", "success");
+          log(JSON.stringify(data, null, 2));
+
+          // Update UI
+          if (data.business_found) {
+            document.querySelector("#status-rcts .status-value").textContent =
+              "Found";
+            document.querySelector("#status-rcts").classList.add("green");
+          }
+
+          const clearances = data.clearances || [];
+          const passed = clearances.filter(
+            (c) => c.status_flag === "Passed",
+          ).length;
+          if (passed > 0) {
+            document.querySelector("#status-s4 .status-value").textContent =
+              `${passed} Passed`;
+            document.querySelector("#status-s4").classList.add("green");
+          }
+
+          const bills = data.bills || [];
+          if (bills.length > 0) {
+            const pending = bills.filter((b) => b.status === "Pending");
+            if (pending.length > 0) {
+              document.querySelector("#status-bill .status-value").textContent =
+                `${pending.length} Pending`;
+              document.querySelector("#status-bill").classList.add("green");
+            }
+          }
+        } catch (e) {
+          log("❌ Error: " + e.message, "error");
+        }
+      }
+
+      async function resetData() {
+        clearLog();
+        log("⚠️ Reset is not fully implemented in this test.", "info");
+        log(
+          "To reset, you would need to delete test records from Supabase.",
+          "info",
+        );
+        log("\n💡 For testing, use different BIN numbers each time.", "info");
+      }
+
+      // Initial check
+      checkStatus();
+    </script>
+  </body>
+</html>

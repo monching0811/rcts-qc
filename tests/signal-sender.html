@@ -1,0 +1,906 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1.0" />
+    <title>RCTS-QC | Integration Signal Sender</title>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=DM+Sans:wght@300;400;500;600&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      :root {
+        --navy: #0a1628;
+        --navy2: #112240;
+        --gold: #c9a84c;
+        --gold2: #e8c878;
+        --white: #f5f3ee;
+        --muted: #8892a4;
+        --green: #2ecc71;
+        --red: #e74c3c;
+        --orange: #f39c12;
+        --blue: #3498db;
+        --purple: #a29bfe;
+      }
+      *,
+      *::before,
+      *::after {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+      }
+      body {
+        font-family: "DM Sans", sans-serif;
+        background: var(--navy);
+        color: var(--white);
+        min-height: 100vh;
+      }
+      body::before {
+        content: "";
+        position: fixed;
+        inset: 0;
+        background-image: repeating-linear-gradient(
+          45deg,
+          transparent,
+          transparent 40px,
+          rgba(201, 168, 76, 0.03) 40px,
+          rgba(201, 168, 76, 0.03) 41px
+        );
+        pointer-events: none;
+        z-index: 0;
+      }
+      header {
+        position: relative;
+        z-index: 10;
+        background: var(--navy2);
+        border-bottom: 2px solid var(--gold);
+        padding: 16px 32px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+      }
+      .brand {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+      }
+      .seal {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        background: linear-gradient(135deg, var(--gold), var(--gold2));
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 15px;
+        font-weight: 700;
+        color: var(--navy);
+        font-family: "Playfair Display", serif;
+      }
+      .brand h1 {
+        font-family: "Playfair Display", serif;
+        font-size: 19px;
+      }
+      .brand p {
+        font-size: 11px;
+        color: var(--muted);
+        margin-top: 2px;
+      }
+      .dev-badge {
+        font-size: 10px;
+        padding: 4px 12px;
+        border-radius: 8px;
+        background: rgba(231, 76, 60, 0.15);
+        border: 1px solid rgba(231, 76, 60, 0.3);
+        color: var(--red);
+        font-weight: 700;
+        letter-spacing: 0.07em;
+      }
+      main {
+        position: relative;
+        z-index: 10;
+        max-width: 1100px;
+        margin: 0 auto;
+        padding: 28px;
+      }
+      .intro {
+        background: rgba(243, 156, 18, 0.06);
+        border: 1px solid rgba(243, 156, 18, 0.2);
+        border-radius: 10px;
+        padding: 14px 18px;
+        font-size: 13px;
+        color: var(--orange);
+        line-height: 1.7;
+        margin-bottom: 24px;
+      }
+      .intro strong {
+        color: var(--gold2);
+      }
+      /* Subsystem grid */
+      .ss-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(340px, 1fr));
+        gap: 18px;
+        margin-bottom: 24px;
+      }
+      .ss-card {
+        background: rgba(17, 34, 64, 0.75);
+        border: 1px solid rgba(201, 168, 76, 0.12);
+        border-radius: 12px;
+        overflow: hidden;
+      }
+      .ss-header {
+        padding: 14px 18px;
+        border-bottom: 1px solid rgba(201, 168, 76, 0.1);
+        display: flex;
+        align-items: center;
+        gap: 10px;
+      }
+      .ss-icon {
+        width: 34px;
+        height: 34px;
+        border-radius: 8px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 16px;
+        flex-shrink: 0;
+      }
+      .ss-info h3 {
+        font-family: "Playfair Display", serif;
+        font-size: 14px;
+      }
+      .ss-info p {
+        font-size: 11px;
+        color: var(--muted);
+        margin-top: 1px;
+      }
+      .ss-actions {
+        padding: 14px 18px;
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+      }
+      .action-row {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 10px;
+      }
+      .action-label {
+        font-size: 12px;
+        flex: 1;
+        line-height: 1.4;
+      }
+      .action-label .desc {
+        font-size: 11px;
+        color: var(--muted);
+        margin-top: 2px;
+      }
+      .btn-send {
+        border: none;
+        border-radius: 7px;
+        padding: 7px 16px;
+        font-family: "DM Sans", sans-serif;
+        font-size: 11px;
+        font-weight: 700;
+        cursor: pointer;
+        white-space: nowrap;
+        transition:
+          opacity 0.2s,
+          transform 0.15s;
+        flex-shrink: 0;
+      }
+      .btn-send:hover {
+        opacity: 0.85;
+        transform: translateY(-1px);
+      }
+      .btn-send:disabled {
+        opacity: 0.35;
+        cursor: not-allowed;
+        transform: none;
+      }
+      .btn-green {
+        background: rgba(46, 204, 113, 0.2);
+        border: 1px solid rgba(46, 204, 113, 0.35);
+        color: var(--green);
+      }
+      .btn-red {
+        background: rgba(231, 76, 60, 0.2);
+        border: 1px solid rgba(231, 76, 60, 0.35);
+        color: var(--red);
+      }
+      .btn-gold {
+        background: linear-gradient(135deg, var(--gold), var(--gold2));
+        color: var(--navy);
+      }
+      .btn-orange {
+        background: rgba(243, 156, 18, 0.2);
+        border: 1px solid rgba(243, 156, 18, 0.35);
+        color: var(--orange);
+      }
+      .btn-blue {
+        background: rgba(52, 152, 219, 0.2);
+        border: 1px solid rgba(52, 152, 219, 0.35);
+        color: #74b9ff;
+      }
+      .btn-purple {
+        background: rgba(162, 155, 254, 0.2);
+        border: 1px solid rgba(162, 155, 254, 0.35);
+        color: var(--purple);
+      }
+      /* Param row */
+      .param-row {
+        display: flex;
+        gap: 6px;
+        align-items: center;
+        flex-wrap: wrap;
+        margin-top: 4px;
+      }
+      .param-row label {
+        font-size: 10px;
+        color: var(--muted);
+        white-space: nowrap;
+      }
+      .param-row select,
+      .param-row input {
+        background: rgba(10, 22, 40, 0.7);
+        border: 1px solid rgba(201, 168, 76, 0.18);
+        border-radius: 5px;
+        padding: 4px 8px;
+        color: var(--white);
+        font-family: "DM Sans", sans-serif;
+        font-size: 11px;
+        outline: none;
+        max-width: 160px;
+      }
+      /* Response log */
+      .log-panel {
+        background: rgba(10, 22, 40, 0.8);
+        border: 1px solid rgba(201, 168, 76, 0.1);
+        border-radius: 12px;
+        overflow: hidden;
+      }
+      .log-header {
+        padding: 12px 18px;
+        border-bottom: 1px solid rgba(201, 168, 76, 0.1);
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+      }
+      .log-header h3 {
+        font-family: "Playfair Display", serif;
+        font-size: 15px;
+      }
+      .btn-clear {
+        background: none;
+        border: 1px solid rgba(231, 76, 60, 0.25);
+        border-radius: 6px;
+        padding: 4px 11px;
+        font-size: 11px;
+        color: var(--red);
+        cursor: pointer;
+        font-family: "DM Sans", sans-serif;
+      }
+      #log-entries {
+        max-height: 420px;
+        overflow-y: auto;
+        padding: 14px 18px;
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+      }
+      .log-entry {
+        border-radius: 8px;
+        padding: 12px 14px;
+        font-size: 12px;
+        font-family: "DM Sans", sans-serif;
+        border: 1px solid;
+      }
+      .log-entry.success {
+        background: rgba(46, 204, 113, 0.07);
+        border-color: rgba(46, 204, 113, 0.2);
+      }
+      .log-entry.error {
+        background: rgba(231, 76, 60, 0.07);
+        border-color: rgba(231, 76, 60, 0.2);
+      }
+      .log-entry.info {
+        background: rgba(52, 152, 219, 0.07);
+        border-color: rgba(52, 152, 219, 0.2);
+      }
+      .log-ts {
+        font-size: 10px;
+        color: var(--muted);
+        margin-bottom: 4px;
+      }
+      .log-title {
+        font-weight: 700;
+        margin-bottom: 6px;
+      }
+      .log-title.success {
+        color: var(--green);
+      }
+      .log-title.error {
+        color: var(--red);
+      }
+      .log-title.info {
+        color: #74b9ff;
+      }
+      .log-body {
+        font-family: "Courier New", monospace;
+        font-size: 10px;
+        color: var(--muted);
+        white-space: pre-wrap;
+        word-break: break-all;
+        max-height: 120px;
+        overflow-y: auto;
+        line-height: 1.5;
+      }
+      .log-empty {
+        text-align: center;
+        padding: 32px;
+        color: var(--muted);
+        font-size: 13px;
+      }
+      /* Counter strip */
+      .counter-strip {
+        display: grid;
+        grid-template-columns: repeat(6, 1fr);
+        gap: 10px;
+        margin-bottom: 22px;
+      }
+      .counter {
+        background: rgba(17, 34, 64, 0.7);
+        border: 1px solid rgba(201, 168, 76, 0.1);
+        border-radius: 8px;
+        padding: 10px;
+        text-align: center;
+      }
+      .counter .val {
+        font-family: "Playfair Display", serif;
+        font-size: 18px;
+        transition: color 0.3s;
+      }
+      .counter .lbl {
+        font-size: 9px;
+        color: var(--muted);
+        text-transform: uppercase;
+        letter-spacing: 0.07em;
+        margin-top: 2px;
+      }
+    </style>
+  </head>
+  <body>
+    <header>
+      <div class="brand">
+        <div class="seal">QC</div>
+        <div>
+          <h1>RCTS-QC Integration Signal Sender</h1>
+          <p>Department 8 — Simulate signals from all integrated subsystems</p>
+        </div>
+      </div>
+      <div style="display: flex; align-items: center; gap: 10px">
+        <a
+          href="../index.html"
+          style="font-size: 12px; color: var(--muted); text-decoration: none"
+          >← Back to Portal</a
+        >
+        <span class="dev-badge">DEV / TEST MODE</span>
+      </div>
+    </header>
+
+    <main>
+      <div class="intro">
+        <strong>What is this?</strong> This page simulates the 6 external
+        subsystems that send signals <em>into</em> RCTS-QC via
+        <code>inbound.php</code>. In the real system, each subsystem would be a
+        separate server posting webhooks automatically. Here you can trigger
+        each signal manually to demo the full integration flow in real time —
+        fire a signal, then switch to the Treasurer or Citizen portal to see it
+        reflected.
+      </div>
+
+      <!-- Signal counters -->
+      <div class="counter-strip">
+        <div class="counter">
+          <div class="val" id="c-s3" style="color: var(--green)">0</div>
+          <div class="lbl">S3 Social</div>
+        </div>
+        <div class="counter">
+          <div class="val" id="c-s4" style="color: var(--blue)">0</div>
+          <div class="lbl">S4 Clearance</div>
+        </div>
+        <div class="counter">
+          <div class="val" id="c-s5" style="color: var(--gold)">0</div>
+          <div class="lbl">S5 Scholarship</div>
+        </div>
+        <div class="counter">
+          <div class="val" id="c-s6" style="color: var(--red)">0</div>
+          <div class="lbl">S6 DRRM</div>
+        </div>
+        <div class="counter">
+          <div class="val" id="c-s9" style="color: var(--orange)">0</div>
+          <div class="lbl">S9 Traffic</div>
+        </div>
+        <div class="counter">
+          <div class="val" id="c-s10" style="color: var(--purple)">0</div>
+          <div class="lbl">S10 Assets</div>
+        </div>
+      </div>
+
+      <div class="ss-grid">
+        <!-- S3 Social Services -->
+        <div class="ss-card">
+          <div class="ss-header">
+            <div class="ss-icon" style="background: rgba(46, 204, 113, 0.12)">
+              🏥
+            </div>
+            <div class="ss-info">
+              <h3>Subsystem 3 — Social Services & AICS</h3>
+              <p>Push aid payout requests to RCTS disbursement queue</p>
+            </div>
+          </div>
+          <div class="ss-actions">
+            <div class="action-row">
+              <div class="action-label">
+                Push AICS Emergency Cash batch (3 recipients, ₱3,000 each)
+                <div class="desc">
+                  → Creates Pending disbursements for AICS-2025-001
+                </div>
+              </div>
+              <button
+                class="btn-send btn-green"
+                onclick="send('S3', 'push_to_rcts', 's3')"
+              >
+                Send ↗
+              </button>
+            </div>
+            <div class="action-row">
+              <div class="action-label">
+                Check current payout list
+                <div class="desc">→ Shows what S3 has queued up</div>
+              </div>
+              <button
+                class="btn-send btn-blue"
+                onclick="
+                  fetch(
+                    '../mock-data/subsystem3/social-aid-api.php?action=get_payout_list',
+                  )
+                    .then((r) => r.json())
+                    .then((d) => log('S3 Payout List', d, 'info'))
+                "
+              >
+                Preview
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- S4 Business Clearances -->
+        <div class="ss-card">
+          <div class="ss-header">
+            <div class="ss-icon" style="background: rgba(52, 152, 219, 0.12)">
+              📋
+            </div>
+            <div class="ss-info">
+              <h3>Subsystem 4 — Business Clearances</h3>
+              <p>
+                Push inspection results — triggers auto Unified OP when all pass
+              </p>
+            </div>
+          </div>
+          <div class="ss-actions">
+            <div class="action-row">
+              <div class="action-label">
+                Send clearance result
+                <div class="param-row">
+                  <label>BIN:</label>
+                  <select id="s4-bin">
+                    <option value="BIN-QC-2024-001">
+                      BIN-QC-2024-001 (Dela Cruz)
+                    </option>
+                    <option value="BIN-QC-2024-002">
+                      BIN-QC-2024-002 (Santos)
+                    </option>
+                  </select>
+                  <label>Type:</label>
+                  <select id="s4-type">
+                    <option value="Fire">Fire</option>
+                    <option value="Health">Health</option>
+                    <option value="Sanitary">Sanitary</option>
+                  </select>
+                  <label>Result:</label>
+                  <select id="s4-status">
+                    <option value="Passed">Passed</option>
+                    <option value="Failed">Failed</option>
+                  </select>
+                </div>
+              </div>
+              <button class="btn-send btn-blue" onclick="sendClearance()">
+                Send ↗
+              </button>
+            </div>
+            <div class="action-row">
+              <div class="action-label">
+                Push all existing clearances (S4 DB sync)
+                <div class="desc">→ Refreshes clearance statuses in RCTS</div>
+              </div>
+              <button
+                class="btn-send btn-green"
+                onclick="send('S4', 'push_all_clearances', 's4')"
+              >
+                Sync All
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- S5 Scholarship -->
+        <div class="ss-card">
+          <div class="ss-header">
+            <div class="ss-icon" style="background: rgba(201, 168, 76, 0.12)">
+              🎓
+            </div>
+            <div class="ss-info">
+              <h3>Subsystem 5 — Education / Scholarship</h3>
+              <p>Push QC-Iskolar stipend payroll to RCTS disbursement queue</p>
+            </div>
+          </div>
+          <div class="ss-actions">
+            <div class="action-row">
+              <div class="action-label">
+                Push QCS-2025-BATCH1 stipend (4 scholars, ₱6,000 each)
+                <div class="desc">
+                  → Creates Pending disbursements for QCS-2025-BATCH1
+                </div>
+              </div>
+              <button
+                class="btn-send btn-gold"
+                onclick="send('S5', 'push_to_rcts', 's5')"
+              >
+                Send ↗
+              </button>
+            </div>
+            <div class="action-row">
+              <div class="action-label">
+                Preview scholar list
+                <div class="desc">→ See who is in this batch</div>
+              </div>
+              <button
+                class="btn-send btn-blue"
+                onclick="
+                  fetch(
+                    '../mock-data/subsystem5/scholarship-api.php?action=get_scholars',
+                  )
+                    .then((r) => r.json())
+                    .then((d) => log('S5 Scholar List', d, 'info'))
+                "
+              >
+                Preview
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- S6 DRRM -->
+        <div class="ss-card">
+          <div class="ss-header">
+            <div class="ss-icon" style="background: rgba(231, 76, 60, 0.12)">
+              🆘
+            </div>
+            <div class="ss-info">
+              <h3>Subsystem 6 — DRRM / QRF</h3>
+              <p>Declare disaster → unlocks QRF → push Emergency payouts</p>
+            </div>
+          </div>
+          <div class="ss-actions">
+            <div class="action-row">
+              <div class="action-label">
+                🔴 Declare disaster (Typhoon Quezon)
+                <div class="desc">→ Sets QRF status to Active in RCTS</div>
+              </div>
+              <button
+                class="btn-send btn-red"
+                onclick="send('S6', 'declare_disaster', 's6')"
+              >
+                Declare ↗
+              </button>
+            </div>
+            <div class="action-row">
+              <div class="action-label">
+                Push Emergency QRF payout list (4 recipients, ₱5,000 each)
+                <div class="desc">
+                  → Creates Emergency-priority disbursements
+                </div>
+              </div>
+              <button
+                class="btn-send btn-orange"
+                onclick="send('S6', 'push_qrf_payout', 's6')"
+              >
+                Send Payout ↗
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- S9 Traffic -->
+        <div class="ss-card">
+          <div class="ss-header">
+            <div class="ss-icon" style="background: rgba(243, 156, 18, 0.12)">
+              🚦
+            </div>
+            <div class="ss-info">
+              <h3>Subsystem 9 — Traffic Violations</h3>
+              <p>Issue traffic tickets — creates billing bills in RCTS</p>
+            </div>
+          </div>
+          <div class="ss-actions">
+            <div class="action-row">
+              <div class="action-label">
+                Issue a violation ticket
+                <div class="param-row">
+                  <label>Ticket:</label>
+                  <select id="s9-ticket">
+                    <option value="TKT-20250115-001">
+                      TKT-001 — Reckless Driving ₱2,000
+                    </option>
+                    <option value="TKT-20250115-002">
+                      TKT-002 — No Registration ₱1,500
+                    </option>
+                    <option value="TKT-20250116-001">
+                      TKT-003 — Illegal Parking ₱500
+                    </option>
+                    <option value="TKT-20250116-002">
+                      TKT-004 — Colorum ₱5,000
+                    </option>
+                  </select>
+                </div>
+              </div>
+              <button class="btn-send btn-orange" onclick="sendViolation()">
+                Issue ↗
+              </button>
+            </div>
+            <div class="action-row">
+              <div class="action-label">
+                Push ALL pending violation tickets
+                <div class="desc">→ Creates 4 traffic fine bills in RCTS</div>
+              </div>
+              <button
+                class="btn-send btn-orange"
+                onclick="send('S9', 'push_violation', 's9')"
+              >
+                Push All ↗
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- S10 Public Assets -->
+        <div class="ss-card">
+          <div class="ss-header">
+            <div class="ss-icon" style="background: rgba(162, 155, 254, 0.12)">
+              📡
+            </div>
+            <div class="ss-info">
+              <h3>Subsystem 10 — Public Assets / Market</h3>
+              <p>IoT/QR occupancy verification — triggers auto-invoicing</p>
+            </div>
+          </div>
+          <div class="ss-actions">
+            <div class="action-row">
+              <div class="action-label">
+                Update stall occupancy
+                <div class="param-row">
+                  <label>Stall:</label>
+                  <select id="s10-stall">
+                    <option value="STL-QC-2024-001">
+                      STL-001 Novaliches (Juan)
+                    </option>
+                    <option value="STL-QC-2024-002">
+                      STL-002 Novaliches (Maria)
+                    </option>
+                    <option value="STL-QC-2024-003">
+                      STL-003 Fairview (Pedro)
+                    </option>
+                    <option value="STL-QC-2024-004">
+                      STL-004 Cubao (Vacant)
+                    </option>
+                    <option value="STL-QC-2024-005">
+                      STL-005 Cubao (Cynthia)
+                    </option>
+                    <option value="STL-QC-2024-006">
+                      STL-006 Fairview (Repair)
+                    </option>
+                  </select>
+                  <label>Status:</label>
+                  <select id="s10-status">
+                    <option value="Active">Active</option>
+                    <option value="Vacant">Vacant</option>
+                    <option value="UnderRepair">Under Repair</option>
+                  </select>
+                  <label>Via:</label>
+                  <select id="s10-method">
+                    <option value="IoT">IoT</option>
+                    <option value="QR">QR</option>
+                    <option value="MobileApp">App</option>
+                    <option value="Manual">Manual</option>
+                  </select>
+                </div>
+              </div>
+              <button class="btn-send btn-purple" onclick="sendOccupancy()">
+                Send ↗
+              </button>
+            </div>
+            <div class="action-row">
+              <div class="action-label">
+                Push ALL active stall signals (IoT daily sweep)
+                <div class="desc">
+                  → Updates all 5 active stalls, triggers auto-invoicing
+                </div>
+              </div>
+              <button
+                class="btn-send btn-purple"
+                onclick="send('S10', 'push_all_active', 's10')"
+              >
+                Sweep All ↗
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+      <!-- end ss-grid -->
+
+      <!-- Response log -->
+      <div class="log-panel">
+        <div class="log-header">
+          <h3>
+            📡 Response Log
+            <span
+              id="log-count"
+              style="
+                font-size: 12px;
+                color: var(--muted);
+                font-family: &quot;DM Sans&quot;, sans-serif;
+                font-weight: 400;
+              "
+              >(0 signals)</span
+            >
+          </h3>
+          <button class="btn-clear" onclick="clearLog()">Clear Log</button>
+        </div>
+        <div id="log-entries">
+          <div class="log-empty">
+            No signals sent yet. Fire one above to see the live response.
+          </div>
+        </div>
+      </div>
+    </main>
+
+    <script>
+      const counters = { s3: 0, s4: 0, s5: 0, s6: 0, s9: 0, s10: 0 };
+      const BASE = "../";
+
+      function log(title, data, type = "success") {
+        const empty = document.querySelector(".log-empty");
+        if (empty) empty.remove();
+        const entries = document.getElementById("log-entries");
+        const el = document.createElement("div");
+        el.className = "log-entry " + type;
+        const ok = data?.success !== false;
+        el.innerHTML = `
+    <div class="log-ts">${new Date().toLocaleTimeString("en-PH", { hour: "2-digit", minute: "2-digit", second: "2-digit" })}</div>
+    <div class="log-title ${ok ? "success" : "error"}">${ok ? "✅" : "❌"} ${title}</div>
+    <div class="log-body">${JSON.stringify(data, null, 2)}</div>`;
+        entries.prepend(el);
+        const count = entries.querySelectorAll(".log-entry").length;
+        document.getElementById("log-count").textContent =
+          `(${count} signal${count !== 1 ? "s" : ""})`;
+      }
+
+      function incCounter(ss) {
+        counters[ss]++;
+        const el = document.getElementById("c-" + ss);
+        if (el) el.textContent = counters[ss];
+      }
+
+      function disableBtn(btn, ms = 2500) {
+        btn.disabled = true;
+        setTimeout(() => (btn.disabled = false), ms);
+      }
+
+      async function send(subsystem, action, counterKey) {
+        const urlMap = {
+          S3: `mock-data/subsystem3/social-aid-api.php?action=${action}`,
+          S4: `mock-data/subsystem4/clearance-api.php?action=${action}`,
+          S5: `mock-data/subsystem5/scholarship-api.php?action=${action}`,
+          S6: `mock-data/subsystem6/drrm-api.php?action=${action}`,
+          S9: `mock-data/subsystem9/traffic-api.php?action=${action}`,
+          S10: `mock-data/subsystem10/public-assets-api.php?action=${action}`,
+        };
+        const url = BASE + urlMap[subsystem];
+        try {
+          const res = await fetch(url);
+          const data = await res.json();
+          log(
+            `${subsystem} → ${action}`,
+            data,
+            data.success ? "success" : "error",
+          );
+          incCounter(counterKey);
+        } catch (e) {
+          log(
+            `${subsystem} → ${action} (Error)`,
+            {
+              success: false,
+              message: e.message,
+              tip: "Is XAMPP running? Check that Apache is on.",
+            },
+            "error",
+          );
+        }
+      }
+
+      async function sendClearance() {
+        const bin = document.getElementById("s4-bin").value;
+        const type = document.getElementById("s4-type").value;
+        const status = document.getElementById("s4-status").value;
+        const url = `${BASE}mock-data/subsystem4/clearance-api.php?action=push_clearance&bin_number=${encodeURIComponent(bin)}&clearance_type=${type}&status=${status}`;
+        try {
+          const res = await fetch(url);
+          const data = await res.json();
+          log(
+            `S4 → clearance_${status.toLowerCase()} (${type} for ${bin})`,
+            data,
+            data.success ? "success" : "error",
+          );
+          incCounter("s4");
+        } catch (e) {
+          log("S4 Error", { success: false, message: e.message }, "error");
+        }
+      }
+
+      async function sendViolation() {
+        const ticket = document.getElementById("s9-ticket").value;
+        const url = `${BASE}mock-data/subsystem9/traffic-api.php?action=push_violation&ticket_number=${encodeURIComponent(ticket)}`;
+        try {
+          const res = await fetch(url);
+          const data = await res.json();
+          log(
+            `S9 → violation_issued (${ticket})`,
+            data,
+            data.success ? "success" : "error",
+          );
+          incCounter("s9");
+        } catch (e) {
+          log("S9 Error", { success: false, message: e.message }, "error");
+        }
+      }
+
+      async function sendOccupancy() {
+        const stall = document.getElementById("s10-stall").value;
+        const status = document.getElementById("s10-status").value;
+        const method = document.getElementById("s10-method").value;
+        const url = `${BASE}mock-data/subsystem10/public-assets-api.php?action=push_occupancy&stall_asset_id=${encodeURIComponent(stall)}&occupancy_status_flag=${status}&verification_method=${method}`;
+        try {
+          const res = await fetch(url);
+          const data = await res.json();
+          log(
+            `S10 → occupancy_update (${stall}: ${status} via ${method})`,
+            data,
+            data.success ? "success" : "error",
+          );
+          incCounter("s10");
+        } catch (e) {
+          log("S10 Error", { success: false, message: e.message }, "error");
+        }
+      }
+
+      function clearLog() {
+        document.getElementById("log-entries").innerHTML =
+          '<div class="log-empty">Log cleared.</div>';
+        document.getElementById("log-count").textContent = "(0 signals)";
+      }
+    </script>
+  </body>
+</html>

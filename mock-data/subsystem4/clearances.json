@@ -1,0 +1,64 @@
+{
+  "clearances": [
+    {
+      "bin_number": "BIN-QC-2024-RAVEN-001",
+      "qcitizen_id": "92be37af-7c34-4c9b-80cb-47cde7c3a9fd",
+      "business_name": "Raven's Tech Hub",
+      "clearance_type": "Health",
+      "clearance_status": "Passed",
+      "issued_by": "QC Health Dept",
+      "inspection_date": "2024-02-01",
+      "valid_until": "2025-12-31"
+    },
+    {
+      "bin_number": "BIN-QC-2024-RAVEN-001",
+      "qcitizen_id": "92be37af-7c34-4c9b-80cb-47cde7c3a9fd",
+      "business_name": "Raven's Tech Hub",
+      "clearance_type": "Sanitary",
+      "clearance_status": "Passed",
+      "issued_by": "QC Sanitation Office",
+      "inspection_date": "2024-02-01",
+      "valid_until": "2025-12-31"
+    },
+    {
+      "bin_number": "BIN-QC-2024-RAVEN-001",
+      "qcitizen_id": "92be37af-7c34-4c9b-80cb-47cde7c3a9fd",
+      "business_name": "Raven's Tech Hub",
+      "clearance_type": "Fire",
+      "clearance_status": "Passed",
+      "issued_by": "BFP-QC",
+      "inspection_date": "2024-02-02",
+      "valid_until": "2025-12-31"
+    },
+    {
+      "bin_number": "BIN-QC-2024-RAVEN-002",
+      "qcitizen_id": "92be37af-7c34-4c9b-80cb-47cde7c3a9fd",
+      "business_name": "Raven's Cafe & Bakery",
+      "clearance_type": "Health",
+      "clearance_status": "Passed",
+      "issued_by": "QC Health Dept",
+      "inspection_date": "2024-02-15",
+      "valid_until": "2025-12-31"
+    },
+    {
+      "bin_number": "BIN-QC-2024-RAVEN-002",
+      "qcitizen_id": "92be37af-7c34-4c9b-80cb-47cde7c3a9fd",
+      "business_name": "Raven's Cafe & Bakery",
+      "clearance_type": "Sanitary",
+      "clearance_status": "Passed",
+      "issued_by": "QC Sanitation Office",
+      "inspection_date": "2024-02-15",
+      "valid_until": "2025-12-31"
+    },
+    {
+      "bin_number": "BIN-QC-2024-RAVEN-002",
+      "qcitizen_id": "92be37af-7c34-4c9b-80cb-47cde7c3a9fd",
+      "business_name": "Raven's Cafe & Bakery",
+      "clearance_type": "Fire",
+      "clearance_status": "Passed",
+      "issued_by": "BFP-QC",
+      "inspection_date": "2024-02-16",
+      "valid_until": "2025-12-31"
+    }
+  ]
+}

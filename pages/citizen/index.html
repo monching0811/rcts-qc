@@ -1,0 +1,513 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>RCTS-QC | Citizen Portal</title>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=DM+Sans:wght@300;400;500;600&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      :root {
+        --navy: #0a1628;
+        --navy2: #112240;
+        --gold: #c9a84c;
+        --gold2: #e8c878;
+        --white: #ffffff;
+        --black: #000000;
+        --text-dark: #1a1a1a;
+        --text-gray: #555555;
+        --muted: #666666;
+        --green: #2ecc71;
+        --blue: #3498db;
+      }
+      *,
+      *::before,
+      *::after {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+      }
+      body {
+        font-family: "DM Sans", sans-serif;
+        background: var(--white);
+        color: var(--text-dark);
+        min-height: 100vh;
+        overflow-x: hidden;
+      }
+      body::before {
+        content: "";
+        position: fixed;
+        inset: 0;
+        background-image:
+          repeating-linear-gradient(
+            45deg,
+            transparent,
+            transparent 40px,
+            rgba(201, 168, 76, 0.05) 40px,
+            rgba(201, 168, 76, 0.05) 41px
+          ),
+          repeating-linear-gradient(
+            -45deg,
+            transparent,
+            transparent 40px,
+            rgba(201, 168, 76, 0.05) 40px,
+            rgba(201, 168, 76, 0.05) 41px
+          );
+        pointer-events: none;
+        z-index: 0;
+      }
+
+      /* TOP BAR */
+      .top-bar {
+        position: relative;
+        z-index: 10;
+        background: var(--gold);
+        padding: 10px 40px;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+      }
+      .top-bar span {
+        font-size: 12px;
+        font-weight: 600;
+        color: var(--navy);
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+      }
+      .top-bar .dot {
+        width: 4px;
+        height: 4px;
+        border-radius: 50%;
+        background: var(--navy);
+        opacity: 0.5;
+      }
+
+      /* HEADER */
+      header {
+        position: relative;
+        z-index: 10;
+        padding: 28px 40px 22px;
+        display: flex;
+        align-items: center;
+        gap: 18px;
+        border-bottom: 2px solid #e0e0e0;
+      }
+      .logo-seal {
+        width: 56px;
+        height: 56px;
+        border-radius: 50%;
+        background: linear-gradient(135deg, var(--gold), var(--gold2));
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 22px;
+        font-weight: 700;
+        color: var(--navy);
+        font-family: "Playfair Display", serif;
+        box-shadow: 0 0 0 3px rgba(201, 168, 76, 0.3);
+        flex-shrink: 0;
+      }
+      .header-text h1 {
+        font-family: "Playfair Display", serif;
+        font-size: 20px;
+        font-weight: 700;
+        line-height: 1.2;
+        color: var(--text-dark);
+      }
+      .header-text p {
+        font-size: 12px;
+        color: var(--text-gray);
+        letter-spacing: 0.1em;
+        text-transform: uppercase;
+        margin-top: 3px;
+      }
+      .header-right {
+        margin-left: auto;
+        text-align: right;
+      }
+      .header-right .date {
+        font-size: 13px;
+        color: var(--text-gray);
+      }
+      .status-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        background: rgba(46, 204, 113, 0.1);
+        border: 1px solid rgba(46, 204, 113, 0.3);
+        border-radius: 20px;
+        padding: 5px 14px;
+        font-size: 12px;
+        color: var(--green);
+        font-weight: 600;
+        letter-spacing: 0.05em;
+        margin-top: 5px;
+      }
+      .status-badge::before {
+        content: "";
+        width: 6px;
+        height: 6px;
+        border-radius: 50%;
+        background: var(--green);
+        animation: pulse 2s infinite;
+      }
+      @keyframes pulse {
+        0%,
+        100% {
+          opacity: 1;
+        }
+        50% {
+          opacity: 0.4;
+        }
+      }
+
+      /* BACK LINK */
+      .back-link-wrap {
+        position: relative;
+        z-index: 10;
+        padding: 16px 40px 0;
+      }
+      .back-link {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        font-size: 13px;
+        color: var(--text-gray);
+        text-decoration: none;
+        font-weight: 500;
+        transition: color 0.2s;
+      }
+      .back-link:hover {
+        color: var(--gold);
+      }
+
+      /* HERO */
+      .hero {
+        position: relative;
+        z-index: 10;
+        text-align: center;
+        padding: 48px 40px 36px;
+      }
+      .hero-label {
+        display: inline-block;
+        border: 1px solid var(--blue);
+        border-radius: 3px;
+        padding: 6px 16px;
+        font-size: 12px;
+        letter-spacing: 0.15em;
+        text-transform: uppercase;
+        color: var(--blue);
+        margin-bottom: 18px;
+        background: rgba(52, 152, 219, 0.05);
+      }
+      .hero h2 {
+        font-family: "Playfair Display", serif;
+        font-size: clamp(24px, 4vw, 44px);
+        font-weight: 700;
+        line-height: 1.2;
+        max-width: 600px;
+        margin: 0 auto 12px;
+        color: var(--text-dark);
+      }
+      .hero h2 span {
+        color: var(--gold);
+      }
+      .hero p {
+        font-size: 15px;
+        color: var(--text-gray);
+        max-width: 480px;
+        margin: 0 auto;
+        line-height: 1.7;
+      }
+
+      /* DIVIDER */
+      .divider {
+        position: relative;
+        z-index: 10;
+        display: flex;
+        align-items: center;
+        gap: 16px;
+        padding: 0 40px;
+        margin-bottom: 32px;
+      }
+      .divider::before,
+      .divider::after {
+        content: "";
+        flex: 1;
+        height: 1px;
+        background: #dddddd;
+      }
+      .divider span {
+        font-size: 12px;
+        letter-spacing: 0.12em;
+        color: var(--text-gray);
+        text-transform: uppercase;
+        white-space: nowrap;
+      }
+
+      /* CARD */
+      .card-wrap {
+        position: relative;
+        z-index: 10;
+        display: flex;
+        justify-content: center;
+        padding: 0 40px 56px;
+      }
+      .portal-card {
+        background: #ffffff;
+        border: 2px solid #e0e0e0;
+        border-radius: 16px;
+        padding: 40px 36px;
+        max-width: 460px;
+        width: 100%;
+        text-decoration: none;
+        color: inherit;
+        display: block;
+        position: relative;
+        overflow: hidden;
+        transition:
+          transform 0.25s,
+          border-color 0.25s,
+          box-shadow 0.25s;
+        opacity: 0;
+        animation: fadeUp 0.5s forwards 0.1s;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+      }
+      .portal-card::before {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 4px;
+        background: linear-gradient(90deg, var(--blue), #74b9ff);
+        transform: scaleX(0);
+        transform-origin: left;
+        transition: transform 0.3s;
+      }
+      .portal-card:hover {
+        transform: translateY(-6px);
+        border-color: var(--blue);
+        box-shadow: 0 12px 32px rgba(0, 0, 0, 0.15);
+      }
+      .portal-card:hover::before {
+        transform: scaleX(1);
+      }
+
+      .card-icon {
+        width: 60px;
+        height: 60px;
+        border-radius: 12px;
+        background: rgba(52, 152, 219, 0.1);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 28px;
+        margin-bottom: 20px;
+      }
+      .card-subtitle {
+        font-size: 12px;
+        color: var(--blue);
+        letter-spacing: 0.09em;
+        text-transform: uppercase;
+        margin-bottom: 10px;
+        font-weight: 600;
+      }
+      .portal-card h3 {
+        font-family: "Playfair Display", serif;
+        font-size: 24px;
+        font-weight: 700;
+        margin-bottom: 10px;
+        color: var(--text-dark);
+      }
+      .portal-card p {
+        font-size: 14px;
+        color: var(--text-gray);
+        line-height: 1.7;
+        margin-bottom: 24px;
+      }
+      .card-features {
+        list-style: none;
+        margin-bottom: 28px;
+      }
+      .card-features li {
+        font-size: 13px;
+        color: var(--text-gray);
+        padding: 6px 0;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+      .card-features li::before {
+        content: "›";
+        color: var(--blue);
+        font-size: 16px;
+        font-weight: bold;
+      }
+      .card-btn {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        background: rgba(52, 152, 219, 0.08);
+        border: 1px solid var(--blue);
+        border-radius: 8px;
+        padding: 14px 18px;
+        font-size: 14px;
+        font-weight: 600;
+        color: var(--blue);
+        letter-spacing: 0.04em;
+        transition: background 0.2s;
+      }
+      .portal-card:hover .card-btn {
+        background: rgba(52, 152, 219, 0.15);
+      }
+
+      /* INFO BAR */
+      .info-bar {
+        position: relative;
+        z-index: 10;
+        border-top: 1px solid #e0e0e0;
+        padding: 24px 40px;
+        display: flex;
+        flex-wrap: wrap;
+        gap: 32px;
+        justify-content: center;
+      }
+      .info-item {
+        text-align: center;
+      }
+      .info-item .val {
+        font-family: "Playfair Display", serif;
+        font-size: 22px;
+        color: var(--gold);
+        font-weight: 700;
+      }
+      .info-item .lbl {
+        font-size: 12px;
+        color: var(--text-gray);
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        margin-top: 4px;
+      }
+
+      /* STAFF LINK */
+      .staff-link-bar {
+        position: relative;
+        z-index: 10;
+        text-align: center;
+        padding: 16px 40px;
+        border-top: 1px solid #e0e0e0;
+        font-size: 13px;
+        color: var(--text-gray);
+      }
+      .staff-link-bar a {
+        color: var(--gold);
+        text-decoration: none;
+        font-weight: 600;
+        transition: opacity 0.2s;
+      }
+      .staff-link-bar a:hover {
+        opacity: 0.75;
+      }
+
+      @keyframes fadeUp {
+        from {
+          opacity: 0;
+          transform: translateY(24px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="top-bar">
+      <span>Republic of the Philippines</span>
+      <div class="dot"></div>
+      <span>Quezon City Government</span>
+      <div class="dot"></div>
+      <span>City Treasurer's Office</span>
+    </div>
+
+    <header>
+      <div class="logo-seal">QC</div>
+      <div class="header-text">
+        <h1>Revenue Collection &amp; Treasury Services</h1>
+        <p>Department 8 — Government Service Management System</p>
+      </div>
+      <div class="header-right">
+        <div class="date" id="live-date"></div>
+        <div class="status-badge">System Online</div>
+      </div>
+    </header>
+
+    <section class="hero">
+      <div class="hero-label">Public Citizen Portal — External Access</div>
+      <h2>Welcome, <span>QCitizen</span></h2>
+      <p>
+        Pay your taxes, view bills, and manage your obligations with the Quezon
+        City Revenue Collection &amp; Treasury Services system.
+      </p>
+    </section>
+
+    <div class="divider"><span>Your Digital Services Portal</span></div>
+
+    <div class="card-wrap">
+      <a class="portal-card" href="login.html">
+        <div class="card-icon">🏛️</div>
+        <div class="card-subtitle">Public Portal · External Access</div>
+        <h3>Enter Citizen Portal</h3>
+        <p>
+          Access your personal tax dashboard, pay Real Property Tax, business
+          permit fees, market stall rentals, and traffic fines — all in one
+          secure portal.
+        </p>
+        <ul class="card-features">
+          <li>Real Property Tax (RPT) Assessment &amp; Payment</li>
+          <li>Business Tax &amp; Regulatory Fees (Unified OP)</li>
+          <li>Market Stall Rental Billing</li>
+          <li>QC-PAY Unified Checkout (GCash, Maya, Landbank)</li>
+          <li>Electronic Official Receipt (e-OR)</li>
+          <li>Transaction History</li>
+        </ul>
+        <div class="card-btn">
+          <span>Sign In with QCitizen ID</span>
+          <span>→</span>
+        </div>
+      </a>
+    </div>
+
+    <div class="info-bar">
+      <div class="info-item">
+        <div class="val">4</div>
+        <div class="lbl">Tax Modules</div>
+      </div>
+      <div class="info-item">
+        <div class="val">24/7</div>
+        <div class="lbl">Portal Availability</div>
+      </div>
+      <div class="info-item">
+        <div class="val">Real-Time</div>
+        <div class="lbl">Payment Confirmation</div>
+      </div>
+      <div class="info-item">
+        <div class="val">e-OR</div>
+        <div class="lbl">Official Receipts</div>
+      </div>
+    </div>
+
+    <script>
+      document.getElementById("live-date").textContent =
+        new Date().toLocaleDateString("en-PH", {
+          weekday: "long",
+          year: "numeric",
+          month: "long",
+          day: "numeric",
+        });
+    </script>
+  </body>
+</html>

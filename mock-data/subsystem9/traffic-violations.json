@@ -1,0 +1,26 @@
+{
+  "violations": [
+    {
+      "ticket_number": "TKT-20260310-RAVEN-001",
+      "plate_number": "RVN-2024",
+      "qcitizen_id": "92be37af-7c34-4c9b-80cb-47cde7c3a9fd",
+      "violation_type": "Expired Registration",
+      "fine_amount": 1500.0,
+      "issued_at": "2026-03-08T14:30:00+00:00",
+      "officer_badge": "QCTO-0042",
+      "location": "EDSA cor. Quezon Ave",
+      "status": "Issued"
+    },
+    {
+      "ticket_number": "TKT-20260312-RAVEN-001",
+      "plate_number": "RVN-2024",
+      "qcitizen_id": "92be37af-7c34-4c9b-80cb-47cde7c3a9fd",
+      "violation_type": "Illegal Parking",
+      "fine_amount": 800.0,
+      "issued_at": "2026-03-12T10:15:00+00:00",
+      "officer_badge": "QCTO-0107",
+      "location": "Commonwealth Ave",
+      "status": "Issued"
+    }
+  ]
+}

@@ -1,0 +1,574 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1.0" />
+    <title>RCTS-QC | Transaction History</title>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=DM+Sans:wght@300;400;500;600&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      :root {
+        --navy: #0a1628;
+        --navy2: #112240;
+        --gold: #c9a84c;
+        --gold2: #e8c878;
+        --white: #ffffff;
+        --black: #000000;
+        --text-dark: #1a1a1a;
+        --text-gray: #555555;
+        --muted: #666666;
+        --green: #2ecc71;
+        --red: #e74c3c;
+        --orange: #f39c12;
+      }
+      *,
+      *::before,
+      *::after {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+      }
+      body {
+        font-family: "DM Sans", sans-serif;
+        background: #f5f5f5;
+        color: var(--text-dark);
+        min-height: 100vh;
+      }
+      body::before {
+        content: "";
+        position: fixed;
+        inset: 0;
+        background-image: repeating-linear-gradient(
+          45deg,
+          transparent,
+          transparent 40px,
+          rgba(201, 168, 76, 0.03) 40px,
+          rgba(201, 168, 76, 0.03) 41px
+        );
+        pointer-events: none;
+        z-index: 0;
+      }
+      nav {
+        position: relative;
+        z-index: 20;
+        background: #ffffff;
+        border-bottom: 2px solid #e0e0e0;
+        padding: 0 32px;
+        display: flex;
+        align-items: center;
+        gap: 0;
+        height: 60px;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+      }
+      .nav-brand {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        text-decoration: none;
+        color: inherit;
+        margin-right: 32px;
+      }
+      .nav-seal {
+        width: 34px;
+        height: 34px;
+        border-radius: 50%;
+        background: linear-gradient(135deg, var(--gold), var(--gold2));
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 13px;
+        font-weight: 700;
+        color: var(--navy);
+        font-family: "Playfair Display", serif;
+      }
+      .nav-brand span {
+        font-size: 14px;
+        font-weight: 600;
+        color: var(--text-dark);
+        letter-spacing: 0.04em;
+      }
+      .nav-links {
+        display: flex;
+        align-items: center;
+        gap: 2px;
+        flex: 1;
+        overflow-x: auto;
+        white-space: nowrap;
+      }
+      .nav-links a {
+        padding: 10px 16px;
+        font-size: 13px;
+        font-weight: 500;
+        color: var(--text-gray);
+        text-decoration: none;
+        border-radius: 6px;
+        letter-spacing: 0.03em;
+        transition:
+          color 0.2s,
+          background 0.2s;
+      }
+      .nav-links a:hover,
+      .nav-links a.active {
+        color: var(--gold);
+        background: rgba(201, 168, 76, 0.1);
+      }
+      .nav-user {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        font-size: 13px;
+      }
+      .nav-user .name {
+        color: var(--text-dark);
+        font-weight: 500;
+      }
+      .nav-user .tag {
+        font-size: 11px;
+        padding: 3px 10px;
+        border-radius: 12px;
+        background: rgba(52, 152, 219, 0.15);
+        color: #2980b9;
+        font-weight: 600;
+      }
+      .btn-logout {
+        background: none;
+        border: 1px solid #cccccc;
+        border-radius: 6px;
+        padding: 6px 14px;
+        font-size: 12px;
+        color: var(--text-gray);
+        cursor: pointer;
+        font-family: "DM Sans", sans-serif;
+        transition:
+          color 0.2s,
+          border-color 0.2s;
+      }
+      .btn-logout:hover {
+        color: var(--red);
+        border-color: var(--red);
+      }
+      main {
+        position: relative;
+        z-index: 10;
+        max-width: 1000px;
+        margin: 0 auto;
+        padding: 36px 32px;
+      }
+      .page-header {
+        margin-bottom: 24px;
+      }
+      .page-header h1 {
+        font-family: "Playfair Display", serif;
+        font-size: 28px;
+        color: var(--text-dark);
+      }
+      .page-header p {
+        font-size: 14px;
+        color: var(--text-gray);
+        margin-top: 6px;
+      }
+      .card {
+        background: #ffffff;
+        border: 1px solid #e0e0e0;
+        border-radius: 12px;
+        padding: 22px;
+        margin-bottom: 18px;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+      }
+      .card h3 {
+        font-family: "Playfair Display", serif;
+        font-size: 18px;
+        margin-bottom: 16px;
+        padding-bottom: 12px;
+        border-bottom: 1px solid #e0e0e0;
+        color: var(--text-dark);
+      }
+
+      /* Summary strip */
+      .summary-strip {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+        gap: 14px;
+        margin-bottom: 22px;
+      }
+      .summary-box {
+        background: #ffffff;
+        border: 1px solid #e0e0e0;
+        border-radius: 10px;
+        padding: 16px 18px;
+        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.04);
+      }
+      .summary-box .val {
+        font-family: "Playfair Display", serif;
+        font-size: 22px;
+        color: var(--gold);
+        font-weight: 700;
+      }
+      .summary-box .lbl {
+        font-size: 11px;
+        color: var(--text-gray);
+        text-transform: uppercase;
+        letter-spacing: 0.07em;
+        margin-top: 4px;
+      }
+
+      /* Filter row */
+      .filter-row {
+        display: flex;
+        gap: 10px;
+        margin-bottom: 16px;
+        flex-wrap: wrap;
+        align-items: center;
+      }
+      .filter-row select,
+      .filter-row input {
+        background: #ffffff;
+        border: 1px solid #cccccc;
+        border-radius: 7px;
+        padding: 8px 12px;
+        color: var(--text-dark);
+        font-family: "DM Sans", sans-serif;
+        font-size: 13px;
+        outline: none;
+        transition: border-color 0.2s;
+      }
+      .filter-row select:focus,
+      .filter-row input:focus {
+        border-color: var(--gold);
+      }
+
+      /* Table */
+      .txn-table {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: 13px;
+        background: #ffffff;
+        border-radius: 8px;
+        overflow: hidden;
+      }
+      .txn-table th {
+        padding: 12px 14px;
+        text-align: left;
+        font-size: 11px;
+        font-weight: 600;
+        color: var(--text-gray);
+        letter-spacing: 0.07em;
+        text-transform: uppercase;
+        background: #f5f5f5;
+        border-bottom: 1px solid #e0e0e0;
+      }
+      .txn-table td {
+        padding: 14px 14px;
+        border-bottom: 1px solid #f0f0f0;
+        color: var(--text-dark);
+      }
+      .txn-table tr:last-child td {
+        border-bottom: none;
+      }
+      .txn-table tr:hover td {
+        background: rgba(201, 168, 76, 0.04);
+      }
+
+      .status-success {
+        display: inline-flex;
+        align-items: center;
+        gap: 5px;
+        font-size: 11px;
+        font-weight: 700;
+        padding: 3px 9px;
+        border-radius: 8px;
+        background: rgba(46, 204, 113, 0.12);
+        color: var(--green);
+      }
+      .type-badge {
+        font-size: 11px;
+        padding: 3px 10px;
+        border-radius: 6px;
+        font-weight: 600;
+      }
+      .type-rpt {
+        background: rgba(52, 152, 219, 0.15);
+        color: #2980b9;
+      }
+      .type-biz {
+        background: rgba(241, 196, 15, 0.15);
+        color: #c9a000;
+      }
+      .type-mkt {
+        background: rgba(46, 204, 113, 0.15);
+        color: var(--green);
+      }
+      .type-mult {
+        background: rgba(201, 168, 76, 0.15);
+        color: var(--gold);
+      }
+      .type-trf {
+        background: rgba(231, 76, 60, 0.15);
+        color: var(--red);
+      }
+
+      .btn-receipt {
+        background: rgba(201, 168, 76, 0.1);
+        border: 1px solid var(--gold);
+        border-radius: 6px;
+        padding: 6px 14px;
+        font-size: 12px;
+        font-weight: 700;
+        color: var(--gold);
+        cursor: pointer;
+        font-family: "DM Sans", sans-serif;
+        text-decoration: none;
+        display: inline-block;
+        transition: background 0.2s;
+      }
+      .btn-receipt:hover {
+        background: rgba(201, 168, 76, 0.2);
+      }
+
+      .loading {
+        text-align: center;
+        padding: 32px;
+        color: var(--text-gray);
+      }
+      .empty-state {
+        text-align: center;
+        padding: 48px;
+        color: var(--text-gray);
+        font-size: 14px;
+        background: #ffffff;
+        border-radius: 8px;
+      }
+      .empty-state .icon {
+        font-size: 36px;
+        margin-bottom: 12px;
+      }
+    </style>
+  </head>
+  <body>
+    <nav>
+      <a class="nav-brand" href="dashboard.html">
+        <div class="nav-seal">QC</div>
+        <span>RCTS-QC Citizen Portal</span>
+      </a>
+      <div class="nav-links">
+        <a href="dashboard.html">Dashboard</a>
+        <a href="rpt-payment.html">Real Property Tax</a>
+        <a href="business-tax.html">Business Tax</a>
+        <a href="market-stall.html">Market Stall</a>
+        <a href="payment-gateway.html">Pay Now</a>
+        <a href="transactions.html" class="active">Transactions</a>
+      </div>
+      <div class="nav-user">
+        <span class="name" id="nav-name">Loading...</span>
+        <span class="tag" id="nav-role">Citizen</span>
+        <button class="btn-logout" onclick="logoutWithConfirm()">
+          Sign Out
+        </button>
+      </div>
+    </nav>
+
+    <main>
+      <div class="page-header">
+        <h1>Transaction History</h1>
+        <p>
+          All successful payments made through QC-PAY. Click View Receipt to
+          download your e-OR.
+        </p>
+      </div>
+
+      <!-- Summary strip -->
+      <div class="summary-strip">
+        <div class="summary-box">
+          <div class="val" id="s-count">—</div>
+          <div class="lbl">Total Transactions</div>
+        </div>
+        <div class="summary-box">
+          <div class="val" id="s-total">₱—</div>
+          <div class="lbl">Total Amount Paid</div>
+        </div>
+        <div class="summary-box">
+          <div class="val" id="s-last">—</div>
+          <div class="lbl">Last Payment</div>
+        </div>
+      </div>
+
+      <div class="card">
+        <h3>✅ Completed Payments</h3>
+
+        <div class="filter-row">
+          <select id="f-type" onchange="applyFilter()">
+            <option value="">All Types</option>
+            <option value="RPT">Real Property Tax</option>
+            <option value="BusinessTax">Business Tax</option>
+            <option value="MarketRental">Market Stall</option>
+            <option value="TrafficFine">Traffic Fine</option>
+            <option value="Multiple">Multiple</option>
+          </select>
+          <select id="f-gw" onchange="applyFilter()">
+            <option value="">All Gateways</option>
+            <option value="GCash">GCash</option>
+            <option value="Maya">Maya</option>
+            <option value="Landbank">Landbank</option>
+            <option value="CreditCard">Credit Card</option>
+          </select>
+          <input
+            type="text"
+            id="f-search"
+            placeholder="Search by reference or EOR..."
+            oninput="applyFilter()"
+            style="width: 240px"
+          />
+        </div>
+
+        <div id="txn-container">
+          <div class="loading">Loading transaction history...</div>
+        </div>
+      </div>
+    </main>
+
+    <script src="../../public/js/main.js"></script>
+    <script>
+      const citizen = JSON.parse(
+        sessionStorage.getItem("rcts_citizen") || "{}",
+      );
+      if (!citizen.qcitizen_id) location.href = "login.html";
+      document.getElementById("nav-name").textContent =
+        citizen.full_name || "—";
+      document.getElementById("nav-role").textContent =
+        citizen.role || "citizen";
+
+      const fmt = (n) =>
+        "₱" +
+        Number(n || 0).toLocaleString("en-PH", { minimumFractionDigits: 2 });
+      let allTxns = [];
+
+      async function downloadReceipt(transactionId) {
+        const confirmed = await rcts_confirm(
+          "Are you sure you want to download this receipt?",
+          "Download Receipt",
+        );
+        if (confirmed) {
+          window.location.href = `receipt.html?txn=${encodeURIComponent(transactionId)}`;
+        }
+      }
+
+      async function loadTransactions() {
+        try {
+          const res = await fetch(
+            `../../api/endpoints/payment.php?action=get_transaction_history&qcitizen_id=${citizen.qcitizen_id}`,
+          );
+          const data = await res.json();
+          const txns = (data.data?.transactions || []).filter(
+            (t) => t.transaction_status === "Success",
+          );
+
+          allTxns = txns;
+
+          // Summary
+          document.getElementById("s-count").textContent = txns.length;
+          const total = txns.reduce(
+            (sum, t) => sum + Number(t.amount_settled || 0),
+            0,
+          );
+          document.getElementById("s-total").textContent = fmt(total);
+          if (txns.length) {
+            const last = new Date(txns[0].transaction_timestamp);
+            document.getElementById("s-last").textContent =
+              last.toLocaleDateString("en-PH", {
+                month: "short",
+                day: "numeric",
+                year: "numeric",
+              });
+          } else {
+            document.getElementById("s-last").textContent = "—";
+          }
+
+          renderTable(txns);
+        } catch (e) {
+          document.getElementById("txn-container").innerHTML =
+            '<div class="empty-state">Could not load transactions. Ensure XAMPP is running.</div>';
+        }
+      }
+
+      const typeLabels = {
+        RPT: "Real Property Tax",
+        BusinessTax: "Business Tax",
+        MarketRental: "Market Stall",
+        TrafficFine: "Traffic Fine",
+        Multiple: "Multiple Bills",
+      };
+      const typeClass = {
+        RPT: "type-rpt",
+        BusinessTax: "type-biz",
+        MarketRental: "type-mkt",
+        TrafficFine: "type-trf",
+        Multiple: "type-mult",
+      };
+
+      function renderTable(txns) {
+        const container = document.getElementById("txn-container");
+        if (!txns.length) {
+          container.innerHTML = `<div class="empty-state"><div class="icon">📭</div>No completed transactions yet.<br><span style="font-size:13px;color:var(--text-gray);margin-top:6px;display:block">Payments you make will appear here.</span></div>`;
+          return;
+        }
+        const rows = txns
+          .map((t) => {
+            const dt = new Date(t.transaction_timestamp).toLocaleString(
+              "en-PH",
+              { dateStyle: "medium", timeStyle: "short" },
+            );
+            const billType = t.bill_type || "Multiple";
+            return `<tr>
+            <td style="font-family:monospace;font-size:12px;color:var(--text-gray)">${t.transaction_id}</td>
+            <td style="color:var(--text-dark)">${dt}</td>
+            <td><span class="type-badge ${typeClass[billType] || "type-mult"}">${typeLabels[billType] || billType}</span></td>
+            <td style="color:var(--text-dark)">${t.gateway_provider || "—"}</td>
+            <td style="font-size:12px;color:var(--text-gray)">${t.bank_reference_no || "—"}</td>
+            <td style="font-family:'Playfair Display',serif;font-size:16px;color:var(--gold);font-weight:700">${fmt(t.amount_settled)}</td>
+            <td><span class="status-success">✅ Success</span></td>
+            <td><a class="btn-receipt" href="#" onclick="downloadReceipt('${t.transaction_id}'); return false;">View Receipt</a></td>
+          </tr>`;
+          })
+          .join("");
+        container.innerHTML = `
+          <table class="txn-table">
+            <thead>
+              <tr>
+                <th>Transaction ID</th>
+                <th>Date & Time</th>
+                <th>Type</th>
+                <th>Gateway</th>
+                <th>Bank Ref</th>
+                <th>Amount Paid</th>
+                <th>Status</th>
+                <th>Receipt</th>
+              </tr>
+            </thead>
+            <tbody>${rows}</tbody>
+          </table>`;
+      }
+
+      function applyFilter() {
+        const type = document.getElementById("f-type").value;
+        const gw = document.getElementById("f-gw").value;
+        const search = document.getElementById("f-search").value.toLowerCase();
+        const filtered = allTxns.filter((t) => {
+          if (type && (t.bill_type || "Multiple") !== type) return false;
+          if (gw && t.gateway_provider !== gw) return false;
+          if (
+            search &&
+            !t.transaction_id.toLowerCase().includes(search) &&
+            !(t.bank_reference_no || "").toLowerCase().includes(search)
+          )
+            return false;
+          return true;
+        });
+        renderTable(filtered);
+      }
+
+      loadTransactions();
+    </script>
+  </body>
+</html>

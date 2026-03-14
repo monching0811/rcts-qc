@@ -1,0 +1,65 @@
+# ============================================================
+# RCTS-QC | .htaccess
+# XAMPP / Apache configuration for the RCTS-QC project.
+# Place this in the root of the project folder:
+#   C:/xampp/htdocs/rcts-qc/.htaccess
+# ============================================================
+
+# Allow all requests within this folder
+Options -Indexes +FollowSymLinks
+
+# ── PHP error display (dev mode) ─────────────────────────────
+php_flag  display_errors      On
+php_value error_reporting     E_ALL
+php_flag  log_errors           On
+php_value error_log           logs/php-errors.log
+
+# ── CORS headers for API endpoints ───────────────────────────
+<IfModule mod_headers.c>
+    # Allow same-origin + localhost dev
+    Header always set Access-Control-Allow-Origin  "*"
+    Header always set Access-Control-Allow-Methods "GET, POST, OPTIONS"
+    Header always set Access-Control-Allow-Headers "Content-Type, X-API-Key, Authorization"
+    Header always set Access-Control-Max-Age       "3600"
+
+    # Handle pre-flight OPTIONS
+    RewriteCond %{REQUEST_METHOD} OPTIONS
+    RewriteRule .* - [R=204,L]
+</IfModule>
+
+# ── mod_rewrite for clean API routing ────────────────────────
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+    RewriteBase /rcts-qc/
+
+    # Pass all /api/ requests directly to PHP files
+    RewriteCond %{REQUEST_FILENAME} !-f
+    RewriteCond %{REQUEST_FILENAME} !-d
+    RewriteRule ^api/(.*)$ api/$1 [L,QSA]
+
+    # Pass all /mock-data/ requests directly
+    RewriteCond %{REQUEST_FILENAME} !-f
+    RewriteRule ^mock-data/(.*)$ mock-data/$1 [L,QSA]
+</IfModule>
+
+# ── Security headers ──────────────────────────────────────────
+<IfModule mod_headers.c>
+    Header set X-Content-Type-Options "nosniff"
+    Header set X-Frame-Options        "SAMEORIGIN"
+    Header set Referrer-Policy        "strict-origin-when-cross-origin"
+</IfModule>
+
+# ── Deny access to sensitive files ───────────────────────────
+<FilesMatch "\.(env|log|json|sql)$">
+    <RequireAll>
+        Require local
+    </RequireAll>
+</FilesMatch>
+
+# Allow JSON mock data files to be fetched by the app
+<Files "citizens.json">
+    Require all granted
+</Files>
+<Files "properties.json">
+    Require all granted
+</Files>

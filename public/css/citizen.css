@@ -1,0 +1,307 @@
+/*
+ * RCTS-QC | citizen.css
+ * Citizen portal-specific component styles.
+ */
+
+/* Bill type colour map */
+.type-rpt {
+  background: rgba(52, 152, 219, 0.15);
+  color: #74b9ff;
+}
+.type-biz {
+  background: rgba(241, 196, 15, 0.15);
+  color: #fdcb6e;
+}
+.type-mkt {
+  background: rgba(46, 204, 113, 0.15);
+  color: var(--green);
+}
+.type-trf {
+  background: rgba(231, 76, 60, 0.15);
+  color: #ff7675;
+}
+
+/* Property card */
+.prop-card {
+  background: rgba(10, 22, 40, 0.5);
+  border: 1px solid rgba(201, 168, 76, 0.1);
+  border-radius: var(--r-md);
+  padding: var(--sp-5);
+  cursor: pointer;
+  transition:
+    border-color var(--t-normal),
+    background var(--t-normal);
+  position: relative;
+}
+.prop-card:hover {
+  border-color: rgba(201, 168, 76, 0.4);
+  background: rgba(10, 22, 40, 0.7);
+}
+.prop-card.selected {
+  border-color: var(--gold);
+  background: rgba(201, 168, 76, 0.05);
+}
+.prop-card.selected::after {
+  content: "✓ Selected";
+  position: absolute;
+  top: 12px;
+  right: 14px;
+  font-size: 10px;
+  color: var(--gold);
+  font-weight: 700;
+  letter-spacing: 0.07em;
+}
+.prop-tdn {
+  font-size: 11px;
+  color: var(--gold);
+  font-weight: 600;
+  letter-spacing: 0.06em;
+}
+.prop-address {
+  font-size: 13px;
+  font-weight: 500;
+  margin: 6px 0 10px;
+}
+.prop-stats {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+}
+.prop-stat .lbl {
+  font-size: 10px;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+.prop-stat .val {
+  font-size: 13px;
+  font-weight: 500;
+  margin-top: 2px;
+}
+.prop-stat .val-big {
+  font-family: var(--font-display);
+  font-size: 17px;
+  color: var(--gold);
+}
+
+/* Clearance pill */
+.clearance-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 11px;
+  font-weight: 700;
+  padding: 3px 9px;
+  border-radius: var(--r-full);
+  margin-top: var(--sp-2);
+}
+.cl-cleared {
+  background: rgba(46, 204, 113, 0.1);
+  border: 1px solid rgba(46, 204, 113, 0.22);
+  color: var(--green);
+}
+.cl-pending {
+  background: rgba(243, 156, 18, 0.1);
+  border: 1px solid rgba(243, 156, 18, 0.22);
+  color: var(--orange);
+}
+.cl-delinq {
+  background: rgba(231, 76, 60, 0.1);
+  border: 1px solid rgba(231, 76, 60, 0.22);
+  color: var(--red);
+}
+
+/* Computation breakdown */
+.compute-panel {
+  display: none;
+}
+.compute-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px 0;
+  border-bottom: 1px solid rgba(201, 168, 76, 0.07);
+  font-size: 13px;
+}
+.compute-row:last-child {
+  border-bottom: none;
+}
+.compute-row.total {
+  font-weight: 700;
+  font-size: 15px;
+  padding-top: 12px;
+  border-top: 2px solid rgba(201, 168, 76, 0.2);
+  margin-top: 4px;
+}
+.compute-row.discount {
+  color: var(--green);
+}
+.compute-row.penalty {
+  color: var(--red);
+}
+.compute-row.total .val {
+  font-family: var(--font-display);
+  font-size: 19px;
+  color: var(--gold);
+}
+
+/* Bill row in payment gateway */
+.bill-checkout-row {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 12px 0;
+  border-bottom: 1px solid rgba(201, 168, 76, 0.07);
+}
+.bill-checkout-row:last-child {
+  border-bottom: none;
+}
+.bill-checkout-check {
+  width: 18px;
+  height: 18px;
+  accent-color: var(--gold);
+  cursor: pointer;
+  flex-shrink: 0;
+}
+.bill-checkout-info {
+  flex: 1;
+}
+.bill-checkout-type {
+  font-size: 13px;
+  font-weight: 500;
+}
+.bill-checkout-ref {
+  font-size: 11px;
+  color: var(--muted);
+  margin-top: 2px;
+}
+.bill-checkout-amt {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--gold);
+  white-space: nowrap;
+}
+
+/* Payment gateway options */
+.gateway-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  margin-bottom: var(--sp-5);
+}
+.gw-option {
+  background: rgba(17, 34, 64, 0.8);
+  border: var(--border-gold);
+  border-radius: var(--r-sm);
+  padding: 11px 14px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--white);
+  font-family: var(--font-body);
+  transition:
+    border-color var(--t-fast),
+    background var(--t-fast);
+}
+.gw-option:hover,
+.gw-option.selected {
+  border-color: var(--gold);
+  background: var(--gold-bg);
+  color: var(--gold);
+}
+.gw-option .gw-icon {
+  font-size: 18px;
+}
+
+/* e-OR receipt */
+.receipt-wrap {
+  background: rgba(17, 34, 64, 0.88);
+  border: 1px solid rgba(201, 168, 76, 0.28);
+  border-radius: var(--r-xl);
+  overflow: hidden;
+}
+.receipt-header {
+  background: linear-gradient(135deg, var(--navy2), rgba(10, 22, 40, 0.95));
+  padding: 28px 32px;
+  border-bottom: 1px solid rgba(201, 168, 76, 0.2);
+  text-align: center;
+}
+.receipt-eor-num {
+  font-family: var(--font-display);
+  font-size: 22px;
+  color: var(--white);
+  margin-top: var(--sp-3);
+  letter-spacing: 0.04em;
+}
+.receipt-body {
+  padding: 28px 32px;
+}
+.receipt-row {
+  display: flex;
+  justify-content: space-between;
+  padding: 10px 0;
+  border-bottom: 1px solid rgba(201, 168, 76, 0.07);
+  font-size: 13px;
+}
+.receipt-row:last-child {
+  border-bottom: none;
+}
+.receipt-row .lbl {
+  color: var(--muted);
+}
+.receipt-row .val {
+  font-weight: 500;
+  text-align: right;
+  max-width: 60%;
+}
+.receipt-amount {
+  background: rgba(10, 22, 40, 0.6);
+  border: 1px solid rgba(201, 168, 76, 0.2);
+  border-radius: var(--r-md);
+  padding: var(--sp-5);
+  text-align: center;
+  margin: var(--sp-4) 0;
+}
+.receipt-amount .amt {
+  font-family: var(--font-display);
+  font-size: 32px;
+  color: var(--gold);
+  margin-top: 6px;
+}
+.receipt-footer {
+  background: rgba(10, 22, 40, 0.4);
+  border-top: 1px solid rgba(201, 168, 76, 0.1);
+  padding: 16px 32px;
+  text-align: center;
+  font-size: 11px;
+  color: var(--muted);
+  line-height: 1.75;
+}
+
+/* Welcome card */
+.welcome-card {
+  background: linear-gradient(135deg, var(--navy2), rgba(17, 34, 64, 0.9));
+  border: 1px solid rgba(201, 168, 76, 0.2);
+  border-radius: var(--r-lg);
+  padding: 28px 32px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--sp-5);
+  margin-bottom: var(--sp-7);
+}
+.welcome-total {
+  font-family: var(--font-display);
+  font-size: 30px;
+  color: var(--gold);
+}
+.welcome-total-lbl {
+  font-size: 11px;
+  color: var(--muted);
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+  margin-top: 2px;
+}

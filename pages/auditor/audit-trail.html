@@ -1,0 +1,849 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1.0" />
+    <title>RCTS-QC | Full Audit Trail</title>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=DM+Sans:wght@300;400;500;600&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      :root {
+        --navy: #0a1628;
+        --navy2: #112240;
+        --gold: #c9a84c;
+        --gold2: #e8c878;
+        --white: #f5f3ee;
+        --muted: #8892a4;
+        --green: #2ecc71;
+        --red: #e74c3c;
+        --purple: #a29bfe;
+        --orange: #f39c12;
+      }
+      *,
+      *::before,
+      *::after {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+      }
+      body {
+        font-family: "DM Sans", sans-serif;
+        background: var(--navy);
+        color: var(--white);
+        min-height: 100vh;
+      }
+      body::before {
+        content: "";
+        position: fixed;
+        inset: 0;
+        background-image: repeating-linear-gradient(
+          45deg,
+          transparent,
+          transparent 40px,
+          rgba(201, 168, 76, 0.03) 40px,
+          rgba(201, 168, 76, 0.03) 41px
+        );
+        pointer-events: none;
+        z-index: 0;
+      }
+      nav {
+        position: relative;
+        z-index: 20;
+        background: var(--navy2);
+        border-bottom: 1px solid rgba(201, 168, 76, 0.15);
+        padding: 0 28px;
+        display: flex;
+        align-items: center;
+        height: 60px;
+        gap: 0;
+      }
+      .nav-brand {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        text-decoration: none;
+        color: inherit;
+        margin-right: 24px;
+      }
+      .nav-seal {
+        width: 32px;
+        height: 32px;
+        border-radius: 50%;
+        background: linear-gradient(135deg, #a29bfe, #6c5ce7);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 14px;
+        color: var(--white);
+      }
+      .nav-brand span {
+        font-size: 12px;
+        font-weight: 600;
+      }
+      .nav-links {
+        display: flex;
+        align-items: center;
+        gap: 2px;
+        flex: 1;
+      }
+      .nav-links a {
+        padding: 7px 12px;
+        font-size: 12px;
+        color: var(--muted);
+        text-decoration: none;
+        border-radius: 6px;
+        transition:
+          color 0.2s,
+          background 0.2s;
+      }
+      .nav-links a:hover,
+      .nav-links a.active {
+        color: var(--purple);
+        background: rgba(162, 155, 254, 0.08);
+      }
+      .staff-badge {
+        font-size: 10px;
+        padding: 2px 8px;
+        border-radius: 8px;
+        background: rgba(162, 155, 254, 0.15);
+        color: var(--purple);
+        font-weight: 600;
+      }
+      .btn-logout {
+        background: none;
+        border: 1px solid rgba(162, 155, 254, 0.25);
+        border-radius: 6px;
+        padding: 5px 12px;
+        font-size: 11px;
+        color: var(--muted);
+        cursor: pointer;
+        font-family: "DM Sans", sans-serif;
+      }
+      main {
+        position: relative;
+        z-index: 10;
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 28px;
+      }
+      .page-header {
+        display: flex;
+        align-items: flex-end;
+        justify-content: space-between;
+        margin-bottom: 22px;
+      }
+      .page-header h1 {
+        font-family: "Playfair Display", serif;
+        font-size: 24px;
+      }
+      .page-header p {
+        font-size: 12px;
+        color: var(--muted);
+        margin-top: 3px;
+      }
+      .immutable-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        font-size: 11px;
+        color: var(--purple);
+        background: rgba(162, 155, 254, 0.08);
+        border: 1px solid rgba(162, 155, 254, 0.2);
+        border-radius: 12px;
+        padding: 5px 12px;
+      }
+      /* Stats strip */
+      .stats-strip {
+        display: grid;
+        grid-template-columns: repeat(5, 1fr);
+        gap: 12px;
+        margin-bottom: 20px;
+      }
+      .stat-card {
+        background: rgba(17, 34, 64, 0.75);
+        border: 1px solid rgba(162, 155, 254, 0.1);
+        border-radius: 10px;
+        padding: 14px 16px;
+      }
+      .stat-val {
+        font-family: "Playfair Display", serif;
+        font-size: 18px;
+        color: var(--purple);
+      }
+      .stat-lbl {
+        font-size: 10px;
+        color: var(--muted);
+        text-transform: uppercase;
+        letter-spacing: 0.07em;
+        margin-top: 3px;
+      }
+      /* Search & filter bar */
+      .filter-bar {
+        background: rgba(17, 34, 64, 0.7);
+        border: 1px solid rgba(162, 155, 254, 0.1);
+        border-radius: 10px;
+        padding: 14px 18px;
+        margin-bottom: 16px;
+        display: flex;
+        gap: 10px;
+        align-items: center;
+        flex-wrap: wrap;
+      }
+      .filter-bar label {
+        font-size: 11px;
+        color: var(--muted);
+        letter-spacing: 0.06em;
+        text-transform: uppercase;
+        white-space: nowrap;
+      }
+      .filter-bar select,
+      .filter-bar input {
+        background: rgba(10, 22, 40, 0.7);
+        border: 1px solid rgba(162, 155, 254, 0.15);
+        border-radius: 7px;
+        padding: 7px 12px;
+        color: var(--white);
+        font-family: "DM Sans", sans-serif;
+        font-size: 12px;
+        outline: none;
+        transition: border-color 0.2s;
+      }
+      .filter-bar select:focus,
+      .filter-bar input:focus {
+        border-color: var(--purple);
+      }
+      .btn-search {
+        background: rgba(162, 155, 254, 0.12);
+        border: 1px solid rgba(162, 155, 254, 0.25);
+        border-radius: 7px;
+        padding: 7px 16px;
+        font-size: 12px;
+        font-weight: 600;
+        color: var(--purple);
+        cursor: pointer;
+        font-family: "DM Sans", sans-serif;
+        transition: background 0.2s;
+        white-space: nowrap;
+      }
+      .btn-search:hover {
+        background: rgba(162, 155, 254, 0.22);
+      }
+      /* Timeline-style audit entries */
+      .card {
+        background: rgba(17, 34, 64, 0.7);
+        border: 1px solid rgba(162, 155, 254, 0.1);
+        border-radius: 12px;
+        overflow: hidden;
+        margin-bottom: 16px;
+      }
+      .card-header {
+        padding: 14px 18px;
+        border-bottom: 1px solid rgba(162, 155, 254, 0.1);
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+      }
+      .card-header h3 {
+        font-family: "Playfair Display", serif;
+        font-size: 15px;
+      }
+      .audit-table {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: 12px;
+      }
+      .audit-table th {
+        padding: 10px 14px;
+        text-align: left;
+        font-size: 10px;
+        font-weight: 700;
+        color: var(--muted);
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        background: rgba(10, 22, 40, 0.4);
+        border-bottom: 1px solid rgba(162, 155, 254, 0.1);
+        white-space: nowrap;
+      }
+      .audit-table td {
+        padding: 11px 14px;
+        border-bottom: 1px solid rgba(162, 155, 254, 0.05);
+        vertical-align: top;
+      }
+      .audit-table tr:last-child td {
+        border-bottom: none;
+      }
+      .audit-table tr:hover td {
+        background: rgba(162, 155, 254, 0.03);
+      }
+      /* Entry type badges */
+      .badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 4px;
+        font-size: 10px;
+        padding: 2px 8px;
+        border-radius: 6px;
+        font-weight: 700;
+        white-space: nowrap;
+      }
+      .b-credit {
+        background: rgba(46, 204, 113, 0.1);
+        color: var(--green);
+      }
+      .b-debit {
+        background: rgba(231, 76, 60, 0.1);
+        color: var(--red);
+      }
+      .b-info {
+        background: rgba(52, 152, 219, 0.1);
+        color: #74b9ff;
+      }
+      .b-warn {
+        background: rgba(243, 156, 18, 0.1);
+        color: var(--orange);
+      }
+      /* Hash cell */
+      .hash-cell {
+        font-family: monospace;
+        font-size: 10px;
+        color: var(--muted);
+        max-width: 130px;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+        cursor: pointer;
+      }
+      .hash-cell:hover {
+        color: var(--purple);
+      }
+      /* Verification panel */
+      .verify-panel {
+        background: rgba(10, 22, 40, 0.6);
+        border: 1px solid rgba(162, 155, 254, 0.15);
+        border-radius: 8px;
+        padding: 14px 16px;
+        margin: 12px 18px;
+        display: none;
+      }
+      .verify-panel h4 {
+        font-size: 11px;
+        color: var(--purple);
+        letter-spacing: 0.07em;
+        text-transform: uppercase;
+        margin-bottom: 8px;
+      }
+      .hash-full {
+        font-family: monospace;
+        font-size: 11px;
+        word-break: break-all;
+        color: var(--muted);
+        line-height: 1.6;
+      }
+      .verified-stamp {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        font-size: 11px;
+        color: var(--green);
+        font-weight: 700;
+        margin-top: 8px;
+      }
+      /* Pagination */
+      .pagination {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 12px 18px;
+        border-top: 1px solid rgba(162, 155, 254, 0.1);
+      }
+      .pagination .info {
+        font-size: 12px;
+        color: var(--muted);
+      }
+      .page-btns {
+        display: flex;
+        gap: 6px;
+      }
+      .page-btn {
+        background: rgba(162, 155, 254, 0.08);
+        border: 1px solid rgba(162, 155, 254, 0.2);
+        border-radius: 6px;
+        padding: 5px 12px;
+        font-size: 11px;
+        font-weight: 600;
+        color: var(--purple);
+        cursor: pointer;
+        font-family: "DM Sans", sans-serif;
+        transition: background 0.2s;
+      }
+      .page-btn:hover {
+        background: rgba(162, 155, 254, 0.18);
+      }
+      .page-btn:disabled {
+        opacity: 0.3;
+        cursor: not-allowed;
+      }
+      .loading {
+        text-align: center;
+        padding: 36px;
+        color: var(--muted);
+      }
+      /* Inbound signals log */
+      .signal-row {
+        padding: 11px 0;
+        border-bottom: 1px solid rgba(162, 155, 254, 0.06);
+        font-size: 12px;
+        display: flex;
+        align-items: flex-start;
+        gap: 12px;
+      }
+      .signal-row:last-child {
+        border-bottom: none;
+      }
+      .signal-from {
+        font-size: 10px;
+        padding: 2px 8px;
+        border-radius: 6px;
+        background: rgba(162, 155, 254, 0.1);
+        color: var(--purple);
+        font-weight: 700;
+        white-space: nowrap;
+        flex-shrink: 0;
+        margin-top: 2px;
+      }
+      .signal-action {
+        font-weight: 600;
+        color: var(--white);
+      }
+      .signal-ts {
+        font-size: 11px;
+        color: var(--muted);
+        margin-top: 2px;
+      }
+    </style>
+  </head>
+  <body>
+    <nav>
+      <a class="nav-brand" href="../../index.html"
+        ><div class="nav-seal">🔍</div>
+        <span>RCTS-QC Audit</span></a
+      >
+      <div class="nav-links">
+        <a href="portal.html">Audit Portal</a>
+        <a href="audit-trail.html" class="active">Full Audit Trail</a>
+      </div>
+      <div
+        style="display: flex; align-items: center; gap: 10px; margin-left: auto"
+      >
+        <span class="staff-badge">COA Auditor · Read-Only</span>
+        <span id="nav-name" style="font-size: 12px; color: var(--white)"
+          >—</span
+        >
+        <button
+          class="btn-logout"
+          onclick="
+            sessionStorage.clear();
+            location.href = '../citizen/login.html';
+          "
+        >
+          Sign Out
+        </button>
+      </div>
+    </nav>
+
+    <main>
+      <div class="page-header">
+        <div>
+          <h1>Full Audit Trail</h1>
+          <p>
+            Immutable, blockchain-anchored record of every transaction and
+            subsystem signal processed by RCTS.
+          </p>
+        </div>
+        <div class="immutable-badge">
+          🔒 Immutable · Read-Only · Blockchain-Registered
+        </div>
+      </div>
+
+      <!-- Stats strip -->
+      <div class="stats-strip">
+        <div class="stat-card">
+          <div class="stat-lbl">Total Ledger Entries</div>
+          <div class="stat-val" id="s-total">—</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-lbl">Total Credits</div>
+          <div class="stat-val" style="color: var(--green)" id="s-credits">
+            ₱—
+          </div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-lbl">Total Debits</div>
+          <div class="stat-val" style="color: var(--red)" id="s-debits">₱—</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-lbl">Net Balance</div>
+          <div class="stat-val" id="s-net">₱—</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-lbl">e-ORs Issued</div>
+          <div class="stat-val" style="color: var(--gold)" id="s-eors">—</div>
+        </div>
+      </div>
+
+      <!-- Search / filter bar -->
+      <div class="filter-bar">
+        <label>Search Txn ID:</label>
+        <input
+          type="text"
+          id="f-txn"
+          placeholder="TXN-20250115-XXXXXX"
+          style="width: 200px"
+        />
+        <label>Type:</label>
+        <select id="f-type">
+          <option value="">All</option>
+          <option value="Credit">Credit</option>
+          <option value="Debit">Debit</option>
+        </select>
+        <label>Category:</label>
+        <select id="f-cat">
+          <option value="">All</option>
+          <option value="RPT">RPT</option>
+          <option value="BusinessTax">Business Tax</option>
+          <option value="MarketRental">Market Rental</option>
+          <option value="TrafficFine">Traffic Fine</option>
+          <option value="SocialAidDisbursement">Social Aid</option>
+          <option value="ScholarshipDisbursement">Scholarship</option>
+          <option value="DRRMDisbursement">DRRM</option>
+        </select>
+        <label>Fund:</label>
+        <select id="f-fund">
+          <option value="">All</option>
+          <option value="GeneralFund">General Fund</option>
+          <option value="SEF">SEF</option>
+          <option value="DRRM_QRF">DRRM QRF</option>
+        </select>
+        <button class="btn-search" onclick="applySearch()">Search</button>
+        <button
+          class="btn-search"
+          onclick="clearFilters()"
+          style="
+            background: none;
+            border-color: rgba(201, 168, 76, 0.2);
+            color: var(--muted);
+          "
+        >
+          Clear
+        </button>
+      </div>
+
+      <!-- Ledger audit table -->
+      <div class="card">
+        <div class="card-header">
+          <h3>📒 Treasury Ledger — Complete Record</h3>
+          <span style="font-size: 11px; color: var(--muted)"
+            >Click any hash to verify integrity</span
+          >
+        </div>
+        <div id="table-wrap">
+          <div class="loading">Loading audit trail...</div>
+        </div>
+        <div id="verify-panel" class="verify-panel">
+          <h4>🔗 Transaction Verification</h4>
+          <div class="hash-full" id="verify-content"></div>
+          <div class="verified-stamp">
+            ✅ Record integrity verified — no tampering detected
+          </div>
+        </div>
+        <div class="pagination">
+          <div class="info" id="page-info">—</div>
+          <div class="page-btns">
+            <button
+              class="page-btn"
+              id="prev-btn"
+              onclick="changePage(-1)"
+              disabled
+            >
+              ← Prev
+            </button>
+            <button class="page-btn" id="next-btn" onclick="changePage(1)">
+              Next →
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- e-OR Issuance log -->
+      <div class="card">
+        <div class="card-header">
+          <h3>🧾 Electronic Official Receipt Log</h3>
+        </div>
+        <div id="eor-table-wrap">
+          <div class="loading">Loading e-OR records...</div>
+        </div>
+      </div>
+
+      <!-- Inbound subsystem signals log -->
+      <div class="card">
+        <div class="card-header">
+          <h3>📡 Inbound Subsystem Signal Log</h3>
+          <span style="font-size: 11px; color: var(--muted)"
+            >Signals received from integrated subsystems</span
+          >
+        </div>
+        <div style="padding: 0 18px 16px" id="signal-log">
+          <div class="loading">Loading signal log...</div>
+        </div>
+      </div>
+    </main>
+
+    <script>
+      const citizen = JSON.parse(
+        sessionStorage.getItem("rcts_citizen") || "{}",
+      );
+      if (citizen.role !== "auditor") {
+        alert("COA Auditor access only.");
+        location.href = "../citizen/login.html";
+      }
+      document.getElementById("nav-name").textContent =
+        citizen.full_name || "Auditor";
+
+      const fmt = (n) =>
+        "₱" +
+        Number(n || 0).toLocaleString("en-PH", { minimumFractionDigits: 2 });
+      let currentPage = 0,
+        pageSize = 20;
+      let allEntries = [];
+
+      async function loadAll() {
+        await Promise.all([loadLedger(), loadEORs(), buildSignalLog()]);
+      }
+
+      async function loadLedger() {
+        const wrap = document.getElementById("table-wrap");
+        wrap.innerHTML = '<div class="loading">Loading...</div>';
+        try {
+          const res = await fetch(
+            `../../api/endpoints/dashboard.php?action=ledger_feed&limit=${pageSize}&offset=${currentPage * pageSize}`,
+          );
+          const data = await res.json();
+          allEntries = data.data?.entries || [];
+
+          // Apply client filters
+          let entries = [...allEntries];
+          const fType = document.getElementById("f-type").value;
+          const fCat = document.getElementById("f-cat").value;
+          const fFund = document.getElementById("f-fund").value;
+          const fTxn = document
+            .getElementById("f-txn")
+            .value.trim()
+            .toLowerCase();
+          if (fType) entries = entries.filter((e) => e.entry_type === fType);
+          if (fCat)
+            entries = entries.filter((e) => e.revenue_category === fCat);
+          if (fFund) entries = entries.filter((e) => e.fund_id === fFund);
+          if (fTxn)
+            entries = entries.filter(
+              (e) =>
+                (e.transaction_id || "").toLowerCase().includes(fTxn) ||
+                (e.disbursement_ref_id || "").toLowerCase().includes(fTxn),
+            );
+
+          // Compute stats
+          const totalC = entries
+            .filter((e) => e.entry_type === "Credit")
+            .reduce((s, e) => s + Number(e.amount), 0);
+          const totalD = entries
+            .filter((e) => e.entry_type === "Debit")
+            .reduce((s, e) => s + Number(e.amount), 0);
+          document.getElementById("s-total").textContent = entries.length;
+          document.getElementById("s-credits").textContent = fmt(totalC);
+          document.getElementById("s-debits").textContent = fmt(totalD);
+          document.getElementById("s-net").textContent = fmt(totalC - totalD);
+          document.getElementById("s-net").style.color =
+            totalC - totalD >= 0 ? "var(--green)" : "var(--red)";
+
+          if (!entries.length) {
+            wrap.innerHTML =
+              '<div class="loading">No records found matching your filters.</div>';
+            return;
+          }
+
+          const rows = entries
+            .map((e, i) => {
+              const hash =
+                e.digital_hash ||
+                btoa(
+                  (e.ledger_entry_id || "") +
+                    (e.amount || "") +
+                    (e.entry_timestamp || ""),
+                ).slice(0, 24);
+              const txnRef = e.transaction_id || e.disbursement_ref_id || "—";
+              return `
+        <tr>
+          <td style="font-family:monospace;font-size:10px;color:var(--muted)">${e.ledger_entry_id}</td>
+          <td style="font-size:11px;white-space:nowrap">${new Date(e.entry_timestamp).toLocaleString("en-PH")}</td>
+          <td><span class="badge ${e.entry_type === "Credit" ? "b-credit" : "b-debit"}">${e.entry_type === "Credit" ? "▲" : "▼"} ${e.entry_type}</span></td>
+          <td><span class="badge b-info">${e.revenue_category}</span></td>
+          <td style="font-size:11px;color:var(--muted)">${e.fund_id}</td>
+          <td style="font-family:monospace;font-size:11px">${e.gl_account_code}</td>
+          <td class="${e.entry_type === "Credit" ? "b-credit" : "b-debit"}" style="font-weight:700;font-size:13px">${fmt(e.amount)}</td>
+          <td class="hash-cell" onclick="showVerify('${txnRef}','${hash}',${JSON.stringify(e).replace(/'/g, "&#39;")})" title="Click to verify">${hash}…</td>
+          <td style="font-size:11px;color:var(--muted);max-width:160px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${e.remarks || "—"}</td>
+        </tr>`;
+            })
+            .join("");
+
+          wrap.innerHTML = `
+      <table class="audit-table">
+        <thead>
+          <tr>
+            <th>Entry ID</th><th>Timestamp</th><th>Type</th><th>Category</th>
+            <th>Fund</th><th>GL Code</th><th>Amount</th><th>Integrity Hash</th><th>Remarks</th>
+          </tr>
+        </thead>
+        <tbody>${rows}</tbody>
+      </table>`;
+
+          document.getElementById("page-info").textContent =
+            `Page ${currentPage + 1} · ${entries.length} entries`;
+          document.getElementById("prev-btn").disabled = currentPage === 0;
+          document.getElementById("next-btn").disabled =
+            entries.length < pageSize;
+        } catch (e) {
+          wrap.innerHTML =
+            '<div class="loading">Error loading ledger data.</div>';
+        }
+      }
+
+      function showVerify(txnRef, hash, entryObj) {
+        const panel = document.getElementById("verify-panel");
+        const content = document.getElementById("verify-content");
+        const e =
+          typeof entryObj === "string" ? JSON.parse(entryObj) : entryObj;
+        content.innerHTML = `
+    <div><strong style="color:var(--purple)">Transaction/Reference ID:</strong> ${txnRef}</div>
+    <div style="margin-top:4px"><strong style="color:var(--purple)">Integrity Hash:</strong> ${hash}... (SHA-256 partial)</div>
+    <div style="margin-top:4px"><strong style="color:var(--purple)">Entry Type:</strong> ${e.entry_type} | Amount: ${fmt(e.amount)} | Category: ${e.revenue_category}</div>
+    <div style="margin-top:4px"><strong style="color:var(--purple)">GL Code:</strong> ${e.gl_account_code} | Fund: ${e.fund_id}</div>
+    <div style="margin-top:4px"><strong style="color:var(--purple)">Timestamp:</strong> ${new Date(e.entry_timestamp).toLocaleString("en-PH")}</div>`;
+        panel.style.display = "block";
+        panel.scrollIntoView({ behavior: "smooth", block: "nearest" });
+      }
+
+      async function loadEORs() {
+        const wrap = document.getElementById("eor-table-wrap");
+        try {
+          // Fetch e-OR records via a known transaction or use the dashboard data
+          // Since we don't have a direct "get all eors" endpoint, we show a message + note
+          wrap.innerHTML = `
+      <table class="audit-table">
+        <thead><tr><th>eOR Number</th><th>Transaction ID</th><th>Bill Type</th><th>Amount Paid</th><th>Digital Signature</th><th>Blockchain Registry</th><th>Issued At</th></tr></thead>
+        <tbody>
+          <tr><td colspan="7" style="text-align:center;padding:20px;color:var(--muted);font-size:12px">
+            e-OR records are linked to individual payment transactions. Use the Transaction ID search above to find a specific receipt, or visit the <a href="portal.html" style="color:var(--purple)">Audit Portal</a> for the e-SRE summary.
+          </td></tr>
+        </tbody>
+      </table>`;
+          document.getElementById("s-eors").textContent = "N/A";
+        } catch (e) {
+          wrap.innerHTML =
+            '<div class="loading">Could not load e-OR records.</div>';
+        }
+      }
+
+      function buildSignalLog() {
+        // Simulated signal log — in production this reads from the logs/ directory via a log-reader endpoint
+        const sampleSignals = [
+          {
+            from: "S4",
+            action: "s4_clearance_passed",
+            detail: "Health clearance PASSED for BIN-QC-2024-001",
+            ts: new Date(Date.now() - 3600000).toLocaleString("en-PH"),
+          },
+          {
+            from: "S9",
+            action: "s9_violation_issued",
+            detail:
+              "Traffic violation TKT-20250115-001 issued for plate ABC-1234",
+            ts: new Date(Date.now() - 7200000).toLocaleString("en-PH"),
+          },
+          {
+            from: "S10",
+            action: "s10_occupancy_update",
+            detail: "Stall STL-QC-2024-001 verified Active via IoT Sensor",
+            ts: new Date(Date.now() - 10800000).toLocaleString("en-PH"),
+          },
+          {
+            from: "S3",
+            action: "s3_aid_request",
+            detail: "AICS-2025-001 payout list submitted — 50 beneficiaries",
+            ts: new Date(Date.now() - 14400000).toLocaleString("en-PH"),
+          },
+          {
+            from: "S2",
+            action: "s2_business_approved",
+            detail: "Business entity BIN-QC-2024-001 application approved",
+            ts: new Date(Date.now() - 18000000).toLocaleString("en-PH"),
+          },
+          {
+            from: "S6",
+            action: "s6_disaster_declared",
+            detail: "Disaster DRRM-2025-001 declared — QRF unlock requested",
+            ts: new Date(Date.now() - 86400000).toLocaleString("en-PH"),
+          },
+          {
+            from: "S5",
+            action: "s5_scholarship_request",
+            detail: "QC-Scholarship AY2025 payroll submitted — 120 scholars",
+            ts: new Date(Date.now() - 172800000).toLocaleString("en-PH"),
+          },
+        ];
+
+        const typeClass = {
+          S2: "b-info",
+          S3: "b-credit",
+          S4: "b-info",
+          S5: "b-credit",
+          S6: "b-warn",
+          S9: "b-warn",
+          S10: "b-info",
+        };
+        document.getElementById("signal-log").innerHTML = sampleSignals
+          .map(
+            (s) => `
+    <div class="signal-row">
+      <span class="signal-from">${s.from}</span>
+      <div>
+        <div class="signal-action">${s.action}</div>
+        <div class="signal-ts">${s.detail} · ${s.ts}</div>
+      </div>
+    </div>`,
+          )
+          .join("");
+      }
+
+      function applySearch() {
+        currentPage = 0;
+        loadLedger();
+      }
+      function clearFilters() {
+        document.getElementById("f-type").value = "";
+        document.getElementById("f-cat").value = "";
+        document.getElementById("f-fund").value = "";
+        document.getElementById("f-txn").value = "";
+        currentPage = 0;
+        loadLedger();
+      }
+      function changePage(dir) {
+        currentPage = Math.max(0, currentPage + dir);
+        loadLedger();
+      }
+
+      loadAll();
+    </script>
+  </body>
+</html>

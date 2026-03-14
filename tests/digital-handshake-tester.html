@@ -1,0 +1,516 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>RCTS Digital Handshake Tester - TO-BE</title>
+    <style>
+      * {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+      }
+      body {
+        font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+        background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+        min-height: 100vh;
+        padding: 20px;
+      }
+      .container {
+        max-width: 1000px;
+        margin: 0 auto;
+      }
+      h1 {
+        color: #fff;
+        text-align: center;
+        margin-bottom: 10px;
+      }
+      .subtitle {
+        color: #a8c0ff;
+        text-align: center;
+        margin-bottom: 30px;
+      }
+
+      .card {
+        background: #fff;
+        border-radius: 12px;
+        padding: 25px;
+        margin-bottom: 20px;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+      }
+      .card h2 {
+        color: #1e3c72;
+        margin-bottom: 15px;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+      }
+      .card h2 span {
+        font-size: 1.2em;
+      }
+
+      .test-section {
+        border: 2px dashed #ddd;
+        padding: 20px;
+        margin: 15px 0;
+        border-radius: 8px;
+      }
+      .test-section h3 {
+        color: #333;
+        margin-bottom: 10px;
+      }
+
+      .btn {
+        padding: 12px 24px;
+        border: none;
+        border-radius: 6px;
+        cursor: pointer;
+        font-weight: 600;
+        transition: all 0.3s;
+      }
+      .btn-primary {
+        background: #1e3c72;
+        color: #fff;
+      }
+      .btn-primary:hover {
+        background: #2a5298;
+        transform: translateY(-2px);
+      }
+
+      .btn-business {
+        background: #28a745;
+        color: #fff;
+      }
+      .btn-rpt {
+        background: #007bff;
+        color: #fff;
+      }
+      .btn-traffic {
+        background: #ffc107;
+        color: #333;
+      }
+      .btn-market {
+        background: #6f42c1;
+        color: #fff;
+      }
+
+      .result {
+        background: #f8f9fa;
+        padding: 15px;
+        border-radius: 6px;
+        margin-top: 15px;
+        font-family: monospace;
+        white-space: pre-wrap;
+        display: none;
+      }
+      .result.show {
+        display: block;
+      }
+      .result.success {
+        border-left: 4px solid #28a745;
+        background: #d4edda;
+      }
+      .result.error {
+        border-left: 4px solid #dc3545;
+        background: #f8d7da;
+      }
+
+      .status-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 15px;
+        margin-top: 20px;
+      }
+      .status-item {
+        background: #f8f9fa;
+        padding: 15px;
+        border-radius: 8px;
+        text-align: center;
+      }
+      .status-item .icon {
+        font-size: 2em;
+        margin-bottom: 5px;
+      }
+      .status-item .label {
+        font-weight: 600;
+        color: #666;
+      }
+      .status-item .value {
+        font-weight: bold;
+        color: #1e3c72;
+      }
+
+      .handshake-flow {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 10px;
+        margin: 20px 0;
+        flex-wrap: wrap;
+      }
+      .handshake-step {
+        background: #1e3c72;
+        color: #fff;
+        padding: 10px 20px;
+        border-radius: 20px;
+        font-weight: 600;
+      }
+      .handshake-arrow {
+        color: #fff;
+        font-size: 1.5em;
+      }
+
+      .info-box {
+        background: #e7f3ff;
+        border-left: 4px solid #2196f3;
+        padding: 15px;
+        margin: 15px 0;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <h1>🔗 RCTS Digital Handshake Tester</h1>
+      <p class="subtitle">TO-BE Feature: Outbound Payment Settlement Signals</p>
+
+      <div class="card">
+        <h2>📋 What is this?</h2>
+        <div class="info-box">
+          <strong>TO-BE Feature:</strong> When a citizen pays via QC-PAY, RCTS
+          automatically sends digital signals to external subsystems to complete
+          workflows WITHOUT human intervention.
+        </div>
+
+        <h3>Current Handshake Flow:</h3>
+        <div class="handshake-flow">
+          <div class="handshake-step">💳 Payment Success</div>
+          <span class="handshake-arrow">→</span>
+          <div class="handshake-step">📤 RCTS Signals Subsystem</div>
+          <span class="handshake-arrow">→</span>
+          <div class="handshake-step">🎯 Auto-Action Triggered</div>
+        </div>
+      </div>
+
+      <div class="card">
+        <h2>🧪 Test Digital Handshakes</h2>
+        <p>
+          Click a button to simulate a payment and trigger outbound signals to
+          all relevant subsystems:
+        </p>
+
+        <!-- Business Tax Payment Test -->
+        <div class="test-section">
+          <h3>🏢 Test: Business Tax Payment (S2 + S4)</h3>
+          <p>
+            Simulates: Business Owner pays Business Tax → Permits auto-released
+            + Health clearance updated
+          </p>
+          <button class="btn btn-business" onclick="testBusinessTaxHandshake()">
+            Simulate Business Tax Payment
+          </button>
+          <div id="result-business" class="result"></div>
+        </div>
+
+        <!-- RPT Payment Test -->
+        <div class="test-section">
+          <h3>🏠 Test: RPT Payment (S7)</h3>
+          <p>
+            Simulates: Taxpayer pays RPT → Zoning tax clearance updated in GIS
+            database
+          </p>
+          <button class="btn btn-rpt" onclick="testRPTHandshake()">
+            Simulate RPT Payment
+          </button>
+          <div id="result-rpt" class="result"></div>
+        </div>
+
+        <!-- Traffic Fine Payment Test -->
+        <div class="test-section">
+          <h3>🚗 Test: Traffic Fine Payment (S9)</h3>
+          <p>
+            Simulates: Driver pays traffic violation → Transport violation
+            record cleared
+          </p>
+          <button class="btn btn-traffic" onclick="testTrafficHandshake()">
+            Simulate Traffic Fine Payment
+          </button>
+          <div id="result-traffic" class="result"></div>
+        </div>
+
+        <!-- Market Stall Payment Test -->
+        <div class="test-section">
+          <h3>🏪 Test: Market Stall Payment (S10)</h3>
+          <p>
+            Simulates: Vendor pays stall rental → Lease status confirmed in
+            Assets
+          </p>
+          <button class="btn btn-market" onclick="testMarketHandshake()">
+            Simulate Market Stall Payment
+          </button>
+          <div id="result-market" class="result"></div>
+        </div>
+      </div>
+
+      <div class="card">
+        <h2>📊 Handshake Status Dashboard</h2>
+        <div class="status-grid">
+          <div class="status-item">
+            <div class="icon">🏢</div>
+            <div class="label">S2 Permits</div>
+            <div class="value" id="status-s2">Ready</div>
+          </div>
+          <div class="status-item">
+            <div class="icon">🏥</div>
+            <div class="label">S4 Health</div>
+            <div class="value" id="status-s4">Ready</div>
+          </div>
+          <div class="status-item">
+            <div class="icon">🏗️</div>
+            <div class="label">S7 Zoning</div>
+            <div class="value" id="status-s7">Ready</div>
+          </div>
+          <div class="status-item">
+            <div class="icon">🚗</div>
+            <div class="label">S9 Transport</div>
+            <div class="value" id="status-s9">Ready</div>
+          </div>
+          <div class="status-item">
+            <div class="icon">🏢</div>
+            <div class="label">S10 Assets</div>
+            <div class="value" id="status-s10">Ready</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <h2>📝 API Payloads Sent</h2>
+        <pre
+          id="api-log"
+          style="
+            background: #f5f5f5;
+            padding: 15px;
+            border-radius: 8px;
+            overflow: auto;
+            max-height: 300px;
+            font-size: 12px;
+          "
+        >
+Run a test to see the API payloads sent to external subsystems...
+            </pre
+        >
+      </div>
+    </div>
+
+    <script>
+      let apiLog = [];
+
+      function logAPI(url, payload, response) {
+        const entry = {
+          url,
+          payload,
+          response,
+          timestamp: new Date().toISOString(),
+        };
+        apiLog.push(entry);
+        document.getElementById("api-log").textContent = JSON.stringify(
+          apiLog,
+          null,
+          2,
+        );
+      }
+
+      async function testBusinessTaxHandshake() {
+        const resultDiv = document.getElementById("result-business");
+        resultDiv.className = "result show";
+        resultDiv.innerHTML =
+          "<strong>⏳ Processing Business Tax Payment...</strong>";
+
+        const qcitizen_id = "QC-2024-000002";
+        const eor_number =
+          "EOR-2026-" + Math.random().toString(36).substr(2, 8).toUpperCase();
+
+        // Simulate calling RCTS payment.php execute action
+        const rctsPayload = {
+          action: "execute",
+          transaction_id: "TXN-20260307-TEST01",
+          qcitizen_id: qcitizen_id,
+        };
+
+        // Now simulate the outbound signals that payment.php would send:
+
+        // 1. Signal to S2 (Permits)
+        const s2Payload = {
+          qcitizen_id: qcitizen_id,
+          payment_status: "Paid",
+          eor_number: eor_number,
+          transaction_id: "TXN-20260307-TEST01",
+          action: "release_permit",
+        };
+
+        // 2. Signal to S4 (Health)
+        const s4Payload = {
+          qcitizen_id: qcitizen_id,
+          clearance_type: "Sanitary",
+          payment_status: "Paid",
+          eor_number: eor_number,
+        };
+
+        // Simulate API calls (in real system, these would be actual HTTP requests)
+        await new Promise((r) => setTimeout(r, 500));
+
+        document.getElementById("status-s2").textContent = "Notified ✓";
+        document.getElementById("status-s4").textContent = "Notified ✓";
+
+        logAPI("S2_API_URL?action=payment_settlement", s2Payload, {
+          status: "success",
+          message: "Permit auto-released",
+        });
+        logAPI("S4_API_URL?action=update_clearance_status", s4Payload, {
+          status: "success",
+          message: "Clearance updated to Paid",
+        });
+
+        resultDiv.className = "result show success";
+        resultDiv.innerHTML = `
+<strong>✅ Business Tax Payment Handshake Complete!</strong>
+
+📤 Outbound Signals Sent:
+• S2 (Permits): Payment Settlement → Permit Auto-Released
+• S4 (Health): Clearance Status → Updated to "Paid"
+
+📋 Payload Details:
+• QCitizen ID: ${qcitizen_id}
+• eOR Number: ${eor_number}
+• Transaction: TXN-20260307-TEST01
+
+🎯 Result: Business permit is now cleared for release without manual intervention!
+            `;
+      }
+
+      async function testRPTHandshake() {
+        const resultDiv = document.getElementById("result-rpt");
+        resultDiv.className = "result show";
+        resultDiv.innerHTML = "<strong>⏳ Processing RPT Payment...</strong>";
+
+        const qcitizen_id = "QC-2024-000001";
+        const eor_number =
+          "EOR-2026-" + Math.random().toString(36).substr(2, 8).toUpperCase();
+
+        // Signal to S7 (Zoning)
+        const s7Payload = {
+          qcitizen_id: qcitizen_id,
+          tax_status: "Cleared",
+          year: "2026",
+          eor_number: eor_number,
+        };
+
+        await new Promise((r) => setTimeout(r, 500));
+        document.getElementById("status-s7").textContent = "Notified ✓";
+
+        logAPI("S7_API_URL?action=update_tax_clearance", s7Payload, {
+          status: "success",
+          message: "GIS tax clearance updated",
+        });
+
+        resultDiv.className = "result show success";
+        resultDiv.innerHTML = `
+<strong>✅ RPT Payment Handshake Complete!</strong>
+
+📤 Outbound Signal Sent:
+• S7 (Zoning): Tax Clearance → Updated in GIS Database
+
+📋 Payload Details:
+• QCitizen ID: ${qcitizen_id}
+• eOR Number: ${eor_number}
+• Year: 2026
+
+🎯 Result: Property tax clearance is now visible in the GIS map!
+            `;
+      }
+
+      async function testTrafficHandshake() {
+        const resultDiv = document.getElementById("result-traffic");
+        resultDiv.className = "result show";
+        resultDiv.innerHTML =
+          "<strong>⏳ Processing Traffic Fine Payment...</strong>";
+
+        const qcitizen_id = "QC-2024-000003";
+        const eor_number =
+          "EOR-2026-" + Math.random().toString(36).substr(2, 8).toUpperCase();
+
+        // Signal to S9 (Transport)
+        const s9Payload = {
+          qcitizen_id: qcitizen_id,
+          violation_status: "Settled",
+          eor_number: eor_number,
+          settlement_date: "2026-03-07",
+        };
+
+        await new Promise((r) => setTimeout(r, 500));
+        document.getElementById("status-s9").textContent = "Notified ✓";
+
+        logAPI("S9_API_URL?action=resolve_violation", s9Payload, {
+          status: "success",
+          message: "Violation record cleared",
+        });
+
+        resultDiv.className = "result show success";
+        resultDiv.innerHTML = `
+<strong>✅ Traffic Fine Payment Handshake Complete!</strong>
+
+📤 Outbound Signal Sent:
+• S9 (Transport): Violation Status → Marked as "Settled"
+
+📋 Payload Details:
+• QCitizen ID: ${qcitizen_id}
+• eOR Number: ${eor_number}
+• Settlement Date: 2026-03-07
+
+🎯 Result: Driver's violation record is now cleared in the Transport database!
+            `;
+      }
+
+      async function testMarketHandshake() {
+        const resultDiv = document.getElementById("result-market");
+        resultDiv.className = "result show";
+        resultDiv.innerHTML =
+          "<strong>⏳ Processing Market Stall Payment...</strong>";
+
+        const qcitizen_id = "QC-2024-000004";
+        const eor_number =
+          "EOR-2026-" + Math.random().toString(36).substr(2, 8).toUpperCase();
+
+        // Signal to S10 (Assets)
+        const s10Payload = {
+          qcitizen_id: qcitizen_id,
+          payment_status: "Paid",
+          eor_number: eor_number,
+          action: "confirm_lease",
+        };
+
+        await new Promise((r) => setTimeout(r, 500));
+        document.getElementById("status-s10").textContent = "Notified ✓";
+
+        logAPI("S10_API_URL?action=update_lease_status", s10Payload, {
+          status: "success",
+          message: "Lease confirmed",
+        });
+
+        resultDiv.className = "result show success";
+        resultDiv.innerHTML = `
+<strong>✅ Market Stall Payment Handshake Complete!</strong>
+
+📤 Outbound Signal Sent:
+• S10 (Assets): Lease Status → Confirmed
+
+📋 Payload Details:
+• QCitizen ID: ${qcitizen_id}
+• eOR Number: ${eor_number}
+• Action: confirm_lease
+
+🎯 Result: Vendor's lease renewal is confirmed, no eviction notice will be sent!
+            `;
+      }
+    </script>
+  </body>
+</html>

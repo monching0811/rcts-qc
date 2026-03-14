@@ -1,0 +1,72 @@
+{
+  "stalls": [
+    {
+      "stall_asset_id": "STL-QC-2026-BRYLLE-001",
+      "stall_name": "Brylle's Fresh Vegetable Stand",
+      "qcitizen_id": "a135da1e-6727-430e-9771-e15688e6f79e",
+      "facility_location_id": "MKT-LUNGSOD-STALL-ROW-A",
+      "facility_name": "Lungsod Public Market",
+      "lease_start_date": "2026-01-15",
+      "lease_end_date": "2027-01-14",
+      "stall_size_sqm": 12,
+      "monthly_rental_rate": 2500,
+      "occupancy_status_flag": "Active",
+      "occupancy_verification_method": "QR_CHECKIN",
+      "occupancy_last_verified_timestamp": "2026-03-12T08:30:00Z",
+      "verification_source_subsystem_id": 10,
+      "qr_code_hash": "QR20260312BRYLLE001",
+      "status": "Active"
+    },
+    {
+      "stall_asset_id": "STL-QC-2026-BRYLLE-002",
+      "stall_name": "Brylle's Dry Goods & Spice Shop",
+      "qcitizen_id": "a135da1e-6727-430e-9771-e15688e6f79e",
+      "facility_location_id": "MKT-LUNGSOD-STALL-ROW-B",
+      "facility_name": "Lungsod Public Market",
+      "lease_start_date": "2026-02-01",
+      "lease_end_date": "2027-01-31",
+      "stall_size_sqm": 15,
+      "monthly_rental_rate": 2800,
+      "occupancy_status_flag": "Active",
+      "occupancy_verification_method": "IOT_SENSOR",
+      "occupancy_last_verified_timestamp": "2026-03-12T07:45:00Z",
+      "verification_source_subsystem_id": 10,
+      "iot_device_id": "IOT-STL-BRYLLE-002",
+      "status": "Active"
+    },
+    {
+      "stall_asset_id": "STL-QC-2026-DAVE-001",
+      "stall_name": "Dave's Electronics & Gadgets",
+      "qcitizen_id": "eacd934b-0195-4640-b37c-aa0a8b40a9d2",
+      "facility_location_id": "MKT-NOVALICHES-STALL-ROW-C",
+      "facility_name": "Novaliches Public Market",
+      "lease_start_date": "2026-01-01",
+      "lease_end_date": "2026-12-31",
+      "stall_size_sqm": 20,
+      "monthly_rental_rate": 3500,
+      "occupancy_status_flag": "Active",
+      "occupancy_verification_method": "QR_CHECKIN",
+      "occupancy_last_verified_timestamp": "2026-03-12T09:15:00Z",
+      "verification_source_subsystem_id": 10,
+      "qr_code_hash": "QR20260312DAVE001",
+      "status": "Active"
+    },
+    {
+      "stall_asset_id": "STL-QC-2026-DAVE-002",
+      "stall_name": "Dave's Hardware Store",
+      "qcitizen_id": "eacd934b-0195-4640-b37c-aa0a8b40a9d2",
+      "facility_location_id": "MKT-NOVALICHES-STALL-ROW-D",
+      "facility_name": "Novaliches Public Market",
+      "lease_start_date": "2026-02-15",
+      "lease_end_date": "2027-02-14",
+      "stall_size_sqm": 25,
+      "monthly_rental_rate": 4000,
+      "occupancy_status_flag": "Active",
+      "occupancy_verification_method": "IOT_SENSOR",
+      "occupancy_last_verified_timestamp": "2026-03-12T10:30:00Z",
+      "verification_source_subsystem_id": 10,
+      "iot_device_id": "IOT-STL-DAVE-002",
+      "status": "Active"
+    }
+  ]
+}

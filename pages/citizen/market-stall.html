@@ -1,0 +1,706 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1.0" />
+    <title>RCTS-QC | Market Stall Rental</title>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=DM+Sans:wght@300;400;500;600&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      :root {
+        --navy: #0a1628;
+        --navy2: #112240;
+        --gold: #c9a84c;
+        --gold2: #e8c878;
+        --white: #ffffff;
+        --black: #000000;
+        --text-dark: #1a1a1a;
+        --text-gray: #555555;
+        --muted: #666666;
+        --green: #2ecc71;
+        --red: #e74c3c;
+        --orange: #f39c12;
+      }
+      *,
+      *::before,
+      *::after {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+      }
+      body {
+        font-family: "DM Sans", sans-serif;
+        background: #f5f5f5;
+        color: var(--text-dark);
+        min-height: 100vh;
+      }
+      body::before {
+        content: "";
+        position: fixed;
+        inset: 0;
+        background-image: repeating-linear-gradient(
+          45deg,
+          transparent,
+          transparent 40px,
+          rgba(201, 168, 76, 0.03) 40px,
+          rgba(201, 168, 76, 0.03) 41px
+        );
+        pointer-events: none;
+        z-index: 0;
+      }
+      nav {
+        position: relative;
+        z-index: 20;
+        background: #ffffff;
+        border-bottom: 2px solid #e0e0e0;
+        padding: 0 32px;
+        display: flex;
+        align-items: center;
+        gap: 0;
+        height: 60px;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+      }
+      .nav-brand {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        text-decoration: none;
+        color: inherit;
+        margin-right: 32px;
+      }
+      .nav-seal {
+        width: 34px;
+        height: 34px;
+        border-radius: 50%;
+        background: linear-gradient(135deg, var(--gold), var(--gold2));
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 13px;
+        font-weight: 700;
+        color: var(--navy);
+        font-family: "Playfair Display", serif;
+      }
+      .nav-brand span {
+        font-size: 14px;
+        font-weight: 600;
+        color: var(--text-dark);
+        letter-spacing: 0.04em;
+      }
+      .nav-links {
+        display: flex;
+        align-items: center;
+        gap: 2px;
+        flex: 1;
+        overflow-x: auto;
+        white-space: nowrap;
+      }
+      .nav-links a {
+        padding: 10px 16px;
+        font-size: 13px;
+        font-weight: 500;
+        color: var(--text-gray);
+        text-decoration: none;
+        border-radius: 6px;
+        letter-spacing: 0.03em;
+        transition:
+          color 0.2s,
+          background 0.2s;
+      }
+      .nav-links a:hover,
+      .nav-links a.active {
+        color: var(--gold);
+        background: rgba(201, 168, 76, 0.1);
+      }
+      .btn-logout {
+        background: none;
+        border: 1px solid #cccccc;
+        border-radius: 6px;
+        padding: 6px 14px;
+        font-size: 12px;
+        color: var(--text-gray);
+        cursor: pointer;
+        font-family: "DM Sans", sans-serif;
+        transition:
+          color 0.2s,
+          border-color 0.2s;
+      }
+      .btn-logout:hover {
+        color: var(--red);
+        border-color: var(--red);
+      }
+      .nav-user {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        font-size: 13px;
+      }
+      .nav-user .name {
+        color: var(--text-dark);
+        font-weight: 500;
+      }
+      .nav-user .tag {
+        font-size: 11px;
+        padding: 3px 10px;
+        border-radius: 12px;
+        background: rgba(52, 152, 219, 0.15);
+        color: #2980b9;
+        font-weight: 600;
+      }
+      main {
+        position: relative;
+        z-index: 10;
+        max-width: 900px;
+        margin: 0 auto;
+        padding: 36px 32px;
+      }
+      .page-header {
+        margin-bottom: 24px;
+      }
+      .page-header h1 {
+        font-family: "Playfair Display", serif;
+        font-size: 28px;
+        color: var(--text-dark);
+      }
+      .page-header p {
+        font-size: 14px;
+        color: var(--text-gray);
+        margin-top: 6px;
+      }
+      .card {
+        background: #ffffff;
+        border: 1px solid #e0e0e0;
+        border-radius: 12px;
+        padding: 22px;
+        margin-bottom: 18px;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+      }
+      .card h3 {
+        font-family: "Playfair Display", serif;
+        font-size: 18px;
+        margin-bottom: 16px;
+        padding-bottom: 12px;
+        border-bottom: 1px solid #e0e0e0;
+        color: var(--text-dark);
+      }
+      .stall-card {
+        background: #f9f9f9;
+        border: 1px solid #e0e0e0;
+        border-radius: 10px;
+        padding: 20px;
+        margin-bottom: 14px;
+      }
+      .stall-top {
+        display: flex;
+        align-items: flex-start;
+        justify-content: space-between;
+        margin-bottom: 14px;
+      }
+      .stall-name {
+        font-family: "Playfair Display", serif;
+        font-size: 18px;
+        color: var(--text-dark);
+      }
+      .stall-id {
+        font-size: 12px;
+        color: var(--gold);
+        letter-spacing: 0.06em;
+        margin-top: 3px;
+      }
+      .occ-badge {
+        font-size: 11px;
+        padding: 3px 10px;
+        border-radius: 8px;
+        font-weight: 700;
+        display: flex;
+        align-items: center;
+        gap: 5px;
+      }
+      .occ-active {
+        background: rgba(46, 204, 113, 0.15);
+        color: var(--green);
+      }
+      .occ-vacant {
+        background: rgba(136, 146, 164, 0.12);
+        color: var(--muted);
+      }
+      .occ-repair {
+        background: rgba(243, 156, 18, 0.15);
+        color: var(--orange);
+      }
+      .stall-details {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 12px;
+        margin-bottom: 14px;
+      }
+      .stall-det .lbl {
+        font-size: 11px;
+        color: var(--text-gray);
+        text-transform: uppercase;
+        letter-spacing: 0.06em;
+      }
+      .stall-det .val {
+        font-size: 14px;
+        margin-top: 2px;
+        font-weight: 500;
+        color: var(--text-dark);
+      }
+      .stall-det .val.big {
+        font-family: "Playfair Display", serif;
+        font-size: 18px;
+        color: var(--gold);
+      }
+      .verification-row {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        font-size: 12px;
+        color: var(--text-gray);
+        padding-top: 10px;
+        border-top: 1px solid #e0e0e0;
+      }
+      .verification-row .method {
+        display: inline-flex;
+        align-items: center;
+        gap: 5px;
+        padding: 3px 9px;
+        border-radius: 6px;
+        background: rgba(52, 152, 219, 0.12);
+        color: #2980b9;
+        font-size: 11px;
+        font-weight: 700;
+      }
+      .bill-row {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 14px 0;
+        border-bottom: 1px solid #e0e0e0;
+      }
+      .bill-row:last-child {
+        border-bottom: none;
+      }
+      .bill-info .lbl {
+        font-size: 14px;
+        font-weight: 500;
+        color: var(--text-dark);
+      }
+      .bill-info .sub {
+        font-size: 12px;
+        color: var(--text-gray);
+        margin-top: 2px;
+      }
+      .btn-pay {
+        background: linear-gradient(135deg, var(--gold), var(--gold2));
+        border: none;
+        border-radius: 7px;
+        padding: 8px 16px;
+        font-size: 13px;
+        font-weight: 700;
+        color: var(--navy);
+        cursor: pointer;
+        font-family: "DM Sans", sans-serif;
+      }
+      .btn-pay-row {
+        background: rgba(201, 168, 76, 0.1);
+        border: 1px solid var(--gold);
+        border-radius: 6px;
+        padding: 6px 14px;
+        font-size: 12px;
+        font-weight: 700;
+        color: var(--gold);
+        cursor: pointer;
+        font-family: "DM Sans", sans-serif;
+        transition: background 0.2s;
+      }
+      .btn-pay-row:hover {
+        background: rgba(201, 168, 76, 0.2);
+      }
+      .arrears-warning {
+        background: rgba(231, 76, 60, 0.08);
+        border: 1px solid rgba(231, 76, 60, 0.2);
+        border-radius: 7px;
+        padding: 10px 14px;
+        font-size: 12px;
+        color: var(--red);
+        margin-top: 10px;
+      }
+      .loading {
+        text-align: center;
+        padding: 28px;
+        color: var(--text-gray);
+      }
+      .empty-state {
+        text-align: center;
+        padding: 36px;
+        color: var(--text-gray);
+        font-size: 14px;
+      }
+      .iot-banner {
+        background: rgba(52, 152, 219, 0.08);
+        border: 1px solid rgba(52, 152, 219, 0.2);
+        border-radius: 8px;
+        padding: 11px 14px;
+        font-size: 12px;
+        color: #2980b9;
+        margin-top: 10px;
+      }
+    </style>
+  </head>
+  <body>
+    <nav>
+      <a class="nav-brand" href="dashboard.html">
+        <div class="nav-seal">QC</div>
+        <span>RCTS-QC Citizen Portal</span>
+      </a>
+      <div class="nav-links">
+        <a href="dashboard.html">Dashboard</a>
+        <a href="transactions.html">Transaction History</a>
+        <a href="rpt-payment.html">Real Property Tax</a>
+        <a href="business-tax.html">Business Tax</a>
+        <a href="market-stall.html" class="active">Market Stall</a>
+        <a href="payment-gateway.html">Pay Now</a>
+      </div>
+      <div class="nav-user">
+        <span class="name" id="nav-name">Loading...</span>
+        <span class="tag" id="nav-role">Citizen</span>
+        <button class="btn-logout" onclick="logoutWithConfirm()">
+          Sign Out
+        </button>
+      </div>
+    </nav>
+    <main>
+      <div class="page-header">
+        <h1>Market Stall Rental</h1>
+        <p>
+          Your leased market stalls and monthly rental invoices. Occupancy
+          verified by Subsystem 10 (Public Assets).
+        </p>
+      </div>
+
+      <div class="card">
+        <h3>
+          🛒 Your Leased Stalls
+          <small style="font-size: 12px; color: var(--muted); font-weight: 400"
+            >(from Subsystem 10)</small
+          >
+        </h3>
+        <div id="stalls-container">
+          <div class="loading">Loading your stalls...</div>
+        </div>
+      </div>
+
+      <div class="card">
+        <h3>🧾 Rental Bills</h3>
+        <div id="bills-container">
+          <div class="loading">Loading rental bills...</div>
+        </div>
+      </div>
+
+      <div class="card" id="pending-bills-card" style="display: none">
+        <h3>
+          💰 Pending Market Rental Bills
+          <small style="font-size: 12px; color: var(--muted); font-weight: 400"
+            >(from unified billing system)</small
+          >
+        </h3>
+        <div id="pending-mkt-bills-container">
+          <div class="loading">Loading pending bills...</div>
+        </div>
+      </div>
+    </main>
+
+    <script src="../../public/js/main.js"></script>
+    <script>
+      const citizen = JSON.parse(
+        sessionStorage.getItem("rcts_citizen") || "{}",
+      );
+      if (!citizen.qcitizen_id) location.href = "login.html";
+      document.getElementById("nav-name").textContent =
+        citizen.full_name || "—";
+      document.getElementById("nav-role").textContent =
+        citizen.role || "citizen";
+
+      async function loadStalls() {
+        try {
+          console.log("loadStalls() called for citizen:", citizen.qcitizen_id);
+
+          // Fetch from S10 (Subsystem 10 - Public Assets)
+          const res = await fetch(
+            `../../mock-data/subsystem10/public-assets-api.php?action=get_stalls_by_citizen&qcitizen_id=${citizen.qcitizen_id}&t=${Date.now()}`,
+          );
+          const data = await res.json();
+          console.log("S10 stalls response:", data);
+
+          const stalls = data.data || [];
+          const container = document.getElementById("stalls-container");
+
+          if (!stalls.length) {
+            console.log("No stalls found for citizen", citizen.qcitizen_id);
+            container.innerHTML =
+              '<div class="empty-state">No market stalls leased under your QCitizen ID.</div>';
+            return;
+          }
+
+          console.log("Found", stalls.length, "stalls:", stalls);
+
+          // Mapping for S10 occupancy methods to display labels
+          const methodLabels = {
+            QR_CHECKIN: "QR Code Scan",
+            IOT_SENSOR: "IoT Sensor",
+            MOBILE_APP: "Mobile App",
+            MANUAL_INSPECTION: "Manual Inspection",
+          };
+
+          container.innerHTML = stalls
+            .map(
+              (s) => `
+      <div class="stall-card">
+        <div class="stall-top">
+          <div>
+            <div class="stall-name">${s.stall_name || s.facility_name}</div>
+            <div class="stall-id">Asset ID: ${s.stall_asset_id}</div>
+          </div>
+        </div>
+        <div class="stall-details">
+          <div class="stall-det"><div class="lbl">Monthly Rental</div><div class="val big">₱${Number(s.monthly_rental_rate || 0).toLocaleString()}</div></div>
+          <div class="stall-det"><div class="lbl">Location</div><div class="val">${s.facility_name || "—"}</div></div>
+          <div class="stall-det"><div class="lbl">Size</div><div class="val">${s.stall_size_sqm || "—"} sqm</div></div>
+        </div>
+        <div class="verification-row">
+          <span>Occupancy verification method:</span>
+          <span class="method">📡 ${methodLabels[s.occupancy_verification_method] || s.occupancy_verification_method}</span>
+        </div>
+        <div class="iot-banner">💡 Billing is <strong>auto-triggered</strong> each month when Subsystem 10 confirms your stall as Active via ${methodLabels[s.occupancy_verification_method] || "verification"}. No manual request needed.</div>
+      </div>`,
+            )
+            .join("");
+        } catch (e) {
+          console.error("Error loading stalls:", e);
+          document.getElementById("stalls-container").innerHTML =
+            '<div class="empty-state">Could not load stall data. Error: ' +
+            e.message +
+            "</div>";
+        }
+      }
+
+      async function loadBills() {
+        // Hide the old "Rental Bills" section since we now use "Pending Market Rental Bills" from Payment API
+        const card = document.getElementById("bills-container").parentElement;
+        if (card) {
+          card.style.display = "none";
+        }
+      }
+
+      function payBill(ref) {
+        sessionStorage.setItem("pay_bills", JSON.stringify([ref]));
+        Toast.info("Redirecting to payment gateway...");
+        location.href = "payment-gateway.html";
+      }
+
+      async function loadPendingBills() {
+        try {
+          console.log(
+            "loadPendingBills() called for citizen:",
+            citizen.qcitizen_id,
+          );
+          const res = await fetch(
+            `../../api/endpoints/payment.php?action=get_pending_bills&qcitizen_id=${citizen.qcitizen_id}`,
+          );
+          console.log("Payment API response status:", res.status);
+          const data = await res.json();
+          console.log("Payment API data:", data);
+
+          const bills = (data.data?.bills || []).filter(
+            (b) => b.bill_type === "MarketRental",
+          );
+          console.log("Filtered MarketRental bills:", bills);
+
+          const container = document.getElementById(
+            "pending-mkt-bills-container",
+          );
+          const card = document.getElementById("pending-bills-card");
+          console.log("Card element found:", card);
+          console.log("Container element found:", container);
+
+          if (!bills.length) {
+            console.log("No MarketRental bills found");
+            card.style.display = "none";
+            return;
+          }
+
+          console.log("Setting card display to block");
+          card.style.display = "block";
+          console.log("Card display is now:", card.style.display);
+
+          container.innerHTML = bills
+            .map(
+              (b) => `
+            <div class="bill-item" style="display:flex;align-items:center;justify-content:space-between;padding:14px 0;border-bottom:1px solid rgba(201,168,76,0.07)">
+              <div>
+                <div style="font-weight:500">${b.bill_reference_no}</div>
+                <div style="font-size:11px;color:var(--muted)">Stall: ${b.asset_id} · Due: ${b.due_date || "—"}</div>
+              </div>
+              <div style="display:flex;align-items:center;gap:14px">
+                <div style="font-family:'Playfair Display',serif;font-size:16px;font-weight:700;color:var(--gold)">₱${Number(b.total_amount_due).toLocaleString("en-PH", { minimumFractionDigits: 2 })}</div>
+                <button class="btn-pay" onclick="payBillMkt('${b.bill_reference_no}')">Pay Now</button>
+              </div>
+            </div>
+          `,
+            )
+            .join("");
+          console.log("Bills rendered successfully");
+        } catch (e) {
+          console.error("Error loading pending bills:", e);
+          console.error("Stack:", e.stack);
+          document.getElementById("pending-bills-card").style.display = "none";
+        }
+      }
+
+      function payBillMkt(ref) {
+        sessionStorage.setItem("pay_bills", JSON.stringify([ref]));
+        Toast.info("Redirecting to payment gateway...");
+        location.href = "payment-gateway.html";
+      }
+
+      async function showTransactionHistory() {
+        // Update navigation
+        document
+          .querySelectorAll(".nav-links a")
+          .forEach((a) => a.classList.remove("active"));
+        document
+          .querySelector(".nav-links a:nth-child(2)")
+          .classList.add("active");
+
+        // Update page title
+        document.querySelector(".page-header h1").textContent =
+          "Transaction History";
+        document.querySelector(".page-header p").textContent =
+          "View all your payment transactions and download receipts.";
+
+        // Hide main cards
+        document.querySelectorAll(".card").forEach((card) => {
+          card.style.display = "none";
+        });
+
+        // Load transaction history
+        await loadTransactionHistory();
+      }
+
+      async function loadTransactionHistory() {
+        try {
+          const res = await fetch(
+            `../../api/endpoints/payment.php?action=get_transaction_history&qcitizen_id=${citizen.qcitizen_id}`,
+          );
+          const data = await res.json();
+          const transactions = data.data?.transactions || [];
+
+          // Get or create transactions container
+          let container = document.querySelector(
+            ".transaction-history-container",
+          );
+          if (!container) {
+            container = document.createElement("div");
+            container.className = "card transaction-history-container";
+            document.querySelector("main").appendChild(container);
+          }
+          container.style.display = "block";
+
+          if (!transactions.length) {
+            container.innerHTML = `
+              <div class="section-header">
+                <h3>Transaction History</h3>
+              </div>
+              <div class="empty-state">
+                <div class="icon">📄</div>
+                No transactions found. Your payment history will appear here.
+              </div>
+            `;
+            return;
+          }
+
+          const getTypeClass = (status) => {
+            switch (status) {
+              case "Success":
+                return "type-rpt";
+              case "Pending":
+                return "type-biz";
+              case "Failed":
+                return "type-trf";
+              default:
+                return "type-rpt";
+            }
+          };
+
+          const rows = transactions
+            .map(
+              (t) => `
+            <tr>
+              <td>${t.transaction_id}</td>
+              <td>${new Date(t.transaction_timestamp).toLocaleDateString("en-PH")}</td>
+              <td><span class="type-badge ${getTypeClass(t.transaction_status)}">${t.transaction_status}</span></td>
+              <td>₱${Number(t.amount_settled).toLocaleString("en-PH", { minimumFractionDigits: 2 })}</td>
+              <td>${t.gateway_provider}</td>
+              <td>
+                <button class="btn-pay-row" onclick="downloadReceipt('${t.transaction_id}')">
+                  📄 Download Receipt
+                </button>
+              </td>
+            </tr>
+          `,
+            )
+            .join("");
+
+          container.innerHTML = `
+            <div class="section-header">
+              <h3>Transaction History</h3>
+            </div>
+            <table class="bills-table">
+              <thead>
+                <tr>
+                  <th>Transaction ID</th>
+                  <th>Date</th>
+                  <th>Status</th>
+                  <th>Amount</th>
+                  <th>Gateway</th>
+                  <th>Receipt</th>
+                </tr>
+              </thead>
+              <tbody>${rows}</tbody>
+            </table>
+          `;
+        } catch (e) {
+          const container = document.querySelector(
+            ".transaction-history-container",
+          );
+          if (container) {
+            container.innerHTML = `
+              <div class="section-header">
+                <h3>Transaction History</h3>
+              </div>
+              <div class="empty-state">Could not load transaction history.</div>
+            `;
+          }
+        }
+      }
+
+      function downloadReceipt(transactionId) {
+        rcts_confirm(
+          "Are you sure you want to download this receipt?",
+          "Download Receipt",
+        ).then((confirmed) => {
+          if (confirmed) {
+            window.location.href = `receipt.html?txn=${encodeURIComponent(transactionId)}`;
+          }
+        });
+      }
+
+      loadStalls();
+      loadBills();
+      loadPendingBills();
+    </script>
+  </body>
+</html>

@@ -1,0 +1,105 @@
+<!doctype html>
+<html>
+  <head>
+    <title>Debug Leased Stalls</title>
+    <style>
+      body {
+        font-family: monospace;
+        padding: 20px;
+        background: #f5f5f5;
+      }
+      .test {
+        background: white;
+        padding: 15px;
+        margin: 10px 0;
+        border-radius: 8px;
+        border: 1px solid #ddd;
+      }
+      .success {
+        border-left: 5px solid green;
+      }
+      .error {
+        border-left: 5px solid red;
+      }
+      pre {
+        background: #f0f0f0;
+        padding: 10px;
+        border-radius: 4px;
+        overflow-x: auto;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>🔍 Leased Stalls Debug</h1>
+
+    <div id="citizen-test" class="test">
+      <h3>Citizen Setup</h3>
+      <p>Loading citizen from sessionStorage...</p>
+      <pre id="citizen-info"></pre>
+    </div>
+
+    <div id="s10-test" class="test">
+      <h3>S10 API Test</h3>
+      <p>Fetching stalls...</p>
+      <pre id="s10-response"></pre>
+    </div>
+
+    <div id="payment-test" class="test">
+      <h3>Payment API Test</h3>
+      <p>Fetching bills...</p>
+      <pre id="payment-response"></pre>
+    </div>
+
+    <script>
+      const citizen = JSON.parse(
+        sessionStorage.getItem("rcts_citizen") || "{}",
+      );
+
+      // Test 1: Citizen
+      const citizenDiv = document.getElementById("citizen-info");
+      if (citizen.qcitizen_id) {
+        document.getElementById("citizen-test").classList.add("success");
+        citizenDiv.textContent = JSON.stringify(citizen, null, 2);
+      } else {
+        document.getElementById("citizen-test").classList.add("error");
+        citizenDiv.textContent =
+          "ERROR: No citizen in sessionStorage. Please log in first.";
+      }
+
+      // Test 2: S10 API
+      fetch(
+        `../../mock-data/subsystem10/public-assets-api.php?action=get_stalls_by_citizen&qcitizen_id=${citizen.qcitizen_id}&t=${Date.now()}`,
+      )
+        .then((res) => res.json())
+        .then((data) => {
+          document.getElementById("s10-test").classList.add("success");
+          document.getElementById("s10-response").textContent = JSON.stringify(
+            data,
+            null,
+            2,
+          );
+        })
+        .catch((e) => {
+          document.getElementById("s10-test").classList.add("error");
+          document.getElementById("s10-response").textContent =
+            "ERROR: " + e.message;
+        });
+
+      // Test 3: Payment API
+      fetch(
+        `../../api/endpoints/payment.php?action=get_pending_bills&qcitizen_id=${citizen.qcitizen_id}&t=${Date.now()}`,
+      )
+        .then((res) => res.json())
+        .then((data) => {
+          document.getElementById("payment-test").classList.add("success");
+          document.getElementById("payment-response").textContent =
+            JSON.stringify(data, null, 2);
+        })
+        .catch((e) => {
+          document.getElementById("payment-test").classList.add("error");
+          document.getElementById("payment-response").textContent =
+            "ERROR: " + e.message;
+        });
+    </script>
+  </body>
+</html>

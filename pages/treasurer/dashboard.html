@@ -1,0 +1,1158 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1.0" />
+    <title>RCTS-QC | Treasury Dashboard</title>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=DM+Sans:wght@300;400;500;600&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      :root {
+        --bg-primary: #ffffff;
+        --bg-secondary: #f5f5f5;
+        --bg-card: #ffffff;
+        --text-primary: #1a1a1a;
+        --text-secondary: #555555;
+        --text-muted: #666666;
+        --gold: #c9a84c;
+        --gold2: #e8c878;
+        --white: #ffffff;
+        --muted: #666666;
+        --green: #2ecc71;
+        --red: #e74c3c;
+        --orange: #f39c12;
+        --blue: #3498db;
+        --border-color: #dddddd;
+        --accent-color: #c9a84c;
+      }
+      *,
+      *::before,
+      *::after {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+      }
+      body {
+        font-family: "DM Sans", sans-serif;
+        background: #f5f5f5;
+        color: #1a1a1a;
+        min-height: 100vh;
+      }
+      body::before {
+        content: "";
+        position: fixed;
+        inset: 0;
+        background-image: repeating-linear-gradient(
+          45deg,
+          transparent,
+          transparent 40px,
+          rgba(201, 168, 76, 0.03) 40px,
+          rgba(201, 168, 76, 0.03) 41px
+        );
+        pointer-events: none;
+        z-index: 0;
+      }
+      nav {
+        position: relative;
+        z-index: 20;
+        background: #ffffff;
+        border-bottom: 1px solid #dddddd;
+        padding: 0 28px;
+        display: flex;
+        align-items: center;
+        height: 60px;
+        gap: 0;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.08);
+      }
+      .nav-brand {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        text-decoration: none;
+        color: inherit;
+        margin-right: 24px;
+      }
+      .nav-seal {
+        width: 32px;
+        height: 32px;
+        border-radius: 50%;
+        background: linear-gradient(135deg, var(--gold), var(--gold2));
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 12px;
+        font-weight: 700;
+        color: var(--navy);
+        font-family: "Playfair Display", serif;
+      }
+      .nav-brand span {
+        font-size: 12px;
+        font-weight: 600;
+        color: #1a1a1a;
+      }
+      .nav-links {
+        display: flex;
+        align-items: center;
+        gap: 2px;
+        flex: 1;
+      }
+      .nav-links a {
+        padding: 7px 12px;
+        font-size: 12px;
+        color: var(--text-secondary);
+        text-decoration: none;
+        border-radius: 6px;
+        transition:
+          color 0.2s,
+          background 0.2s;
+      }
+      .nav-links a:hover,
+      .nav-links a.active {
+        color: var(--gold);
+        background: rgba(201, 168, 76, 0.08);
+      }
+      .nav-right {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+      }
+      .staff-badge {
+        font-size: 10px;
+        padding: 2px 8px;
+        border-radius: 8px;
+        background: rgba(201, 168, 76, 0.15);
+        color: var(--gold);
+        font-weight: 600;
+      }
+      .btn-logout {
+        background: none;
+        border: 1px solid #dddddd;
+        border-radius: 6px;
+        padding: 5px 12px;
+        font-size: 11px;
+        color: #555555;
+        cursor: pointer;
+        font-family: "DM Sans", sans-serif;
+      }
+      main {
+        position: relative;
+        z-index: 10;
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 28px 28px;
+      }
+      /* Page header */
+      .page-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 24px;
+      }
+      .page-header h1 {
+        font-family: "Playfair Display", serif;
+        font-size: 28px;
+        color: #1a1a1a;
+      }
+      .page-header p {
+        font-size: 14px;
+        color: #666666;
+        margin-top: 3px;
+      }
+      .live-dot {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        font-size: 11px;
+        color: var(--green);
+        background: rgba(46, 204, 113, 0.1);
+        border: 1px solid rgba(46, 204, 113, 0.25);
+        border-radius: 12px;
+        padding: 4px 10px;
+      }
+      .live-dot::before {
+        content: "";
+        width: 6px;
+        height: 6px;
+        border-radius: 50%;
+        background: var(--green);
+        animation: pulse 2s infinite;
+      }
+      @keyframes pulse {
+        0%,
+        100% {
+          opacity: 1;
+        }
+        50% {
+          opacity: 0.4;
+        }
+      }
+      /* KPI grid */
+      .kpi-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 14px;
+        margin-bottom: 22px;
+      }
+      .kpi-card {
+        background: #ffffff;
+        border: 1px solid #dddddd;
+        border-radius: 10px;
+        padding: 18px 20px;
+        position: relative;
+        overflow: hidden;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+      }
+      .kpi-card::after {
+        content: "";
+        position: absolute;
+        top: 0;
+        right: 0;
+        width: 3px;
+        height: 100%;
+        background: var(--accent);
+      }
+      .kpi-card.c-green {
+        --accent: var(--green);
+      }
+      .kpi-card.c-gold {
+        --accent: var(--gold);
+      }
+      .kpi-card.c-red {
+        --accent: var(--red);
+      }
+      .kpi-card.c-blue {
+        --accent: var(--blue);
+      }
+      .kpi-card.c-orange {
+        --accent: var(--orange);
+      }
+      .kpi-icon {
+        font-size: 20px;
+        margin-bottom: 8px;
+      }
+      .kpi-val {
+        font-family: "Playfair Display", serif;
+        font-size: 22px;
+        color: #1a1a1a;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+      .kpi-lbl {
+        font-size: 11px;
+        color: #666666;
+        text-transform: uppercase;
+        letter-spacing: 0.07em;
+        margin-top: 4px;
+      }
+      .kpi-sub {
+        font-size: 12px;
+        margin-top: 4px;
+        color: #666666;
+      }
+      /* Two-column layout */
+      .two-col {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 18px;
+        margin-bottom: 18px;
+      }
+      @media (max-width: 900px) {
+        .two-col {
+          grid-template-columns: 1fr;
+        }
+      }
+      /* Cards */
+      .card {
+        background: #ffffff;
+        border: 1px solid #dddddd;
+        border-radius: 12px;
+        padding: 20px;
+        margin-bottom: 18px;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+      }
+      .card-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 14px;
+        padding-bottom: 12px;
+        border-bottom: 1px solid #eeeeee;
+      }
+      .card-header h3 {
+        font-family: "Playfair Display", serif;
+        font-size: 16px;
+        color: #1a1a1a;
+      }
+      .btn-sm {
+        background: rgba(201, 168, 76, 0.1);
+        border: 1px solid rgba(201, 168, 76, 0.3);
+        border-radius: 6px;
+        padding: 5px 12px;
+        font-size: 11px;
+        font-weight: 600;
+        color: var(--gold);
+        cursor: pointer;
+        font-family: "DM Sans", sans-serif;
+        transition: background 0.2s;
+        text-decoration: none;
+        display: inline-block;
+      }
+      .btn-sm:hover {
+        background: rgba(201, 168, 76, 0.2);
+      }
+      .btn-sm.red {
+        background: rgba(231, 76, 60, 0.1);
+        border-color: rgba(231, 76, 60, 0.3);
+        color: var(--red);
+      }
+      /* Ledger table */
+      .ledger-table {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: 12px;
+      }
+      .ledger-table th {
+        padding: 8px 12px;
+        text-align: left;
+        font-size: 10px;
+        font-weight: 600;
+        color: #666666;
+        letter-spacing: 0.07em;
+        text-transform: uppercase;
+        border-bottom: 1px solid #eeeeee;
+        background: #f9f9f9;
+      }
+      .ledger-table td {
+        padding: 10px 12px;
+        border-bottom: 1px solid #eeeeee;
+        color: #1a1a1a;
+      }
+      .ledger-table tr:last-child td {
+        border-bottom: none;
+      }
+      .credit {
+        color: var(--green);
+      }
+      .debit {
+        color: var(--red);
+      }
+      .fund-tag {
+        font-size: 10px;
+        padding: 2px 7px;
+        border-radius: 6px;
+        background: rgba(201, 168, 76, 0.12);
+        color: #8a6d3b;
+      }
+      /* Stress test */
+      .stress-bar {
+        height: 10px;
+        border-radius: 5px;
+        background: rgba(201, 168, 76, 0.1);
+        margin: 10px 0;
+        overflow: hidden;
+      }
+      .stress-fill {
+        height: 100%;
+        border-radius: 5px;
+        transition: width 0.6s;
+        background: var(--green);
+      }
+      .stress-fill.warn {
+        background: var(--orange);
+      }
+      .stress-fill.crit {
+        background: var(--red);
+      }
+      .stress-result {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        font-size: 12px;
+        font-weight: 700;
+        padding: 4px 12px;
+        border-radius: 10px;
+      }
+      .result-ok {
+        background: rgba(46, 204, 113, 0.1);
+        color: var(--green);
+        border: 1px solid rgba(46, 204, 113, 0.25);
+      }
+      .result-warn {
+        background: rgba(243, 156, 18, 0.1);
+        color: var(--orange);
+        border: 1px solid rgba(243, 156, 18, 0.25);
+      }
+      .result-crit {
+        background: rgba(231, 76, 60, 0.1);
+        color: var(--red);
+        border: 1px solid rgba(231, 76, 60, 0.25);
+      }
+      /* Revenue bars */
+      .rev-bar-row {
+        margin-bottom: 12px;
+      }
+      .rev-bar-label {
+        display: flex;
+        justify-content: space-between;
+        font-size: 12px;
+        margin-bottom: 4px;
+      }
+      .rev-bar-label .lbl {
+        color: #666666;
+      }
+      .rev-bar-label .val {
+        color: #1a1a1a;
+        font-weight: 500;
+      }
+      .rev-bar-track {
+        height: 6px;
+        border-radius: 3px;
+        background: #eeeeee;
+        overflow: hidden;
+      }
+      .rev-bar-fill {
+        height: 100%;
+        border-radius: 3px;
+        background: linear-gradient(90deg, var(--gold), var(--gold2));
+        transition: width 0.8s;
+      }
+      /* Disb queue */
+      .disb-row {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 10px 0;
+        border-bottom: 1px solid rgba(201, 168, 76, 0.07);
+        font-size: 12px;
+      }
+      .disb-row:last-child {
+        border-bottom: none;
+      }
+      .disb-name {
+        font-weight: 500;
+        color: #1a1a1a;
+      }
+      .disb-prog {
+        font-size: 11px;
+        color: #666666;
+        margin-top: 2px;
+      }
+      .priority-em {
+        font-size: 10px;
+        padding: 2px 7px;
+        border-radius: 6px;
+        background: rgba(231, 76, 60, 0.15);
+        color: var(--red);
+        font-weight: 700;
+      }
+      .priority-nm {
+        font-size: 10px;
+        padding: 2px 7px;
+        border-radius: 6px;
+        background: rgba(52, 152, 219, 0.12);
+        color: #74b9ff;
+        font-weight: 600;
+      }
+      .loading {
+        text-align: center;
+        padding: 28px;
+        color: #666666;
+        font-size: 13px;
+      }
+
+      /* Bill Status Overview Styles */
+      .filter-controls {
+        display: flex;
+        gap: 12px;
+        align-items: center;
+        margin-top: 8px;
+      }
+      .filter-select,
+      .filter-input {
+        background: #ffffff;
+        border: 1px solid #dddddd;
+        border-radius: 6px;
+        padding: 6px 10px;
+        color: #1a1a1a;
+        font-size: 12px;
+        font-family: "DM Sans", sans-serif;
+        outline: none;
+      }
+      .filter-select:focus,
+      .filter-input:focus {
+        border-color: var(--gold);
+      }
+      .filter-input {
+        min-width: 200px;
+      }
+      .bill-status-table {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: 12px;
+        background: #ffffff;
+      }
+      .bill-status-table th,
+      .bill-status-table td {
+        padding: 8px 12px;
+        text-align: left;
+        border-bottom: 1px solid #eeeeee;
+      }
+      .bill-status-table th {
+        background: #f9f9f9;
+        font-weight: 600;
+        color: #8a6d3b;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        font-size: 10px;
+      }
+      .bill-status-table tbody tr:hover {
+        background: #f9f9f9;
+      }
+      .status-paid {
+        color: var(--green);
+        font-weight: 600;
+      }
+      .status-pending {
+        color: var(--orange);
+        font-weight: 600;
+      }
+    </style>
+  </head>
+  <body>
+    <nav>
+      <a class="nav-brand" href="../../index.html"
+        ><div class="nav-seal">QC</div>
+        <span>RCTS-QC Treasury</span></a
+      >
+      <div class="nav-links">
+        <a href="dashboard.html" class="active">Dashboard</a>
+        <a href="live-ledger.html">Live Ledger</a>
+        <a href="disbursement.html">Disbursements</a>
+        <a href="reports.html">Reports / e-SRE</a>
+        <a href="fund-management.html">Fund Management</a>
+        <a href="market-billing.html">Market Billing</a>
+      </div>
+      <div class="nav-right">
+        <span class="staff-badge">Treasury Staff</span>
+        <span id="nav-name" style="font-size: 12px; color: #1a1a1a">—</span>
+        <button
+          class="btn-logout"
+          onclick="
+            sessionStorage.clear();
+            location.href = '../treasurer/login.html';
+          "
+        >
+          Sign Out
+        </button>
+      </div>
+    </nav>
+    <main>
+      <div class="page-header">
+        <div>
+          <h1>Treasury Dashboard</h1>
+          <p id="dash-date">Loading...</p>
+        </div>
+        <div class="live-dot">Live · Auto-refresh 30s</div>
+      </div>
+
+      <!-- KPI Row -->
+      <div class="kpi-grid">
+        <div class="kpi-card c-green">
+          <div class="kpi-icon">💰</div>
+          <div class="kpi-val" id="k-collected">₱—</div>
+          <div class="kpi-lbl">Collected MTD</div>
+          <div class="kpi-sub" id="k-target-pct" style="color: var(--muted)">
+            Loading...
+          </div>
+        </div>
+        <div class="kpi-card c-red">
+          <div class="kpi-icon">📤</div>
+          <div class="kpi-val" id="k-disbursed">₱—</div>
+          <div class="kpi-lbl">Disbursed MTD</div>
+        </div>
+        <div class="kpi-card c-gold">
+          <div class="kpi-icon">🏦</div>
+          <div class="kpi-val" id="k-net">₱—</div>
+          <div class="kpi-lbl">Net Cash Position</div>
+        </div>
+        <div class="kpi-card c-orange">
+          <div class="kpi-icon">⚠️</div>
+          <div class="kpi-val" id="k-delinq">—</div>
+          <div class="kpi-lbl">Delinquent Bills</div>
+        </div>
+        <div class="kpi-card c-blue">
+          <div class="kpi-icon">🆘</div>
+          <div class="kpi-val" id="k-qrf">₱—</div>
+          <div class="kpi-lbl">QRF Balance</div>
+          <div class="kpi-sub" id="k-qrf-status" style="color: var(--muted)">
+            —
+          </div>
+        </div>
+        <div class="kpi-card c-gold">
+          <div class="kpi-icon">⏳</div>
+          <div class="kpi-val" id="k-pending-disb">₱—</div>
+          <div class="kpi-lbl">Pending Disbursements</div>
+        </div>
+      </div>
+
+      <div class="two-col">
+        <!-- Revenue Breakdown -->
+        <div class="card">
+          <div class="card-header">
+            <h3>Revenue Breakdown (MTD)</h3>
+            <span id="stress-badge" class="stress-result result-ok">OK</span>
+          </div>
+          <div id="rev-breakdown"><div class="loading">Loading...</div></div>
+          <div style="margin-top: 14px">
+            <div
+              style="
+                display: flex;
+                justify-content: space-between;
+                font-size: 11px;
+                color: var(--muted);
+                margin-bottom: 6px;
+              "
+            >
+              <span>Revenue vs. Target</span><span id="target-pct-lbl">—</span>
+            </div>
+            <div class="stress-bar">
+              <div class="stress-fill" id="target-bar" style="width: 0%"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Liquidity Stress Test -->
+        <div class="card">
+          <div class="card-header">
+            <h3>Liquidity Stress Test</h3>
+            <button class="btn-sm" onclick="runStressTest()">Run Test</button>
+          </div>
+          <div id="stress-result-panel">
+            <p
+              style="font-size: 13px; color: var(--muted); margin-bottom: 14px"
+            >
+              Enter a proposed payout to check if the treasury can absorb it.
+            </p>
+            <label
+              style="
+                font-size: 11px;
+                color: var(--muted);
+                letter-spacing: 0.06em;
+                text-transform: uppercase;
+                display: block;
+                margin-bottom: 6px;
+              "
+              >Proposed Payout Amount (₱)</label
+            >
+            <input
+              type="number"
+              id="stress-input"
+              placeholder="e.g. 500000"
+              style="
+                width: 100%;
+                background: #ffffff;
+                border: 1px solid #dddddd;
+                border-radius: 7px;
+                padding: 10px 14px;
+                color: #1a1a1a;
+                font-size: 14px;
+                font-family: &quot;DM Sans&quot;, sans-serif;
+                outline: none;
+                margin-bottom: 12px;
+              "
+            />
+            <div id="stress-output" style="display: none"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Bill Status Overview -->
+      <div class="card">
+        <div class="card-header">
+          <h3>Bill Status Overview</h3>
+          <div class="filter-controls">
+            <select id="status-filter" class="filter-select">
+              <option value="all">All Bills</option>
+              <option value="Pending">Pending</option>
+              <option value="Paid">Paid</option>
+              <option value="Delinquent">Delinquent</option>
+            </select>
+            <input
+              type="text"
+              id="search-citizen"
+              placeholder="Search by citizen name..."
+              class="filter-input"
+            />
+          </div>
+        </div>
+        <div id="bill-status-container">
+          <div class="loading">Loading bill status overview...</div>
+        </div>
+      </div>
+
+      <!-- Recent Ledger Entries -->
+      <div class="card">
+        <div class="card-header">
+          <h3>Live Treasury Ledger (Recent)</h3>
+          <a href="live-ledger.html" class="btn-sm">View All →</a>
+        </div>
+        <div id="ledger-container">
+          <div class="loading">Loading ledger entries...</div>
+        </div>
+      </div>
+
+      <!-- Pending Disbursements -->
+      <div class="card">
+        <div class="card-header">
+          <h3>Disbursement Queue</h3>
+          <a href="disbursement.html" class="btn-sm">Manage →</a>
+        </div>
+        <div id="disb-container">
+          <div class="loading">Loading disbursements...</div>
+        </div>
+      </div>
+    </main>
+
+    <script>
+      const citizen = JSON.parse(
+        sessionStorage.getItem("rcts_citizen") || "{}",
+      );
+      if (!["treasurer", "revenue_officer", "admin"].includes(citizen.role)) {
+        alert("Access denied.");
+        location.href = "../citizen/login.html";
+      }
+      document.getElementById("nav-name").textContent =
+        citizen.full_name || "Treasury Staff";
+      document.getElementById("dash-date").textContent =
+        new Date().toLocaleDateString("en-PH", {
+          weekday: "long",
+          year: "numeric",
+          month: "long",
+          day: "numeric",
+        });
+
+      const fmt = (n) =>
+        "₱" +
+        Number(n || 0).toLocaleString("en-PH", { minimumFractionDigits: 2 });
+
+      async function loadDashboard() {
+        try {
+          const res = await fetch(
+            "../../api/endpoints/dashboard.php?action=live_summary",
+          );
+
+          if (!res.ok) {
+            throw new Error(`HTTP ${res.status}: ${res.statusText}`);
+          }
+
+          const text = await res.text();
+          if (!text) {
+            throw new Error("Empty response from API");
+          }
+
+          const data = JSON.parse(text);
+
+          if (!data.success) {
+            throw new Error(data.message || "API returned failure");
+          }
+
+          const s = data.data;
+          if (!s) return;
+
+          document.getElementById("k-collected").textContent = fmt(
+            s.total_collected_mtd,
+          );
+          document.getElementById("k-disbursed").textContent = fmt(
+            s.total_disbursed_mtd,
+          );
+          document.getElementById("k-net").textContent = fmt(
+            s.net_cash_position,
+          );
+          document.getElementById("k-delinq").textContent =
+            s.delinquency_count || "0";
+          document.getElementById("k-qrf").textContent = fmt(s.qrf_balance);
+          document.getElementById("k-qrf-status").textContent =
+            "Status: " + (s.qrf_status || "—");
+          document.getElementById("k-pending-disb").textContent = fmt(
+            s.pending_bills_total,
+          );
+
+          // Revenue target bar
+          const pct =
+            s.revenue_target > 0
+              ? Math.min((s.total_collected_mtd / s.revenue_target) * 100, 100)
+              : 0;
+          document.getElementById("target-bar").style.width = pct + "%";
+          if (pct < 50)
+            document.getElementById("target-bar").classList.add("warn");
+          document.getElementById("target-pct-lbl").textContent =
+            pct.toFixed(1) +
+            "% of ₱" +
+            Number(s.revenue_target).toLocaleString() +
+            " target";
+          document.getElementById("k-target-pct").textContent =
+            pct.toFixed(1) + "% of monthly target";
+        } catch (e) {
+          console.error("Dashboard load failed", e);
+          console.error("Full error:", e.toString());
+        }
+      }
+
+      async function loadLedger() {
+        try {
+          const res = await fetch(
+            "../../api/endpoints/dashboard.php?action=ledger_feed&limit=8",
+          );
+
+          if (!res.ok) {
+            throw new Error(`HTTP ${res.status}: ${res.statusText}`);
+          }
+
+          const text = await res.text();
+          if (!text) {
+            throw new Error("Empty response from API");
+          }
+
+          const data = JSON.parse(text);
+
+          if (!data.success) {
+            throw new Error(data.message || "API returned failure");
+          }
+
+          const entries = data.data?.entries || [];
+          if (!entries.length) {
+            document.getElementById("ledger-container").innerHTML =
+              '<div style="text-align:center;padding:20px;color:var(--muted);font-size:13px">No ledger entries yet.</div>';
+            return;
+          }
+          const rows = entries
+            .map(
+              (e) => `
+      <tr>
+        <td>${new Date(e.entry_timestamp).toLocaleString("en-PH")}</td>
+        <td class="${e.entry_type === "Credit" ? "credit" : "debit"}">${e.entry_type === "Credit" ? "▲" : "▼"} ${e.entry_type}</td>
+        <td>${e.revenue_category}</td>
+        <td><span class="fund-tag">${e.fund_id}</span></td>
+        <td>${e.gl_account_code}</td>
+        <td class="${e.entry_type === "Credit" ? "credit" : "debit"}" style="font-weight:600">${fmt(e.amount)}</td>
+        <td style="font-size:11px;color:#666666;max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${e.remarks || "—"}</td>
+      </tr>`,
+            )
+            .join("");
+          document.getElementById("ledger-container").innerHTML =
+            `<table class="ledger-table"><thead><tr><th>Timestamp</th><th>Type</th><th>Category</th><th>Fund</th><th>GL Code</th><th>Amount</th><th>Remarks</th></tr></thead><tbody>${rows}</tbody></table>`;
+        } catch (e) {
+          console.error("Ledger load failed", e);
+          document.getElementById("ledger-container").innerHTML =
+            '<div style="text-align:center;padding:20px;color:#666666">Could not load ledger. Error: ' +
+            e.message +
+            "</div>";
+        }
+      }
+
+      async function loadDisbursements() {
+        try {
+          const res = await fetch(
+            "../../api/endpoints/disbursement.php?action=get_pending",
+          );
+
+          if (!res.ok) {
+            throw new Error(`HTTP ${res.status}: ${res.statusText}`);
+          }
+
+          const text = await res.text();
+          if (!text) {
+            throw new Error("Empty response from API");
+          }
+
+          const data = JSON.parse(text);
+
+          if (!data.success) {
+            throw new Error(data.message || "API returned failure");
+          }
+
+          const disbs = data.data?.disbursements || [];
+          const container = document.getElementById("disb-container");
+          if (!disbs.length) {
+            container.innerHTML =
+              '<div style="text-align:center;padding:20px;color:var(--muted);font-size:13px">No pending disbursements.</div>';
+            return;
+          }
+          const deptName = { 3: "Social Services", 5: "Education", 6: "DRRM" };
+          container.innerHTML = disbs
+            .slice(0, 6)
+            .map(
+              (d) => `
+      <div class="disb-row">
+        <div>
+          <div class="disb-name">${d.full_name || d.qcitizen_id}</div>
+          <div class="disb-prog">${d.program_name || "—"} · ${deptName[d.originating_dept_id] || "Dept " + d.originating_dept_id} · ${d.scheduled_date || "—"}</div>
+        </div>
+        <div style="display:flex;align-items:center;gap:10px">
+          <span class="priority-${d.priority_flag === "Emergency" ? "em" : "nm"}">${d.priority_flag}</span>
+          <span style="font-size:13px;font-weight:700;color:#1a1a1a">${fmt(d.approved_amount)}</span>
+        </div>
+      </div>`,
+            )
+            .join("");
+        } catch (e) {
+          console.error("Disbursements load failed", e);
+          document.getElementById("disb-container").innerHTML =
+            '<div style="text-align:center;padding:20px;color:var(--muted)">Could not load disbursements. Error: ' +
+            e.message +
+            "</div>";
+        }
+      }
+
+      async function runStressTest() {
+        const amt =
+          parseFloat(document.getElementById("stress-input").value) || 0;
+        const out = document.getElementById("stress-output");
+        out.style.display = "none";
+        try {
+          const res = await fetch(
+            `../../api/endpoints/dashboard.php?action=liquidity_check&proposed_payout=${amt}`,
+          );
+
+          if (!res.ok) {
+            throw new Error(`HTTP ${res.status}: ${res.statusText}`);
+          }
+
+          const text = await res.text();
+          if (!text) {
+            throw new Error("Empty response from API");
+          }
+
+          const data = JSON.parse(text);
+
+          if (!data.success) {
+            throw new Error(data.message || "API returned failure");
+          }
+
+          const d = data.data;
+          const cls =
+            d.stress_result === "OK"
+              ? "result-ok"
+              : d.stress_result === "Warning"
+                ? "result-warn"
+                : "result-crit";
+          document.getElementById("stress-badge").className =
+            "stress-result " + cls;
+          document.getElementById("stress-badge").textContent = d.stress_result;
+          out.innerHTML = `
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px">
+        <div style="background:#f5f5f5;border-radius:8px;padding:12px"><div style="font-size:10px;color:#666666;text-transform:uppercase;letter-spacing:.06em">Cash Position</div><div style="font-size:14px;font-weight:600;margin-top:4px">${fmt(d.current_cash_position)}</div></div>
+        <div style="background:#f5f5f5;border-radius:8px;padding:12px"><div style="font-size:10px;color:#666666;text-transform:uppercase;letter-spacing:.06em">After Payout</div><div style="font-size:14px;font-weight:600;margin-top:4px;color:${d.stress_result === "OK" ? "var(--green)" : d.stress_result === "Warning" ? "var(--orange)" : "var(--red)"}">${fmt(d.cash_after_payout)}</div></div>
+      </div>
+      <div style="font-size:12px;padding:10px 14px;border-radius:7px;background:#f5f5f5;color:${d.stress_result === "OK" ? "var(--green)" : d.stress_result === "Warning" ? "var(--orange)" : "var(--red)"}">${d.recommendation}</div>`;
+          out.style.display = "block";
+        } catch (e) {
+          console.error("Stress test error", e);
+          out.innerHTML =
+            '<div style="color:var(--red);font-size:13px">Error running stress test: ' +
+            e.message +
+            "</div>";
+          out.style.display = "block";
+        }
+      }
+
+      // Debounce utility function
+      function debounce(func, wait) {
+        let timeout;
+        return function executedFunction(...args) {
+          const later = () => {
+            clearTimeout(timeout);
+            func(...args);
+          };
+          clearTimeout(timeout);
+          timeout = setTimeout(later, wait);
+        };
+      }
+
+      async function loadBillStatus() {
+        try {
+          const statusFilter = document.getElementById("status-filter").value;
+          const searchTerm = document
+            .getElementById("search-citizen")
+            .value.trim();
+
+          let url =
+            "../../api/endpoints/dashboard.php?action=bill_status_overview";
+          if (statusFilter !== "all") {
+            url += `&status=${statusFilter}`;
+          }
+          if (searchTerm) {
+            url += `&search=${encodeURIComponent(searchTerm)}`;
+          }
+
+          const res = await fetch(url);
+
+          if (!res.ok) {
+            throw new Error(`HTTP ${res.status}: ${res.statusText}`);
+          }
+
+          const text = await res.text();
+          if (!text) {
+            throw new Error("Empty response from API");
+          }
+
+          const data = JSON.parse(text);
+
+          // Log full response for debugging
+          console.log("Bill Status Response:", data);
+
+          if (!data.success) {
+            throw new Error(data.message || "API returned failure");
+          }
+
+          const bills = data.data?.bills || [];
+          const container = document.getElementById("bill-status-container");
+
+          if (!bills.length) {
+            container.innerHTML =
+              '<div style="text-align:center;padding:20px;color:var(--muted);font-size:13px">No bills found. (Total in DB: ' +
+              (data.data?.count || 0) +
+              ")</div>";
+            return;
+          }
+
+          const rows = bills
+            .map((bill) => {
+              const isPaid = bill.status?.toLowerCase() === "paid";
+              const statusClass = isPaid ? "status-paid" : "status-pending";
+              const statusText = isPaid ? "Paid" : "Pending";
+              const amount = parseFloat(bill.amount) || 0;
+
+              return `
+              <tr>
+                <td>${bill.citizen_name || bill.qcitizen_id}</td>
+                <td>${bill.bill_type}</td>
+                <td>${bill.due_date ? new Date(bill.due_date).toLocaleDateString("en-PH") : "—"}</td>
+                <td class="${statusClass}">${statusText}</td>
+                <td style="text-align:right;font-weight:600">${fmt(amount)}</td>
+                <td style="font-size:11px;color:#666666;max-width:150px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${bill.remarks || "—"}</td>
+              </tr>
+            `;
+            })
+            .join("");
+
+          container.innerHTML = `
+            <table class="bill-status-table">
+              <thead>
+                <tr>
+                  <th>Citizen</th>
+                  <th>Bill Type</th>
+                  <th>Due Date</th>
+                  <th>Status</th>
+                  <th>Amount</th>
+                  <th>Remarks</th>
+                </tr>
+              </thead>
+              <tbody>${rows}</tbody>
+            </table>
+          `;
+        } catch (e) {
+          console.error("Bill status load failed", e);
+          document.getElementById("bill-status-container").innerHTML =
+            '<div style="text-align:center;padding:20px;color:var(--red)">Could not load bill status. Error: ' +
+            e.message +
+            "</div>";
+        }
+      }
+      loadDashboard();
+      loadLedger();
+      loadDisbursements();
+      loadBillStatus();
+
+      // HYPER-AUTOMATION: Real-time updates via webhook polling
+      // Instead of fixed 30s intervals, we poll for webhook events more frequently
+      let lastEventId = 0;
+
+      async function checkForRealTimeUpdates() {
+        try {
+          const res = await fetch(
+            "../../api/endpoints/webhook.php?action=poll_events&last_id=" +
+              lastEventId,
+          );
+          if (res.ok) {
+            const data = await res.json();
+            if (data.events && data.events.length > 0) {
+              // Update lastEventId
+              lastEventId = data.events[data.events.length - 1].id;
+
+              // Handle real-time events
+              for (const event of data.events) {
+                handleRealTimeEvent(event);
+              }
+            }
+          }
+        } catch (e) {
+          // Silent fail - don't spam console
+        }
+      }
+
+      function handleRealTimeEvent(event) {
+        console.log("Real-time event:", event.type, event);
+
+        // Auto-refresh on treasury events
+        if (
+          event.type === "payment_received" ||
+          event.type === "bill_created" ||
+          event.type === "bill_paid" ||
+          event.type === "disbursement_completed" ||
+          event.type === "ledger_updated" ||
+          event.type === "treasury_update"
+        ) {
+          // Show notification
+          showRealTimeNotification(event);
+
+          // Refresh relevant data
+          loadDashboard();
+          loadBillStatus();
+          loadLedger();
+        }
+      }
+
+      function showRealTimeNotification(event) {
+        const notification = document.createElement("div");
+        notification.style.cssText = `
+          position: fixed;
+          top: 20px;
+          right: 20px;
+          background: var(--green);
+          color: white;
+          padding: 12px 20px;
+          border-radius: 8px;
+          z-index: 1000;
+          animation: slideIn 0.3s ease;
+        `;
+        notification.innerHTML = `🔔 ${event.message || event.type}`;
+        document.body.appendChild(notification);
+
+        setTimeout(() => notification.remove(), 3000);
+      }
+
+      // Poll every 5 seconds for real-time updates (hyper-automation)
+      setInterval(checkForRealTimeUpdates, 5000);
+
+      // Also refresh KPIs every 10 seconds as backup
+      setInterval(loadDashboard, 10000);
+
+      // Refresh on page focus (user returns to tab)
+      document.addEventListener("visibilitychange", () => {
+        if (!document.hidden) {
+          loadDashboard();
+          loadBillStatus();
+        }
+      });
+
+      // Update the header to show real-time status
+      document.querySelector(".live-dot").innerHTML = "🔴 Live · Real-Time";
+      document.querySelector(".live-dot").style.color = "var(--green)";
+      document.querySelector(".live-dot").style.animation = "pulse 1s infinite";
+    </script>
+  </body>
+</html>

@@ -1,0 +1,599 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1.0" />
+    <title>RCTS-QC | Reports & e-SRE</title>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=DM+Sans:wght@300;400;500;600&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      :root {
+        --bg-primary: #ffffff;
+        --bg-secondary: #f5f5f5;
+        --bg-card: #ffffff;
+        --text-primary: #1a1a1a;
+        --text-secondary: #555555;
+        --text-muted: #666666;
+        --gold: #c9a84c;
+        --gold2: #e8c878;
+        --white: #ffffff;
+        --muted: #666666;
+        --green: #2ecc71;
+        --red: #e74c3c;
+        --orange: #f39c12;
+        --blue: #3498db;
+        --border-color: #dddddd;
+        --accent-color: #c9a84c;
+      }
+      *,
+      *::before,
+      *::after {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+      }
+      body {
+        font-family: "DM Sans", sans-serif;
+        background: #f5f5f5;
+        color: #1a1a1a;
+        min-height: 100vh;
+      }
+      body::before {
+        content: "";
+        position: fixed;
+        inset: 0;
+        background-image: repeating-linear-gradient(
+          45deg,
+          transparent,
+          transparent 40px,
+          rgba(201, 168, 76, 0.03) 40px,
+          rgba(201, 168, 76, 0.03) 41px
+        );
+        pointer-events: none;
+        z-index: 0;
+      }
+      nav {
+        position: relative;
+        z-index: 20;
+        background: #ffffff;
+        border-bottom: 1px solid #dddddd;
+        padding: 0 28px;
+        display: flex;
+        align-items: center;
+        height: 60px;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.08);
+      }
+      .nav-brand {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        text-decoration: none;
+        color: inherit;
+        margin-right: 24px;
+      }
+      .nav-seal {
+        width: 32px;
+        height: 32px;
+        border-radius: 50%;
+        background: linear-gradient(135deg, var(--gold), var(--gold2));
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 12px;
+        font-weight: 700;
+        color: var(--navy);
+        font-family: "Playfair Display", serif;
+      }
+      .nav-brand span {
+        font-size: 12px;
+        font-weight: 600;
+        color: #1a1a1a;
+      }
+      .nav-links {
+        display: flex;
+        align-items: center;
+        gap: 2px;
+        flex: 1;
+      }
+      .nav-links a {
+        padding: 7px 12px;
+        font-size: 12px;
+        color: var(--text-secondary);
+        text-decoration: none;
+        border-radius: 6px;
+        transition:
+          color 0.2s,
+          background 0.2s;
+      }
+      .nav-links a:hover,
+      .nav-links a.active {
+        color: var(--gold);
+        background: rgba(201, 168, 76, 0.08);
+      }
+      .btn-logout {
+        background: none;
+        border: 1px solid #dddddd;
+        border-radius: 6px;
+        padding: 5px 12px;
+        font-size: 11px;
+        color: #555555;
+        cursor: pointer;
+        font-family: "DM Sans", sans-serif;
+      }
+      main {
+        position: relative;
+        z-index: 10;
+        max-width: 1100px;
+        margin: 0 auto;
+        padding: 28px;
+      }
+      .page-header {
+        margin-bottom: 22px;
+      }
+      .page-header h1 {
+        font-family: "Playfair Display", serif;
+        font-size: 24px;
+        color: #1a1a1a;
+      }
+      .page-header p {
+        font-size: 12px;
+        color: #666666;
+        margin-top: 3px;
+      }
+      .two-col {
+        display: grid;
+        grid-template-columns: 320px 1fr;
+        gap: 20px;
+        align-items: start;
+      }
+      @media (max-width: 800px) {
+        .two-col {
+          grid-template-columns: 1fr;
+        }
+      }
+      .card {
+        background: #ffffff;
+        border: 1px solid #dddddd;
+        border-radius: 12px;
+        padding: 20px;
+        margin-bottom: 16px;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+      }
+      .card h3 {
+        font-family: "Playfair Display", serif;
+        font-size: 15px;
+        margin-bottom: 16px;
+        padding-bottom: 12px;
+        border-bottom: 1px solid #eeeeee;
+        color: #1a1a1a;
+      }
+      .form-group {
+        margin-bottom: 14px;
+      }
+      label {
+        display: block;
+        font-size: 11px;
+        font-weight: 600;
+        color: #666666;
+        letter-spacing: 0.06em;
+        text-transform: uppercase;
+        margin-bottom: 6px;
+      }
+      select,
+      input {
+        width: 100%;
+        background: #ffffff;
+        border: 1px solid #dddddd;
+        border-radius: 7px;
+        padding: 9px 12px;
+        color: #1a1a1a;
+        font-family: "DM Sans", sans-serif;
+        font-size: 13px;
+        outline: none;
+        transition: border-color 0.2s;
+      }
+      select:focus,
+      input:focus {
+        border-color: var(--gold);
+      }
+      .btn-generate {
+        width: 100%;
+        background: linear-gradient(135deg, var(--gold), var(--gold2));
+        border: none;
+        border-radius: 8px;
+        padding: 12px;
+        font-family: "DM Sans", sans-serif;
+        font-size: 13px;
+        font-weight: 700;
+        color: var(--navy);
+        cursor: pointer;
+        letter-spacing: 0.04em;
+        transition: opacity 0.2s;
+      }
+      .btn-generate:hover {
+        opacity: 0.88;
+      }
+      .btn-generate:disabled {
+        opacity: 0.4;
+        cursor: not-allowed;
+      }
+      /* Report display */
+      .report-header-section {
+        text-align: center;
+        border-bottom: 2px solid rgba(201, 168, 76, 0.2);
+        padding-bottom: 20px;
+        margin-bottom: 20px;
+      }
+      .report-header-section h2 {
+        font-family: "Playfair Display", serif;
+        font-size: 19px;
+        color: var(--gold);
+      }
+      .report-header-section p {
+        font-size: 12px;
+        color: #666666;
+        margin-top: 3px;
+      }
+      .summary-3col {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 14px;
+        margin-bottom: 20px;
+      }
+      .sum-box {
+        background: #f5f5f5;
+        border: 1px solid #dddddd;
+        border-radius: 8px;
+        padding: 14px;
+        text-align: center;
+      }
+      .sum-box .lbl {
+        font-size: 10px;
+        color: #666666;
+        text-transform: uppercase;
+        letter-spacing: 0.07em;
+      }
+      .sum-box .val {
+        font-family: "Playfair Display", serif;
+        font-size: 20px;
+        margin-top: 6px;
+        color: #1a1a1a;
+      }
+      .report-table {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: 12px;
+      }
+      .report-table th {
+        padding: 8px 12px;
+        text-align: left;
+        font-size: 10px;
+        font-weight: 700;
+        color: #666666;
+        letter-spacing: 0.07em;
+        text-transform: uppercase;
+        border-bottom: 1px solid rgba(201, 168, 76, 0.12);
+        background: #f9f9f9;
+      }
+      .report-table td {
+        padding: 9px 12px;
+        border-bottom: 1px solid rgba(201, 168, 76, 0.05);
+        color: #1a1a1a;
+      }
+      .report-table tr:last-child td {
+        border-bottom: none;
+      }
+      .credit-val {
+        color: var(--green);
+        font-weight: 600;
+      }
+      .debit-val {
+        color: var(--red);
+        font-weight: 600;
+      }
+      .report-footer {
+        font-size: 10px;
+        color: var(--muted);
+        text-align: center;
+        margin-top: 16px;
+        line-height: 1.7;
+      }
+      .delinq-table {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: 12px;
+      }
+      .delinq-table th {
+        padding: 8px 12px;
+        font-size: 10px;
+        font-weight: 700;
+        text-align: left;
+        color: #666666;
+        letter-spacing: 0.07em;
+        text-transform: uppercase;
+        border-bottom: 1px solid #eeeeee;
+        background: #f9f9f9;
+      }
+      .delinq-table td {
+        padding: 9px 12px;
+        border-bottom: 1px solid #eeeeee;
+        color: #1a1a1a;
+      }
+      .overdue-amt {
+        color: var(--red);
+        font-weight: 700;
+      }
+      .btn-print {
+        background: rgba(201, 168, 76, 0.1);
+        border: 1px solid rgba(201, 168, 76, 0.25);
+        border-radius: 7px;
+        padding: 7px 16px;
+        font-size: 12px;
+        font-weight: 600;
+        color: var(--gold);
+        cursor: pointer;
+        font-family: "DM Sans", sans-serif;
+      }
+      .loading {
+        text-align: center;
+        padding: 32px;
+        color: #666666;
+      }
+      .staff-badge {
+        font-size: 10px;
+        padding: 2px 8px;
+        border-radius: 8px;
+        background: rgba(201, 168, 76, 0.15);
+        color: var(--gold);
+        font-weight: 600;
+      }
+      @media print {
+        nav,
+        .two-col > :first-child,
+        .btn-print {
+          display: none;
+        }
+        body::before {
+          display: none;
+        }
+        body {
+          background: white;
+          color: #000;
+        }
+        .card {
+          background: white;
+          border: 1px solid #ddd;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <nav>
+      <a class="nav-brand" href="../../index.html"
+        ><div class="nav-seal">QC</div>
+        <span>RCTS-QC Treasury</span></a
+      >
+      <div class="nav-links">
+        <a href="dashboard.html">Dashboard</a>
+        <a href="live-ledger.html">Live Ledger</a>
+        <a href="disbursement.html">Disbursements</a>
+        <a href="reports.html" class="active">Reports / e-SRE</a>
+        <a href="fund-management.html">Fund Management</a>
+        <a href="market-billing.html">Market Billing</a>
+      </div>
+      <div
+        style="display: flex; align-items: center; gap: 10px; margin-left: auto"
+      >
+        <span class="staff-badge">Treasury Staff</span>
+        <span id="nav-name" style="font-size: 12px; color: #1a1a1a">—</span>
+        <button
+          class="btn-logout"
+          onclick="
+            sessionStorage.clear();
+            location.href = '../citizen/login.html';
+          "
+        >
+          Sign Out
+        </button>
+      </div>
+    </nav>
+    <main>
+      <div class="page-header">
+        <h1>Reports & e-SRE Generator</h1>
+        <p>
+          Generate Statement of Receipts & Expenditures and delinquency reports
+          for COA submission.
+        </p>
+      </div>
+
+      <div class="two-col">
+        <!-- Left: controls -->
+        <div>
+          <div class="card">
+            <h3>📄 e-SRE Generator</h3>
+            <div class="form-group">
+              <label>Fiscal Year</label>
+              <select id="r-year">
+                <option value="2025">2025</option>
+                <option value="2024">2024</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label>Period</label>
+              <select id="r-month">
+                <option value="">Full Year</option>
+                <option value="01">January</option>
+                <option value="02">February</option>
+                <option value="03">March</option>
+                <option value="04">April</option>
+                <option value="05">May</option>
+                <option value="06">June</option>
+                <option value="07">July</option>
+                <option value="08">August</option>
+                <option value="09">September</option>
+                <option value="10">October</option>
+                <option value="11">November</option>
+                <option value="12">December</option>
+              </select>
+            </div>
+            <button class="btn-generate" id="gen-btn" onclick="generateESRE()">
+              Generate e-SRE Report
+            </button>
+          </div>
+
+          <div class="card">
+            <h3>⚠️ Delinquency Report</h3>
+            <button
+              class="btn-generate"
+              onclick="loadDelinquency()"
+              style="margin-top: 4px"
+            >
+              Generate Delinquency Report
+            </button>
+          </div>
+        </div>
+
+        <!-- Right: report output -->
+        <div class="card" id="report-output">
+          <div style="text-align: center; padding: 48px; color: var(--muted)">
+            <div style="font-size: 36px; margin-bottom: 12px">📊</div>
+            Select a report type and click Generate.
+          </div>
+        </div>
+      </div>
+    </main>
+
+    <script>
+      const citizen = JSON.parse(
+        sessionStorage.getItem("rcts_citizen") || "{}",
+      );
+      if (!["treasurer", "revenue_officer", "admin"].includes(citizen.role))
+        location.href = "../citizen/login.html";
+      document.getElementById("nav-name").textContent =
+        citizen.full_name || "—";
+
+      const fmt = (n) =>
+        "₱" +
+        Number(n || 0).toLocaleString("en-PH", { minimumFractionDigits: 2 });
+
+      async function generateESRE() {
+        const year = document.getElementById("r-year").value;
+        const month = document.getElementById("r-month").value;
+        const btn = document.getElementById("gen-btn");
+        const out = document.getElementById("report-output");
+        btn.disabled = true;
+        btn.textContent = "Generating...";
+        out.innerHTML = '<div class="loading">Building e-SRE report...</div>';
+        try {
+          const res = await fetch(
+            `../../api/endpoints/dashboard.php?action=esre_data&year=${year}${month ? "&month=" + month : ""}`,
+          );
+          const data = await res.json();
+          const d = data.data;
+          const byReceipt = {};
+          (d.receipts || []).forEach((r) => {
+            byReceipt[r.revenue_category] =
+              (byReceipt[r.revenue_category] || 0) + Number(r.amount);
+          });
+          const byExpend = {};
+          (d.expenditures || []).forEach((r) => {
+            byExpend[r.revenue_category] =
+              (byExpend[r.revenue_category] || 0) + Number(r.amount);
+          });
+          const recRows = Object.entries(byReceipt)
+            .map(
+              ([k, v]) =>
+                `<tr><td>${k}</td><td></td><td class="credit-val">${fmt(v)}</td></tr>`,
+            )
+            .join("");
+          const expRows = Object.entries(byExpend)
+            .map(
+              ([k, v]) =>
+                `<tr><td>${k}</td><td class="debit-val">${fmt(v)}</td><td></td></tr>`,
+            )
+            .join("");
+          out.innerHTML = `
+      <div style="display:flex;justify-content:space-between;margin-bottom:16px">
+        <div></div>
+        <button class="btn-print" onclick="window.print()">🖨️ Print / Export PDF</button>
+      </div>
+      <div class="report-header-section">
+        <h2>Statement of Receipts &amp; Expenditures (e-SRE)</h2>
+        <p>Quezon City Government · City Treasurer's Office · RCTS-QC Department 8</p>
+        <p>Period: ${month ? "Month " + month + "/" : "Full Year "}${year} · Generated: ${new Date().toLocaleString("en-PH")}</p>
+      </div>
+      <div class="summary-3col">
+        <div class="sum-box"><div class="lbl">Total Receipts</div><div class="val credit-val">${fmt(d.total_receipts)}</div></div>
+        <div class="sum-box"><div class="lbl">Total Expenditures</div><div class="val debit-val">${fmt(d.total_expenditures)}</div></div>
+        <div class="sum-box"><div class="lbl">Net Balance</div><div class="val" style="color:${d.net_balance >= 0 ? "var(--green)" : "var(--red)"}">${fmt(d.net_balance)}</div></div>
+      </div>
+      <table class="report-table">
+        <thead><tr><th>Account / Category</th><th>Expenditures</th><th>Receipts</th></tr></thead>
+        <tbody>
+          <tr><td colspan="3" style="color:var(--gold);font-weight:700;padding-top:12px">RECEIPTS</td></tr>
+          ${recRows || '<tr><td colspan="3" style="color:var(--muted)">No receipts for this period</td></tr>'}
+          <tr style="border-top:1px solid rgba(201,168,76,.2)"><td style="font-weight:700">TOTAL RECEIPTS</td><td></td><td class="credit-val" style="font-size:14px">${fmt(d.total_receipts)}</td></tr>
+          <tr><td colspan="3" style="color:var(--red);font-weight:700;padding-top:12px">EXPENDITURES</td></tr>
+          ${expRows || '<tr><td colspan="3" style="color:var(--muted)">No expenditures for this period</td></tr>'}
+          <tr style="border-top:1px solid rgba(231,76,60,.2)"><td style="font-weight:700">TOTAL EXPENDITURES</td><td class="debit-val" style="font-size:14px">${fmt(d.total_expenditures)}</td><td></td></tr>
+        </tbody>
+      </table>
+      <div class="report-footer">Standard: ${d.standard} · LGU: ${d.lgu} · Generated by: ${d.generated_by}</div>`;
+        } catch (e) {
+          out.innerHTML = '<div class="loading">Error generating e-SRE.</div>';
+        } finally {
+          btn.disabled = false;
+          btn.textContent = "Generate e-SRE Report";
+        }
+      }
+
+      async function loadDelinquency() {
+        const out = document.getElementById("report-output");
+        out.innerHTML =
+          '<div class="loading">Loading delinquency report...</div>';
+        try {
+          const res = await fetch(
+            "../../api/endpoints/dashboard.php?action=delinquency_report",
+          );
+          const data = await res.json();
+          const d = data.data;
+          const bills = d.overdue_bills || [];
+          const typeMap = {
+            RPT: "Real Property Tax",
+            BusinessTax: "Business Tax",
+            MarketRental: "Market Rental",
+            TrafficFine: "Traffic Fine",
+          };
+          const rows = bills
+            .map(
+              (b) => `
+      <tr>
+        <td>${b.bill_reference_no}</td>
+        <td>${typeMap[b.bill_type] || b.bill_type}</td>
+        <td style="font-size:11px;color:var(--muted)">${b.qcitizen_id}</td>
+        <td>${b.due_date || "—"}</td>
+        <td class="overdue-amt">${fmt(b.total_amount_due)}</td>
+        <td><span style="font-size:10px;padding:2px 7px;border-radius:5px;background:rgba(231,76,60,.12);color:var(--red)">${b.status}</span></td>
+      </tr>`,
+            )
+            .join("");
+          out.innerHTML = `
+      <div style="display:flex;justify-content:space-between;margin-bottom:16px">
+        <div><div style="font-family:'Playfair Display',serif;font-size:16px">Delinquency Report</div><div style="font-size:12px;color:var(--muted)">Generated: ${new Date().toLocaleString("en-PH")}</div></div>
+        <button class="btn-print" onclick="window.print()">🖨️ Print</button>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:18px">
+        <div class="sum-box"><div class="lbl">Overdue Bills</div><div class="val" style="color:var(--red)">${d.overdue_count}</div></div>
+        <div class="sum-box"><div class="lbl">Total Overdue Amount</div><div class="val overdue-amt">${fmt(d.total_overdue)}</div></div>
+      </div>
+      ${bills.length ? `<table class="delinq-table"><thead><tr><th>Bill Ref</th><th>Type</th><th>QCitizen ID</th><th>Due Date</th><th>Amount</th><th>Status</th></tr></thead><tbody>${rows}</tbody></table>` : '<div style="text-align:center;padding:28px;color:var(--green)">✅ No overdue bills found.</div>'}`;
+        } catch (e) {
+          out.innerHTML =
+            '<div class="loading">Error loading delinquency report.</div>';
+        }
+      }
+    </script>
+  </body>
+</html>

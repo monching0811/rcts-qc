@@ -1,0 +1,38 @@
+{
+  "businesses": [
+    {
+      "bin_number": "BIN-QC-2024-RAVEN-001",
+      "qcitizen_id": "92be37af-7c34-4c9b-80cb-47cde7c3a9fd",
+      "business_name": "Raven's Tech Hub",
+      "nature_of_business": "Retail - Computer & Electronics",
+      "business_address": "15 Mindanao Avenue, Quezon City",
+      "gross_sales_declared": 500000,
+      "assessment_cycle": "Annual",
+      "permit_status": "Active",
+      "application_date": "2024-01-15",
+      "issued_date": "2024-02-01",
+      "valid_until": "2025-12-31",
+      "business_tax_rate": 0.03,
+      "sanitary_fee": 500,
+      "garbage_fee": 300,
+      "fire_safety_fee": 200
+    },
+    {
+      "bin_number": "BIN-QC-2024-RAVEN-002",
+      "qcitizen_id": "92be37af-7c34-4c9b-80cb-47cde7c3a9fd",
+      "business_name": "Raven's Cafe & Bakery",
+      "nature_of_business": "Food & Beverage - Cafe/Bakery",
+      "business_address": "18 Mindanao Avenue, Quezon City",
+      "gross_sales_declared": 800000,
+      "assessment_cycle": "Annual",
+      "permit_status": "Active",
+      "application_date": "2024-02-10",
+      "issued_date": "2024-02-28",
+      "valid_until": "2025-12-31",
+      "business_tax_rate": 0.03,
+      "sanitary_fee": 1000,
+      "garbage_fee": 500,
+      "fire_safety_fee": 300
+    }
+  ]
+}

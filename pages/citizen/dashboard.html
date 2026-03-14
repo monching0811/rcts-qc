@@ -1,0 +1,1256 @@
+﻿<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1.0" />
+    <title>RCTS-QC | My Dashboard</title>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=DM+Sans:wght@300;400;500;600&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      :root {
+        --navy: #0a1628;
+        --navy2: #112240;
+        --gold: #c9a84c;
+        --gold2: #e8c878;
+        --white: #ffffff;
+        --black: #000000;
+        --text-dark: #1a1a1a;
+        --text-gray: #555555;
+        --muted: #666666;
+        --green: #2ecc71;
+        --red: #e74c3c;
+        --orange: #f39c12;
+      }
+      *,
+      *::before,
+      *::after {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+      }
+      body {
+        font-family: "DM Sans", sans-serif;
+        background: #f5f5f5;
+        color: var(--text-dark);
+        min-height: 100vh;
+      }
+      body::before {
+        content: "";
+        position: fixed;
+        inset: 0;
+        background-image: repeating-linear-gradient(
+          45deg,
+          transparent,
+          transparent 40px,
+          rgba(201, 168, 76, 0.03) 40px,
+          rgba(201, 168, 76, 0.03) 41px
+        );
+        pointer-events: none;
+        z-index: 0;
+      }
+      /* NAV */
+      nav {
+        position: relative;
+        z-index: 20;
+        background: #ffffff;
+        border-bottom: 2px solid #e0e0e0;
+        padding: 0 32px;
+        display: flex;
+        align-items: center;
+        gap: 0;
+        height: 60px;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+      }
+      .nav-brand {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        text-decoration: none;
+        color: inherit;
+        margin-right: 32px;
+      }
+      .nav-seal {
+        width: 34px;
+        height: 34px;
+        border-radius: 50%;
+        background: linear-gradient(135deg, var(--gold), var(--gold2));
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 13px;
+        font-weight: 700;
+        color: var(--navy);
+        font-family: "Playfair Display", serif;
+      }
+      .nav-brand span {
+        font-size: 14px;
+        font-weight: 600;
+        color: var(--text-dark);
+        letter-spacing: 0.04em;
+      }
+      .nav-links {
+        display: flex;
+        align-items: center;
+        gap: 2px;
+        flex: 1;
+        overflow-x: auto;
+        white-space: nowrap;
+      }
+      .nav-links a {
+        padding: 10px 16px;
+        font-size: 13px;
+        font-weight: 500;
+        color: var(--text-gray);
+        text-decoration: none;
+        border-radius: 6px;
+        letter-spacing: 0.03em;
+        transition:
+          color 0.2s,
+          background 0.2s;
+      }
+      .nav-links a:hover,
+      .nav-links a.active {
+        color: var(--gold);
+        background: rgba(201, 168, 76, 0.1);
+      }
+      .nav-user {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        font-size: 13px;
+      }
+      .nav-user .name {
+        color: var(--text-dark);
+        font-weight: 500;
+      }
+      .nav-user .tag {
+        font-size: 11px;
+        padding: 3px 10px;
+        border-radius: 12px;
+        background: rgba(52, 152, 219, 0.15);
+        color: var(--blue);
+        font-weight: 600;
+      }
+      .btn-logout {
+        background: none;
+        border: 1px solid #cccccc;
+        border-radius: 6px;
+        padding: 6px 14px;
+        font-size: 12px;
+        color: var(--text-gray);
+        cursor: pointer;
+        font-family: "DM Sans", sans-serif;
+        transition:
+          color 0.2s,
+          border-color 0.2s;
+      }
+      .btn-logout:hover {
+        color: var(--red);
+        border-color: var(--red);
+      }
+      /* MAIN */
+      main {
+        position: relative;
+        z-index: 10;
+        max-width: 1100px;
+        margin: 0 auto;
+        padding: 36px 32px;
+      }
+      .page-title {
+        margin-bottom: 28px;
+      }
+      .page-title h1 {
+        font-family: "Playfair Display", serif;
+        font-size: 28px;
+        color: var(--text-dark);
+      }
+      .page-title p {
+        font-size: 14px;
+        color: var(--text-gray);
+        margin-top: 6px;
+      }
+      /* WELCOME CARD */
+      .welcome-card {
+        background: linear-gradient(135deg, #ffffff, #fafafa);
+        border: 1px solid #e0e0e0;
+        border-radius: 12px;
+        padding: 28px 32px;
+        margin-bottom: 28px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 20px;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+      }
+      .welcome-card .left h2 {
+        font-family: "Playfair Display", serif;
+        font-size: 22px;
+        margin-bottom: 6px;
+        color: var(--text-dark);
+      }
+      .welcome-card .left p {
+        font-size: 14px;
+        color: var(--text-gray);
+      }
+      .welcome-card .badges {
+        display: flex;
+        gap: 8px;
+        margin-top: 12px;
+        flex-wrap: wrap;
+      }
+      .badge {
+        font-size: 11px;
+        padding: 4px 12px;
+        border-radius: 12px;
+        font-weight: 600;
+        letter-spacing: 0.05em;
+      }
+      .badge-id {
+        background: rgba(201, 168, 76, 0.15);
+        color: var(--gold);
+      }
+      .badge-disc {
+        background: rgba(46, 204, 113, 0.12);
+        color: var(--green);
+      }
+      .welcome-card .right {
+        text-align: right;
+        flex-shrink: 0;
+      }
+      .total-due {
+        font-family: "Playfair Display", serif;
+        font-size: 32px;
+        color: var(--gold);
+        font-weight: 700;
+      }
+      .total-lbl {
+        font-size: 12px;
+        color: var(--text-gray);
+        margin-top: 4px;
+        letter-spacing: 0.06em;
+        text-transform: uppercase;
+      }
+      /* KPI GRID */
+      .kpi-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+        gap: 16px;
+        margin-bottom: 28px;
+      }
+      .kpi-card {
+        background: #ffffff;
+        border: 1px solid #e0e0e0;
+        border-radius: 10px;
+        padding: 20px;
+        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.04);
+        cursor: pointer;
+        transition: all 0.3s ease;
+        position: relative;
+        overflow: hidden;
+      }
+      .kpi-card::before {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(
+          90deg,
+          transparent,
+          rgba(201, 168, 76, 0.1),
+          transparent
+        );
+        transition: left 0.5s ease;
+      }
+      .kpi-card:hover::before {
+        left: 100%;
+      }
+      .kpi-card:hover {
+        border-color: var(--gold);
+        box-shadow: 0 6px 16px rgba(201, 168, 76, 0.15);
+        transform: translateY(-4px);
+      }
+      .kpi-card .icon {
+        font-size: 24px;
+        margin-bottom: 10px;
+        transition: transform 0.3s ease;
+      }
+      .kpi-card:hover .icon {
+        transform: scale(1.15);
+      }
+      .kpi-card .val {
+        font-family: "Playfair Display", serif;
+        font-size: 24px;
+        color: var(--gold);
+        font-weight: 700;
+      }
+      .kpi-card .lbl {
+        font-size: 12px;
+        color: var(--text-gray);
+        text-transform: uppercase;
+        letter-spacing: 0.06em;
+        margin-top: 4px;
+      }
+      .kpi-card .arrow {
+        font-size: 14px;
+        color: var(--gold);
+        opacity: 0;
+        transition:
+          opacity 0.3s ease,
+          transform 0.3s ease;
+        margin-top: 8px;
+      }
+      .kpi-card:hover .arrow {
+        opacity: 1;
+        transform: translateX(4px);
+      }
+      /* BILLS TABLE */
+      .section-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 16px;
+      }
+      .section-header h3 {
+        font-family: "Playfair Display", serif;
+        font-size: 18px;
+        color: var(--text-dark);
+      }
+      .btn-pay-all {
+        background: linear-gradient(135deg, var(--gold), var(--gold2));
+        border: none;
+        border-radius: 8px;
+        padding: 10px 20px;
+        font-size: 13px;
+        font-weight: 700;
+        color: var(--navy);
+        cursor: pointer;
+        font-family: "DM Sans", sans-serif;
+        letter-spacing: 0.04em;
+        transition: opacity 0.2s;
+      }
+      .btn-pay-all:hover {
+        opacity: 0.88;
+      }
+      .bills-table {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: 13px;
+        background: #ffffff;
+        border-radius: 8px;
+        overflow: hidden;
+      }
+      .bills-table th {
+        padding: 12px 16px;
+        text-align: left;
+        font-size: 11px;
+        font-weight: 600;
+        color: var(--text-gray);
+        letter-spacing: 0.06em;
+        text-transform: uppercase;
+        background: #f5f5f5;
+        border-bottom: 1px solid #e0e0e0;
+      }
+      .bills-table td {
+        padding: 14px 16px;
+        border-bottom: 1px solid #f0f0f0;
+        color: var(--text-dark);
+      }
+      .bills-table tr:last-child td {
+        border-bottom: none;
+      }
+      .bills-table tr:hover td {
+        background: rgba(201, 168, 76, 0.04);
+      }
+      .type-badge {
+        display: inline-block;
+        font-size: 11px;
+        padding: 3px 10px;
+        border-radius: 10px;
+        font-weight: 600;
+        letter-spacing: 0.05em;
+      }
+      .type-rpt {
+        background: rgba(52, 152, 219, 0.15);
+        color: var(--blue);
+      }
+      .type-biz {
+        background: rgba(241, 196, 15, 0.15);
+        color: #d4a500;
+      }
+      .type-mkt {
+        background: rgba(46, 204, 113, 0.15);
+        color: var(--green);
+      }
+      .type-trf {
+        background: rgba(231, 76, 60, 0.15);
+        color: var(--red);
+      }
+      .status-pending {
+        color: var(--orange);
+        font-size: 12px;
+        font-weight: 600;
+      }
+      .status-paid {
+        color: var(--green);
+        font-size: 12px;
+        font-weight: 600;
+      }
+      .status-delinq {
+        color: var(--red);
+        font-size: 12px;
+        font-weight: 600;
+      }
+      .btn-pay-row {
+        background: rgba(201, 168, 76, 0.12);
+        border: 1px solid var(--gold);
+        border-radius: 6px;
+        padding: 6px 14px;
+        font-size: 12px;
+        font-weight: 600;
+        color: var(--gold);
+        cursor: pointer;
+        font-family: "DM Sans", sans-serif;
+        transition: background 0.2s;
+      }
+      .btn-pay-row:hover {
+        background: rgba(201, 168, 76, 0.22);
+      }
+      .empty-state {
+        text-align: center;
+        padding: 48px;
+        color: var(--text-gray);
+        font-size: 14px;
+        background: #ffffff;
+        border-radius: 8px;
+      }
+      .empty-state .icon {
+        font-size: 36px;
+        margin-bottom: 12px;
+      }
+
+      /* Consolidated Bills Styles */
+      .bill-group {
+        margin-bottom: 20px;
+      }
+      .bill-group-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 12px;
+        padding: 12px 0;
+        border-bottom: 1px solid #e0e0e0;
+      }
+      .bill-group-title {
+        font-size: 13px;
+        font-weight: 700;
+        color: var(--text-dark);
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+      }
+      .bill-group-subtotal {
+        font-size: 13px;
+        font-weight: 700;
+        color: var(--gold);
+      }
+      .bill-type-item {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 12px 14px;
+        background: #f9f9f9;
+        border-left: 3px solid var(--gold);
+        border-radius: 4px;
+        margin-bottom: 8px;
+      }
+      .bill-type-item-left {
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+      }
+      .bill-type-item-ref {
+        font-size: 12px;
+        font-weight: 600;
+        color: var(--text-dark);
+      }
+      .bill-type-item-details {
+        font-size: 11px;
+        color: var(--text-gray);
+      }
+      .bill-summary {
+        background: rgba(201, 168, 76, 0.08);
+        border: 1px solid rgba(201, 168, 76, 0.2);
+        border-radius: 8px;
+        padding: 16px;
+        margin-top: 20px;
+      }
+      .summary-row {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 8px 0;
+        font-size: 13px;
+      }
+      .summary-row.total {
+        border-top: 2px solid rgba(201, 168, 76, 0.3);
+        padding-top: 12px;
+        margin-top: 12px;
+        font-weight: 700;
+        color: var(--text-dark);
+      }
+      .summary-row .label {
+        color: var(--text-gray);
+      }
+      .summary-row .value {
+        font-weight: 600;
+        color: var(--gold);
+      }
+      .summary-row.total .value {
+        font-size: 18px;
+        color: var(--gold);
+      }
+
+      .loading {
+        text-align: center;
+        padding: 36px;
+        color: var(--text-gray);
+        font-size: 14px;
+      }
+      .card-wrap {
+        background: #ffffff;
+        border: 1px solid #e0e0e0;
+        border-radius: 12px;
+        padding: 24px;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+      }
+    </style>
+  </head>
+  <body>
+    <nav>
+      <a class="nav-brand" href="dashboard.html">
+        <div class="nav-seal">QC</div>
+        <span>RCTS-QC Citizen Portal</span>
+      </a>
+      <div class="nav-links">
+        <a href="dashboard.html" class="active">Dashboard</a>
+        <a href="transactions.html">Transaction History</a>
+        <a href="rpt-payment.html">Real Property Tax</a>
+        <a href="business-tax.html">Business Tax</a>
+        <a href="market-stall.html">Market Stall</a>
+        <a href="payment-gateway.html">Pay Now</a>
+      </div>
+      <div class="nav-user">
+        <span class="name" id="nav-name">Loading...</span>
+        <span class="tag" id="nav-role">Citizen</span>
+        <button class="btn-logout" onclick="logoutWithConfirm()">
+          Sign Out
+        </button>
+      </div>
+    </nav>
+    <main>
+      <div class="page-title">
+        <h1>My Account Dashboard</h1>
+        <p id="greeting">
+          Welcome back. Here's your current tax and payment summary.
+        </p>
+      </div>
+
+      <div class="welcome-card">
+        <div class="left">
+          <h2 id="welcome-name">Loading...</h2>
+          <p id="welcome-addr">Quezon City</p>
+          <div class="badges">
+            <span class="badge badge-id" id="qcid-badge">QCitizen ID: —</span>
+            <span class="badge badge-disc" id="disc-badge" style="display: none"
+              >20% Discount Eligible</span
+            >
+          </div>
+        </div>
+        <div class="right">
+          <div class="total-due" id="total-due">₱ —</div>
+          <div class="total-lbl">Total Amount Due</div>
+        </div>
+      </div>
+
+      <div class="kpi-grid">
+        <div class="kpi-card" onclick="navigateToModule('rpt')">
+          <div class="icon">🏠</div>
+          <div class="val" id="k-rpt">—</div>
+          <div class="lbl">RPT Bills</div>
+          <div class="arrow">View Details →</div>
+        </div>
+        <div class="kpi-card" onclick="navigateToModule('business')">
+          <div class="icon">🏢</div>
+          <div class="val" id="k-biz">—</div>
+          <div class="lbl">Business Tax</div>
+          <div class="arrow">View Details →</div>
+        </div>
+        <div class="kpi-card" onclick="navigateToModule('market')">
+          <div class="icon">🛒</div>
+          <div class="val" id="k-mkt">—</div>
+          <div class="lbl">Market Rental</div>
+          <div class="arrow">View Details →</div>
+        </div>
+        <div class="kpi-card" onclick="navigateToModule('traffic')">
+          <div class="icon">🚦</div>
+          <div class="val" id="k-trf">—</div>
+          <div class="lbl">Traffic Fines</div>
+          <div class="arrow">View Details →</div>
+        </div>
+      </div>
+
+      <div class="card-wrap">
+        <div class="section-header">
+          <h3>
+            📋 Consolidated Bills (All Types)
+            <small
+              style="
+                font-size: 11px;
+                color: var(--muted);
+                font-weight: 400;
+                margin-left: 8px;
+              "
+              >(Grouped by Bill Type)</small
+            >
+          </h3>
+          <button class="btn-pay-all" onclick="goPayAll()">
+            Pay All Bills →
+          </button>
+        </div>
+        <div id="consolidated-bills-container">
+          <div class="loading">Loading consolidated bills...</div>
+        </div>
+      </div>
+
+      <div class="card-wrap">
+        <div class="section-header">
+          <h3>
+            Pending Bills
+            <small
+              style="
+                font-size: 11px;
+                color: var(--muted);
+                font-weight: 400;
+                margin-left: 8px;
+              "
+              >(Unified Billing System | Includes SEF)</small
+            >
+          </h3>
+          <button class="btn-pay-all" onclick="goPayAll()">
+            Pay All Bills →
+          </button>
+        </div>
+        <div id="bills-container">
+          <div class="loading">Loading your bills...</div>
+        </div>
+      </div>
+    </main>
+
+    <script src="../../public/js/main.js"></script>
+    <script src="../../public/js/webhook-client.js"></script>
+    <script>
+      // Simple Toast notification
+      const Toast = {
+        info: (msg) => showToast(msg, "rgba(52,152,219,0.9)"),
+        success: (msg) => showToast(msg, "rgba(46,204,113,0.9)"),
+        error: (msg) => showToast(msg, "rgba(231,76,60,0.9)"),
+      };
+      function showToast(msg, bg) {
+        const t = document.createElement("div");
+        t.textContent = msg;
+        t.style.cssText = `
+          position:fixed;bottom:20px;left:50%;transform:translateX(-50%);
+          background:${bg};color:#fff;padding:12px 24px;border-radius:8px;
+          font-size:13px;font-weight:500;z-index:9999;animation:fadeIn 0.3s;
+        `;
+        document.body.appendChild(t);
+        setTimeout(() => {
+          t.style.opacity = "0";
+          setTimeout(() => t.remove(), 300);
+        }, 3000);
+      }
+
+      const citizen = JSON.parse(
+        sessionStorage.getItem("rcts_citizen") || "{}",
+      );
+      if (!citizen.qcitizen_id) window.location.href = "login.html";
+
+      // Navigation function for KPI cards
+      function navigateToModule(module) {
+        const routes = {
+          rpt: "rpt-payment.html",
+          business: "business-tax.html",
+          market: "market-stall.html",
+          traffic: "business-tax.html", // Temporarily routes to business-tax (includes unified billing)
+        };
+
+        const page = routes[module];
+        if (page) {
+          Toast.info(`Redirecting to ${module.toUpperCase()}...`);
+          setTimeout(() => {
+            window.location.href = page;
+          }, 300);
+        }
+      }
+
+      document.getElementById("nav-name").textContent =
+        citizen.full_name || "—";
+      document.getElementById("nav-role").textContent =
+        citizen.role || "citizen";
+      document.getElementById("welcome-name").textContent =
+        "Good day, " + (citizen.full_name || "—");
+      document.getElementById("welcome-addr").textContent =
+        citizen.address || "Quezon City";
+      document.getElementById("qcid-badge").textContent =
+        "QCitizen ID: " + citizen.qcitizen_id;
+      document.getElementById("greeting").textContent =
+        "Welcome back, " +
+        citizen.full_name +
+        ". Here's your current tax and payment summary.";
+
+      if (citizen.discount_info) {
+        document.getElementById("disc-badge").style.display = "inline-block";
+        document.getElementById("disc-badge").textContent =
+          citizen.discount_info.discount_type + " — 20% Discount";
+      }
+
+      async function loadBills() {
+        try {
+          // Debug: Log the citizen ID being used
+          console.log(
+            "[Dashboard] Loading bills for citizen:",
+            citizen.qcitizen_id,
+          );
+
+          // Get DB bills (with cache-busting timestamp)
+          const dbRes = await fetch(
+            `../../api/endpoints/payment.php?action=get_pending_bills&qcitizen_id=${citizen.qcitizen_id}&t=${Date.now()}`,
+          );
+          const dbData = await dbRes.json();
+          console.log("[Dashboard] DB bills response:", dbData);
+          let bills = dbData.data?.bills || [];
+
+          // Also get ALL bills (including paid ones) to check for duplicates with S7
+          const allBillsRes = await fetch(
+            `../../api/endpoints/payment.php?action=debug_bill_status&qcitizen_id=${citizen.qcitizen_id}&t=${Date.now()}`,
+          );
+          const allBillsData = await allBillsRes.json();
+          const allBillsInDB = allBillsData.data?.bills || [];
+          const billRefsInDB = new Set(
+            allBillsInDB.map((b) => b.bill_reference_no),
+          );
+          console.log(
+            "[Dashboard] All bill references in DB:",
+            Array.from(billRefsInDB),
+          );
+
+          // Also get S7 properties as potential bills (with cache-busting timestamp)
+          const s7Res = await fetch(
+            `../../api/endpoints/subsystem7.php?action=get_property_by_citizen&qcitizen_id=${citizen.qcitizen_id}&t=${Date.now()}`,
+          );
+          const s7Data = await s7Res.json();
+          console.log("[Dashboard] S7 properties response:", s7Data);
+          const s7Props = s7Data.data?.properties || [];
+          console.log("[Dashboard] S7 properties count:", s7Props.length);
+
+          // Show S7 properties as pending RPT bills ONLY if they're NOT already in database (paid or pending)
+          if (s7Props.length > 0) {
+            // Filter S7 properties to exclude those already in the database
+            const s7PropsNotInDB = s7Props.filter(
+              (p) => !billRefsInDB.has(p.tdn_number),
+            );
+            console.log(
+              "[Dashboard] S7 properties NOT in DB (will add as pending):",
+              s7PropsNotInDB.map((p) => p.tdn_number),
+            );
+
+            if (s7PropsNotInDB.length > 0) {
+              const s7Bills = s7PropsNotInDB.map((p) => ({
+                bill_type: "RPT",
+                bill_reference_no: p.tdn_number,
+                tax_year: p.tax_year || new Date().getFullYear(),
+                base_amount: p.total_annual_tax || p.annual_rpt_due * 1.5,
+                discount_amount: 0,
+                penalty_amount: 0,
+                total_amount_due: p.total_annual_tax || p.annual_rpt_due * 1.5,
+                due_date: p.tax_year + "-03-31",
+                asset_id: p.tdn_number,
+              }));
+              // Add S7 bills to existing bills
+              bills = [...bills, ...s7Bills];
+            }
+          }
+
+          const total = bills.reduce(
+            (sum, b) => sum + Number(b.total_amount_due || b.base_amount || 0),
+            0,
+          );
+
+          document.getElementById("total-due").textContent =
+            "₱ " +
+            Number(total).toLocaleString("en-PH", { minimumFractionDigits: 2 });
+
+          const counts = {
+            RPT: 0,
+            BusinessTax: 0,
+            MarketRental: 0,
+            TrafficFine: 0,
+          };
+          bills.forEach((b) => {
+            if (counts[b.bill_type] !== undefined) counts[b.bill_type]++;
+          });
+          document.getElementById("k-rpt").textContent = counts.RPT;
+          document.getElementById("k-biz").textContent = counts.BusinessTax;
+          document.getElementById("k-mkt").textContent = counts.MarketRental;
+          document.getElementById("k-trf").textContent = counts.TrafficFine;
+
+          const container = document.getElementById("bills-container");
+          if (!bills.length) {
+            container.innerHTML =
+              '<div class="empty-state"><div class="icon">✅</div>No pending bills. You\'re all caught up!</div>';
+            return;
+          }
+          const typeMap = {
+            RPT: "type-rpt",
+            BusinessTax: "type-biz",
+            MarketRental: "type-mkt",
+            TrafficFine: "type-trf",
+          };
+          const rows = bills
+            .map(
+              (b) => `
+      <tr>
+        <td><span class="type-badge ${typeMap[b.bill_type] || "type-rpt"}">${b.bill_type}</span></td>
+        <td>${b.bill_reference_no}</td>
+        <td>${b.tax_year}</td>
+        <td>₱${Number(b.base_amount).toLocaleString("en-PH", { minimumFractionDigits: 2 })}</td>
+        <td style="color:var(--green)">-₱${Number(b.discount_amount || 0).toLocaleString("en-PH", { minimumFractionDigits: 2 })}</td>
+        <td style="color:var(--red)">+₱${Number(b.penalty_amount || 0).toLocaleString("en-PH", { minimumFractionDigits: 2 })}</td>
+        <td><strong>₱${Number(b.total_amount_due).toLocaleString("en-PH", { minimumFractionDigits: 2 })}</strong></td>
+        <td>${b.due_date || "—"}</td>
+        <td><span class="status-pending">Pending</span></td>
+        <td><button class="btn-pay-row" onclick="payBill('${b.bill_reference_no}')">Pay</button></td>
+      </tr>`,
+            )
+            .join("");
+          container.innerHTML = `<table class="bills-table">
+      <thead><tr><th>Type</th><th>Reference No.</th><th>Year</th><th>Base</th><th>Discount</th><th>Penalty</th><th>Total Due</th><th>Due Date</th><th>Status</th><th>Action</th></tr></thead>
+      <tbody>${rows}</tbody></table>`;
+          console.log(
+            "[Dashboard] Bills table rendered with",
+            bills.length,
+            "bills",
+          );
+        } catch (e) {
+          console.error("[Dashboard] Error loading bills:", e);
+          console.error("[Dashboard] Error stack:", e.stack);
+          document.getElementById("bills-container").innerHTML =
+            '<div class="empty-state">Could not load bills. Error: ' +
+            e.message +
+            "<br>Check browser console for details.</div>";
+        }
+      }
+
+      async function loadConsolidatedBills() {
+        try {
+          const res = await fetch(
+            `../../api/endpoints/payment.php?action=get_pending_bills&qcitizen_id=${citizen.qcitizen_id}&t=${Date.now()}`,
+          );
+          const data = await res.json();
+          const allBills = data.data?.bills || [];
+          const container = document.getElementById(
+            "consolidated-bills-container",
+          );
+
+          if (!allBills.length) {
+            container.innerHTML =
+              '<div class="empty-state">✅ No pending bills. You\'re all caught up!</div>';
+            return;
+          }
+
+          // Group bills by bill_type
+          const billsByType = {};
+          const billTypeLabels = {
+            BusinessTax: "🏢 Business Tax",
+            TrafficFine: "🚦 Traffic Fines",
+            MarketRental: "🛒 Market Stall Rental",
+            RPT: "🏠 Real Property Tax",
+          };
+
+          allBills.forEach((bill) => {
+            const billType = bill.bill_type || "Other";
+            if (!billsByType[billType]) {
+              billsByType[billType] = [];
+            }
+            billsByType[billType].push(bill);
+          });
+
+          // Calculate subtotals and render
+          let grandTotal = 0;
+          let billGroupsHtml = "";
+
+          Object.entries(billsByType).forEach(([billType, bills]) => {
+            const subtotal = bills.reduce(
+              (sum, b) => sum + Number(b.total_amount_due || 0),
+              0,
+            );
+            grandTotal += subtotal;
+
+            const typeLabel = billTypeLabels[billType] || billType;
+            const billItemsHtml = bills
+              .map(
+                (b) => `
+              <div class="bill-type-item">
+                <div class="bill-type-item-left">
+                  <div class="bill-type-item-ref">${b.bill_reference_no}</div>
+                  <div class="bill-type-item-details">Due: ${b.due_date ? new Date(b.due_date).toLocaleDateString("en-PH") : "—"}</div>
+                </div>
+                <div style="font-weight:700;color:var(--gold)">₱${Number(b.total_amount_due || 0).toLocaleString("en-PH", { minimumFractionDigits: 2 })}</div>
+              </div>
+            `,
+              )
+              .join("");
+
+            billGroupsHtml += `
+            <div class="bill-group">
+              <div class="bill-group-header">
+                <span class="bill-group-title">${typeLabel} (${bills.length})</span>
+                <span class="bill-group-subtotal">₱${subtotal.toLocaleString("en-PH", { minimumFractionDigits: 2 })}</span>
+              </div>
+              ${billItemsHtml}
+            </div>
+          `;
+          });
+
+          // Build the final HTML
+          const finalHtml = `
+          ${billGroupsHtml}
+          <div class="bill-summary">
+            <div class="summary-row">
+              <span class="label">Business Tax</span>
+              <span class="value">₱${(billsByType.BusinessTax ? billsByType.BusinessTax.reduce((sum, b) => sum + Number(b.total_amount_due || 0), 0) : 0).toLocaleString("en-PH", { minimumFractionDigits: 2 })}</span>
+            </div>
+            <div class="summary-row">
+              <span class="label">Traffic Fines</span>
+              <span class="value">₱${(billsByType.TrafficFine ? billsByType.TrafficFine.reduce((sum, b) => sum + Number(b.total_amount_due || 0), 0) : 0).toLocaleString("en-PH", { minimumFractionDigits: 2 })}</span>
+            </div>
+            <div class="summary-row">
+              <span class="label">Market Stall Rental</span>
+              <span class="value">₱${(billsByType.MarketRental ? billsByType.MarketRental.reduce((sum, b) => sum + Number(b.total_amount_due || 0), 0) : 0).toLocaleString("en-PH", { minimumFractionDigits: 2 })}</span>
+            </div>
+            <div class="summary-row">
+              <span class="label">Real Property Tax</span>
+              <span class="value">₱${(billsByType.RPT ? billsByType.RPT.reduce((sum, b) => sum + Number(b.total_amount_due || 0), 0) : 0).toLocaleString("en-PH", { minimumFractionDigits: 2 })}</span>
+            </div>
+            <div class="summary-row total">
+              <span class="label">TOTAL PENDING</span>
+              <span class="value">₱${grandTotal.toLocaleString("en-PH", { minimumFractionDigits: 2 })}</span>
+            </div>
+          </div>
+        `;
+
+          container.innerHTML = finalHtml;
+        } catch (e) {
+          console.error("[Dashboard] Error loading consolidated bills:", e);
+          document.getElementById("consolidated-bills-container").innerHTML =
+            '<div class="empty-state">Could not load consolidated bills. Error: ' +
+            e.message +
+            "</div>";
+        }
+      }
+
+      function payBill(ref) {
+        sessionStorage.setItem("pay_bills", JSON.stringify([ref]));
+        Toast.info("Redirecting to payment gateway...");
+        window.location.href = "payment-gateway.html";
+      }
+      function goPayAll() {
+        if (!confirm("Pay all pending bills in a single transaction?")) return;
+
+        Toast.info("Processing consolidated payment...");
+
+        fetch(`../../api/endpoints/payment.php?action=pay_all`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            qcitizen_id: citizen.qcitizen_id,
+            gateway_provider: "GCash",
+          }),
+        })
+          .then((res) => res.json())
+          .then((data) => {
+            if (data.success) {
+              Toast.success("Payment successful! All bills paid!");
+              showReceiptModal(data.data);
+            } else {
+              Toast.error(data.message || "Payment failed");
+            }
+          })
+          .catch((err) => {
+            Toast.error("Payment error: " + err.message);
+          });
+      }
+
+      function showReceiptModal(data) {
+        const modal = document.createElement("div");
+        modal.style.cssText = `
+          position:fixed;inset:0;background:rgba(0,0,0,0.8);z-index:1000;
+          display:flex;align-items:center;justify-content:center;
+        `;
+        modal.innerHTML = `
+          <div style="
+            background:linear-gradient(135deg,#112240,#0a1628);
+            border:1px solid rgba(201,168,76,0.3);border-radius:16px;
+            padding:32px;max-width:420px;width:90%;
+            color:#f5f3ee;font-family:'DM Sans',sans-serif;
+          ">
+            <div style="text-align:center;font-size:48px;margin-bottom:16px;">✅</div>
+            <h2 style="font-family:'Playfair Display',serif;text-align:center;margin-bottom:8px;color:#c9a84c;">
+              PAYMENT SUCCESSFUL!
+            </h2>
+            <p style="text-align:center;color:#8892a4;font-size:13px;margin-bottom:24px;">
+              All bills paid in a single transaction
+            </p>
+            
+            <div style="background:rgba(201,168,76,0.1);border-radius:8px;padding:16px;margin-bottom:16px;">
+              <div style="display:flex;justify-content:space-between;margin-bottom:8px;">
+                <span style="color:#8892a4;font-size:12px;">Transaction ID</span>
+                <span style="font-size:12px;font-weight:600;">${data.transaction_id}</span>
+              </div>
+              <div style="display:flex;justify-content:space-between;margin-bottom:8px;">
+                <span style="color:#8892a4;font-size:12px;">eOR Number</span>
+                <span style="font-size:12px;font-weight:600;">${data.eor_number}</span>
+              </div>
+              <div style="display:flex;justify-content:space-between;margin-bottom:8px;">
+                <span style="color:#8892a4;font-size:12px;">Amount Paid</span>
+                <span style="font-size:14px;font-weight:700;color:#c9a84c;">₱${Number(data.amount_paid).toLocaleString("en-PH")}</span>
+              </div>
+              <div style="display:flex;justify-content:space-between;margin-bottom:8px;">
+                <span style="color:#8892a4;font-size:12px;">Bills Paid</span>
+                <span style="font-size:12px;font-weight:600;">${data.bills_paid} bills</span>
+              </div>
+              <div style="display:flex;justify-content:space-between;">
+                <span style="color:#8892a4;font-size:12px;">Bill Types</span>
+                <span style="font-size:12px;font-weight:600;">${data.bill_types.join(", ")}</span>
+              </div>
+            </div>
+            
+            <div style="background:rgba(46,204,113,0.1);border-radius:8px;padding:12px;margin-bottom:16px;">
+              <div style="font-size:11px;color:#2ecc71;font-weight:600;margin-bottom:4px;">Digital Handshakes Sent:</div>
+              <div style="font-size:11px;color:#8892a4;">
+                ${Object.entries(data.digital_handshakes)
+                  .map(([k, v]) => `${k}: ${v}`)
+                  .join(" | ")}
+              </div>
+            </div>
+            
+            <button onclick="this.closest('[style*=\"position:fixed\"]').remove();loadBills();loadConsolidatedBills();" style="
+              width:100%;background:linear-gradient(135deg,#c9a84c,#e8c878);
+              border:none;border-radius:8px;padding:12px;font-size:13px;font-weight:700;
+              color:#0a1628;cursor:pointer;
+            ">Done</button>
+          </div>
+        `;
+        document.body.appendChild(modal);
+      }
+
+      async function showTransactionHistory() {
+        // Update navigation
+        document
+          .querySelectorAll(".nav-links a")
+          .forEach((a) => a.classList.remove("active"));
+        document
+          .querySelector(".nav-links a:nth-child(2)")
+          .classList.add("active");
+
+        // Update page title
+        document.querySelector(".page-title h1").textContent =
+          "Transaction History";
+        document.getElementById("greeting").textContent =
+          "View all your payment transactions and download receipts.";
+
+        // Hide welcome card and KPI grid
+        document.querySelector(".welcome-card").style.display = "none";
+        document.querySelector(".kpi-grid").style.display = "none";
+
+        // Load transaction history
+        await loadTransactionHistory();
+      }
+
+      async function loadTransactionHistory() {
+        try {
+          const res = await fetch(
+            `../../api/endpoints/payment.php?action=get_transaction_history&qcitizen_id=${citizen.qcitizen_id}`,
+          );
+          const data = await res.json();
+          const transactions = data.data?.transactions || [];
+
+          const container = document.querySelector(".card-wrap");
+          if (!transactions.length) {
+            container.innerHTML = `
+              <div class="section-header">
+                <h3>Transaction History</h3>
+              </div>
+              <div class="empty-state">
+                <div class="icon">📄</div>
+                No transactions found. Your payment history will appear here.
+              </div>
+            `;
+            return;
+          }
+
+          const rows = transactions
+            .map(
+              (t) => `
+            <tr>
+              <td>${t.transaction_id}</td>
+              <td>${new Date(t.transaction_timestamp).toLocaleDateString("en-PH")}</td>
+              <td><span class="type-badge ${getTransactionTypeClass(t.transaction_status)}">${t.transaction_status}</span></td>
+              <td>₱${Number(t.amount_settled).toLocaleString("en-PH", { minimumFractionDigits: 2 })}</td>
+              <td>${t.gateway_provider}</td>
+              <td>
+                <button class="btn-pay-row" onclick="downloadReceipt('${t.transaction_id}')">
+                  📄 Download Receipt
+                </button>
+              </td>
+            </tr>
+          `,
+            )
+            .join("");
+
+          container.innerHTML = `
+            <div class="section-header">
+              <h3>Transaction History</h3>
+            </div>
+            <table class="bills-table">
+              <thead>
+                <tr>
+                  <th>Transaction ID</th>
+                  <th>Date</th>
+                  <th>Status</th>
+                  <th>Amount</th>
+                  <th>Gateway</th>
+                  <th>Receipt</th>
+                </tr>
+              </thead>
+              <tbody>${rows}</tbody>
+            </table>
+          `;
+        } catch (e) {
+          document.querySelector(".card-wrap").innerHTML = `
+            <div class="section-header">
+              <h3>Transaction History</h3>
+            </div>
+            <div class="empty-state">Could not load transaction history.</div>
+          `;
+        }
+      }
+
+      function getTransactionTypeClass(status) {
+        switch (status) {
+          case "Success":
+            return "type-rpt"; // green
+          case "Pending":
+            return "type-biz"; // yellow
+          case "Failed":
+            return "type-trf"; // red
+          default:
+            return "type-rpt";
+        }
+      }
+
+      function downloadReceipt(transactionId) {
+        // Navigate to receipt page for printable receipt
+        window.location.href = `receipt.html?txn=${encodeURIComponent(transactionId)}`;
+      }
+
+      function logout() {
+        sessionStorage.clear();
+        window.location.href = "login.html";
+      }
+
+      loadBills();
+      loadConsolidatedBills();
+
+      // Auto-refresh bills when page becomes visible (returns from another tab/page)
+      document.addEventListener("visibilitychange", () => {
+        if (document.visibilityState === "visible") {
+          console.log("[Dashboard] Page became visible - refreshing bills");
+          loadBills();
+          loadConsolidatedBills();
+        }
+      });
+
+      // Refresh bills every 15 seconds to ensure paid bills are removed immediately
+      setInterval(() => {
+        if (document.visibilityState === "visible") {
+          console.log("[Dashboard] Auto-refreshing bills...");
+          loadBills();
+          loadConsolidatedBills();
+        }
+      }, 15000);
+
+      // ═══════════════════════════════════════════════════════════════════════
+      // TO-BE FEATURE: REAL-TIME WEBHOOK UPDATES
+      // Automatically refresh dashboard when payment events occur
+      // ═══════════════════════════════════════════════════════════════════════
+      const webhookClient = window.WebhookManager;
+
+      // Add real-time indicator in the navigation
+      const navUser = document.querySelector(".nav-user");
+      const rtIndicator = document.createElement("span");
+      rtIndicator.id = "rt-indicator";
+      rtIndicator.style.cssText = `
+        display: inline-flex;
+        align-items: center;
+        gap: 4px;
+        font-size: 9px;
+        padding: 2px 6px;
+        border-radius: 8px;
+        background: rgba(46, 204, 113, 0.15);
+        color: #2ecc71;
+        margin-left: 8px;
+      `;
+      rtIndicator.innerHTML =
+        '<span style="width:6px;height:6px;background:#2ecc71;border-radius:50%;animation:pulse 1.5s infinite;"></span> LIVE';
+      navUser.insertBefore(rtIndicator, navUser.firstChild);
+
+      // Add pulse animation style
+      const style = document.createElement("style");
+      style.textContent =
+        "@keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.4; } }";
+      document.head.appendChild(style);
+
+      // Listen for real-time payment events
+      webhookClient.on("payment.completed", (data) => {
+        console.log("[Webhook] Payment completed event received:", data);
+        if (data.qcitizen_id === citizen.qcitizen_id) {
+          Toast.success("💳 Payment confirmed! Updating your dashboard...");
+          setTimeout(() => loadBills(), 1000);
+        }
+      });
+
+      webhookClient.on("receipt.issued", (data) => {
+        console.log("[Webhook] Receipt issued event received:", data);
+        if (data.qcitizen_id === citizen.qcitizen_id) {
+          Toast.info("🧾 Your e-OR is ready!");
+        }
+      });
+
+      // Start polling for real-time updates
+      webhookClient.startPolling([
+        "payment.completed",
+        "receipt.issued",
+        "bill.created",
+      ]);
+
+      console.log(
+        "%c🔌 Real-time updates enabled",
+        "color: #2ecc71; font-weight: bold;",
+      );
+    </script>
+  </body>
+</html>

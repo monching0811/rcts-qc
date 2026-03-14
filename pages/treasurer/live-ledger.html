@@ -1,0 +1,582 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1.0" />
+    <title>RCTS-QC | Live Treasury Ledger</title>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=DM+Sans:wght@300;400;500;600&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      :root {
+        --bg-primary: #ffffff;
+        --bg-secondary: #f5f5f5;
+        --bg-card: #ffffff;
+        --text-primary: #1a1a1a;
+        --text-secondary: #555555;
+        --text-muted: #666666;
+        --gold: #c9a84c;
+        --gold2: #e8c878;
+        --white: #ffffff;
+        --muted: #666666;
+        --green: #2ecc71;
+        --red: #e74c3c;
+        --orange: #f39c12;
+        --blue: #3498db;
+        --border-color: #dddddd;
+        --accent-color: #c9a84c;
+      }
+      *,
+      *::before,
+      *::after {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+      }
+      body {
+        font-family: "DM Sans", sans-serif;
+        background: #f5f5f5;
+        color: #1a1a1a;
+        min-height: 100vh;
+      }
+      body::before {
+        content: "";
+        position: fixed;
+        inset: 0;
+        background-image: repeating-linear-gradient(
+          45deg,
+          transparent,
+          transparent 40px,
+          rgba(201, 168, 76, 0.03) 40px,
+          rgba(201, 168, 76, 0.03) 41px
+        );
+        pointer-events: none;
+        z-index: 0;
+      }
+      nav {
+        position: relative;
+        z-index: 20;
+        background: #ffffff;
+        border-bottom: 1px solid #dddddd;
+        padding: 0 28px;
+        display: flex;
+        align-items: center;
+        height: 60px;
+        gap: 0;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.08);
+      }
+      .nav-brand {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        text-decoration: none;
+        color: inherit;
+        margin-right: 24px;
+      }
+      .nav-seal {
+        width: 32px;
+        height: 32px;
+        border-radius: 50%;
+        background: linear-gradient(135deg, var(--gold), var(--gold2));
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 12px;
+        font-weight: 700;
+        color: var(--navy);
+        font-family: "Playfair Display", serif;
+      }
+      .nav-brand span {
+        font-size: 12px;
+        font-weight: 600;
+        color: #1a1a1a;
+      }
+      .nav-links {
+        display: flex;
+        align-items: center;
+        gap: 2px;
+        flex: 1;
+      }
+      .nav-links a {
+        padding: 7px 12px;
+        font-size: 12px;
+        color: var(--text-secondary);
+        text-decoration: none;
+        border-radius: 6px;
+        transition:
+          color 0.2s,
+          background 0.2s;
+      }
+      .nav-links a:hover,
+      .nav-links a.active {
+        color: var(--gold);
+        background: rgba(201, 168, 76, 0.08);
+      }
+      .btn-logout {
+        background: none;
+        border: 1px solid #dddddd;
+        border-radius: 6px;
+        padding: 5px 12px;
+        font-size: 11px;
+        color: #555555;
+        cursor: pointer;
+        font-family: "DM Sans", sans-serif;
+      }
+      main {
+        position: relative;
+        z-index: 10;
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 28px;
+      }
+      .page-header {
+        display: flex;
+        align-items: flex-end;
+        justify-content: space-between;
+        margin-bottom: 22px;
+      }
+      .page-header h1 {
+        font-family: "Playfair Display", serif;
+        font-size: 24px;
+        color: #1a1a1a;
+      }
+      .page-header p {
+        font-size: 12px;
+        color: #666666;
+        margin-top: 3px;
+      }
+      .live-dot {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        font-size: 11px;
+        color: var(--green);
+        background: rgba(46, 204, 113, 0.1);
+        border: 1px solid rgba(46, 204, 113, 0.25);
+        border-radius: 12px;
+        padding: 4px 10px;
+      }
+      .live-dot::before {
+        content: "";
+        width: 6px;
+        height: 6px;
+        border-radius: 50%;
+        background: var(--green);
+        animation: pulse 2s infinite;
+      }
+      @keyframes pulse {
+        0%,
+        100% {
+          opacity: 1;
+        }
+        50% {
+          opacity: 0.4;
+        }
+      }
+      /* Summary strip */
+      .summary-strip {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 14px;
+        margin-bottom: 20px;
+      }
+      .sum-card {
+        background: #ffffff;
+        border: 1px solid #dddddd;
+        border-radius: 10px;
+        padding: 14px 16px;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+      }
+      .sum-card .val {
+        font-family: "Playfair Display", serif;
+        font-size: 18px;
+        color: #1a1a1a;
+      }
+      .sum-card .lbl {
+        font-size: 10px;
+        color: #666666;
+        text-transform: uppercase;
+        letter-spacing: 0.07em;
+        margin-top: 3px;
+      }
+      /* Filters */
+      .filter-bar {
+        background: #ffffff;
+        border: 1px solid #dddddd;
+        border-radius: 10px;
+        padding: 14px 18px;
+        margin-bottom: 18px;
+        display: flex;
+        gap: 12px;
+        align-items: center;
+        flex-wrap: wrap;
+      }
+      .filter-bar select,
+      .filter-bar input {
+        background: #ffffff;
+        border: 1px solid #dddddd;
+        border-radius: 7px;
+        padding: 7px 12px;
+        color: #1a1a1a;
+        font-family: "DM Sans", sans-serif;
+        font-size: 12px;
+        outline: none;
+      }
+      .filter-bar select:focus,
+      .filter-bar input:focus {
+        border-color: var(--gold);
+      }
+      .filter-bar label {
+        font-size: 11px;
+        color: #666666;
+        letter-spacing: 0.06em;
+        text-transform: uppercase;
+      }
+      .btn-refresh {
+        background: rgba(201, 168, 76, 0.1);
+        border: 1px solid rgba(201, 168, 76, 0.3);
+        border-radius: 7px;
+        padding: 7px 14px;
+        font-size: 12px;
+        font-weight: 600;
+        color: var(--gold);
+        cursor: pointer;
+        font-family: "DM Sans", sans-serif;
+      }
+      /* Ledger table */
+      .card {
+        background: #ffffff;
+        border: 1px solid #dddddd;
+        border-radius: 12px;
+        overflow: hidden;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+      }
+      .ledger-table {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: 12px;
+      }
+      .ledger-table th {
+        padding: 10px 14px;
+        text-align: left;
+        font-size: 10px;
+        font-weight: 700;
+        color: #666666;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        background: #f9f9f9;
+        border-bottom: 1px solid #eeeeee;
+        white-space: nowrap;
+      }
+      .ledger-table td {
+        padding: 11px 14px;
+        border-bottom: 1px solid #eeeeee;
+        color: #1a1a1a;
+      }
+      .ledger-table tr:last-child td {
+        border-bottom: none;
+      }
+      .ledger-table tr:hover td {
+        background: #f9f9f9;
+      }
+      .credit {
+        color: var(--green);
+        font-weight: 600;
+      }
+      .debit {
+        color: var(--red);
+        font-weight: 600;
+      }
+      .type-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 4px;
+        font-size: 10px;
+        padding: 2px 7px;
+        border-radius: 6px;
+        font-weight: 700;
+      }
+      .t-credit {
+        background: rgba(46, 204, 113, 0.1);
+        color: var(--green);
+      }
+      .t-debit {
+        background: rgba(231, 76, 60, 0.1);
+        color: var(--red);
+      }
+      .fund-tag {
+        font-size: 10px;
+        padding: 2px 7px;
+        border-radius: 5px;
+        background: rgba(201, 168, 76, 0.12);
+        color: #8a6d3b;
+      }
+      .cat-tag {
+        font-size: 10px;
+        padding: 2px 7px;
+        border-radius: 5px;
+        background: rgba(52, 152, 219, 0.1);
+        color: #3498db;
+      }
+      /* Pagination */
+      .pagination {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 14px 18px;
+        border-top: 1px solid #eeeeee;
+      }
+      .pagination .info {
+        font-size: 12px;
+        color: #666666;
+      }
+      .page-btns {
+        display: flex;
+        gap: 6px;
+      }
+      .page-btn {
+        background: rgba(201, 168, 76, 0.08);
+        border: 1px solid rgba(201, 168, 76, 0.2);
+        border-radius: 6px;
+        padding: 5px 12px;
+        font-size: 11px;
+        font-weight: 600;
+        color: var(--gold);
+        cursor: pointer;
+        font-family: "DM Sans", sans-serif;
+        transition: background 0.2s;
+      }
+      .page-btn:hover {
+        background: rgba(201, 168, 76, 0.18);
+      }
+      .page-btn:disabled {
+        opacity: 0.3;
+        cursor: not-allowed;
+      }
+      .loading {
+        text-align: center;
+        padding: 36px;
+        color: #666666;
+      }
+      .staff-badge {
+        font-size: 10px;
+        padding: 2px 8px;
+        border-radius: 8px;
+        background: rgba(201, 168, 76, 0.15);
+        color: var(--gold);
+        font-weight: 600;
+      }
+    </style>
+  </head>
+  <body>
+    <nav>
+      <a class="nav-brand" href="../../index.html"
+        ><div class="nav-seal">QC</div>
+        <span>RCTS-QC Treasury</span></a
+      >
+      <div class="nav-links">
+        <a href="dashboard.html">Dashboard</a>
+        <a href="live-ledger.html" class="active">Live Ledger</a>
+        <a href="disbursement.html">Disbursements</a>
+        <a href="reports.html">Reports / e-SRE</a>
+        <a href="fund-management.html">Fund Management</a>
+        <a href="market-billing.html">Market Billing</a>
+      </div>
+      <div
+        style="display: flex; align-items: center; gap: 10px; margin-left: auto"
+      >
+        <span class="staff-badge">Treasury Staff</span>
+        <span id="nav-name" style="font-size: 12px; color: #1a1a1a">—</span>
+        <button
+          class="btn-logout"
+          onclick="
+            sessionStorage.clear();
+            location.href = '../citizen/login.html';
+          "
+        >
+          Sign Out
+        </button>
+      </div>
+    </nav>
+    <main>
+      <div class="page-header">
+        <div>
+          <h1>Live Treasury Ledger</h1>
+          <p>
+            Every credit and debit in real time — the city's official financial
+            book.
+          </p>
+        </div>
+        <div class="live-dot">Live Feed</div>
+      </div>
+
+      <div class="summary-strip">
+        <div class="sum-card">
+          <div class="lbl">Total Credits</div>
+          <div class="val credit" id="s-credits">₱—</div>
+        </div>
+        <div class="sum-card">
+          <div class="lbl">Total Debits</div>
+          <div class="val debit" id="s-debits">₱—</div>
+        </div>
+        <div class="sum-card">
+          <div class="lbl">Net Balance</div>
+          <div class="val" id="s-net">₱—</div>
+        </div>
+        <div class="sum-card">
+          <div class="lbl">Total Entries</div>
+          <div class="val" id="s-count" style="color: var(--gold)">—</div>
+        </div>
+      </div>
+
+      <div class="filter-bar">
+        <label>Type:</label>
+        <select id="f-type" onchange="applyFilters()">
+          <option value="">All</option>
+          <option value="Credit">Credit</option>
+          <option value="Debit">Debit</option>
+        </select>
+        <label>Category:</label>
+        <select id="f-cat" onchange="applyFilters()">
+          <option value="">All</option>
+          <option value="RPT">RPT</option>
+          <option value="BusinessTax">Business Tax</option>
+          <option value="MarketRental">Market Rental</option>
+          <option value="TrafficFine">Traffic Fine</option>
+          <option value="SocialAidDisbursement">Social Aid</option>
+          <option value="ScholarshipDisbursement">Scholarship</option>
+          <option value="DRRMDisbursement">DRRM</option>
+        </select>
+        <label>Fund:</label>
+        <select id="f-fund" onchange="applyFilters()">
+          <option value="">All</option>
+          <option value="GeneralFund">General Fund</option>
+          <option value="SEF">SEF</option>
+          <option value="DRRM_QRF">DRRM QRF</option>
+        </select>
+        <button class="btn-refresh" onclick="loadEntries()">↺ Refresh</button>
+      </div>
+
+      <div class="card">
+        <div id="ledger-table-wrap">
+          <div class="loading">Loading ledger entries...</div>
+        </div>
+        <div class="pagination">
+          <div class="info" id="page-info">—</div>
+          <div class="page-btns">
+            <button
+              class="page-btn"
+              id="prev-btn"
+              onclick="changePage(-1)"
+              disabled
+            >
+              ← Prev
+            </button>
+            <button class="page-btn" id="next-btn" onclick="changePage(1)">
+              Next →
+            </button>
+          </div>
+        </div>
+      </div>
+    </main>
+
+    <script>
+      const citizen = JSON.parse(
+        sessionStorage.getItem("rcts_citizen") || "{}",
+      );
+      if (!["treasurer", "revenue_officer", "admin"].includes(citizen.role)) {
+        location.href = "../citizen/login.html";
+      }
+      document.getElementById("nav-name").textContent =
+        citizen.full_name || "—";
+
+      const fmt = (n) =>
+        "₱" +
+        Number(n || 0).toLocaleString("en-PH", { minimumFractionDigits: 2 });
+      let currentPage = 0,
+        pageSize = 15;
+
+      async function loadEntries() {
+        const type = document.getElementById("f-type").value;
+        const cat = document.getElementById("f-cat").value;
+        const fund = document.getElementById("f-fund").value;
+        const wrap = document.getElementById("ledger-table-wrap");
+        wrap.innerHTML = '<div class="loading">Loading...</div>';
+
+        try {
+          const res = await fetch(
+            `../../api/endpoints/dashboard.php?action=ledger_feed&limit=${pageSize}&offset=${currentPage * pageSize}`,
+          );
+          const data = await res.json();
+          let entries = data.data?.entries || [];
+
+          // Client-side filter
+          if (type) entries = entries.filter((e) => e.entry_type === type);
+          if (cat) entries = entries.filter((e) => e.revenue_category === cat);
+          if (fund) entries = entries.filter((e) => e.fund_id === fund);
+
+          const totalC = entries
+            .filter((e) => e.entry_type === "Credit")
+            .reduce((s, e) => s + Number(e.amount), 0);
+          const totalD = entries
+            .filter((e) => e.entry_type === "Debit")
+            .reduce((s, e) => s + Number(e.amount), 0);
+          document.getElementById("s-credits").textContent = fmt(totalC);
+          document.getElementById("s-debits").textContent = fmt(totalD);
+          document.getElementById("s-net").textContent = fmt(totalC - totalD);
+          document.getElementById("s-net").style.color =
+            totalC - totalD >= 0 ? "var(--green)" : "var(--red)";
+          document.getElementById("s-count").textContent = entries.length;
+
+          if (!entries.length) {
+            wrap.innerHTML =
+              '<div class="loading">No ledger entries found.</div>';
+            return;
+          }
+
+          const rows = entries
+            .map(
+              (e) => `
+      <tr>
+        <td style="font-family:monospace;font-size:10px;color:var(--muted)">${e.ledger_entry_id}</td>
+        <td style="font-size:11px;white-space:nowrap">${new Date(e.entry_timestamp).toLocaleString("en-PH")}</td>
+        <td><span class="type-badge ${e.entry_type === "Credit" ? "t-credit" : "t-debit"}">${e.entry_type === "Credit" ? "▲" : "▼"} ${e.entry_type}</span></td>
+        <td><span class="cat-tag">${e.revenue_category}</span></td>
+        <td><span class="fund-tag">${e.fund_id}</span></td>
+        <td style="font-family:monospace;font-size:11px">${e.gl_account_code}</td>
+        <td class="${e.entry_type === "Credit" ? "credit" : "debit"}" style="font-size:13px;text-align:right">${fmt(e.amount)}</td>
+        <td style="font-size:11px;color:var(--muted);max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="${e.remarks || ""}">${e.remarks || "—"}</td>
+      </tr>`,
+            )
+            .join("");
+
+          wrap.innerHTML = `<table class="ledger-table">
+      <thead><tr><th>ID</th><th>Timestamp</th><th>Type</th><th>Category</th><th>Fund</th><th>GL Code</th><th style="text-align:right">Amount</th><th>Remarks</th></tr></thead>
+      <tbody>${rows}</tbody></table>`;
+
+          document.getElementById("page-info").textContent =
+            `Page ${currentPage + 1} · Showing ${entries.length} entries`;
+          document.getElementById("prev-btn").disabled = currentPage === 0;
+          document.getElementById("next-btn").disabled =
+            entries.length < pageSize;
+        } catch (e) {
+          wrap.innerHTML =
+            '<div class="loading">Error loading ledger. Check server connection.</div>';
+        }
+      }
+
+      function applyFilters() {
+        currentPage = 0;
+        loadEntries();
+      }
+      function changePage(dir) {
+        currentPage = Math.max(0, currentPage + dir);
+        loadEntries();
+      }
+
+      loadEntries();
+      setInterval(loadEntries, 15000);
+    </script>
+  </body>
+</html>

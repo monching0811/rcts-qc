@@ -1,0 +1,476 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>RCTS-QC | Webhook Real-Time Tester</title>
+    <style>
+      :root {
+        --navy: #0a1628;
+        --navy2: #112240;
+        --gold: #c9a84c;
+        --gold2: #e8c878;
+        --white: #f5f3ee;
+        --muted: #8892a4;
+        --green: #2ecc71;
+        --red: #e74c3c;
+        --blue: #3498db;
+      }
+
+      * {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+      }
+
+      body {
+        font-family: "DM Sans", sans-serif;
+        background: var(--navy);
+        color: var(--white);
+        min-height: 100vh;
+        padding: 20px;
+      }
+
+      .container {
+        max-width: 1200px;
+        margin: 0 auto;
+      }
+
+      h1 {
+        font-family: "Playfair Display", serif;
+        color: var(--gold);
+        margin-bottom: 8px;
+      }
+
+      .subtitle {
+        color: var(--muted);
+        font-size: 14px;
+        margin-bottom: 24px;
+      }
+
+      .card {
+        background: var(--navy2);
+        border: 1px solid rgba(201, 168, 76, 0.12);
+        border-radius: 12px;
+        padding: 20px;
+        margin-bottom: 20px;
+      }
+
+      .card h3 {
+        font-family: "Playfair Display", serif;
+        font-size: 16px;
+        margin-bottom: 16px;
+        color: var(--gold);
+      }
+
+      .status-bar {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        padding: 12px 16px;
+        background: rgba(46, 204, 113, 0.1);
+        border: 1px solid rgba(46, 204, 113, 0.3);
+        border-radius: 8px;
+        margin-bottom: 20px;
+      }
+
+      .status-dot {
+        width: 10px;
+        height: 10px;
+        border-radius: 50%;
+        background: var(--green);
+        animation: pulse 2s infinite;
+      }
+
+      @keyframes pulse {
+        0%,
+        100% {
+          opacity: 1;
+        }
+        50% {
+          opacity: 0.5;
+        }
+      }
+
+      .status-bar.inactive {
+        background: rgba(136, 146, 164, 0.1);
+        border-color: rgba(136, 146, 164, 0.3);
+      }
+
+      .status-bar.inactive .status-dot {
+        background: var(--muted);
+        animation: none;
+      }
+
+      .btn {
+        background: linear-gradient(135deg, var(--gold), var(--gold2));
+        border: none;
+        border-radius: 7px;
+        padding: 10px 20px;
+        font-size: 13px;
+        font-weight: 700;
+        color: var(--navy);
+        cursor: pointer;
+        font-family: "DM Sans", sans-serif;
+        transition:
+          transform 0.2s,
+          box-shadow 0.2s;
+      }
+
+      .btn:hover {
+        transform: translateY(-1px);
+        box-shadow: 0 4px 12px rgba(201, 168, 76, 0.3);
+      }
+
+      .btn-secondary {
+        background: rgba(52, 152, 219, 0.15);
+        border: 1px solid rgba(52, 152, 219, 0.3);
+        color: var(--blue);
+      }
+
+      .btn-danger {
+        background: rgba(231, 76, 60, 0.15);
+        border: 1px solid rgba(231, 76, 60, 0.3);
+        color: var(--red);
+      }
+
+      .btn-group {
+        display: flex;
+        gap: 10px;
+        flex-wrap: wrap;
+        margin-bottom: 16px;
+      }
+
+      .event-list {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+        max-height: 400px;
+        overflow-y: auto;
+      }
+
+      .event-item {
+        background: rgba(10, 22, 40, 0.5);
+        border: 1px solid rgba(201, 168, 76, 0.08);
+        border-radius: 8px;
+        padding: 12px 16px;
+        font-size: 13px;
+        animation: slideIn 0.3s ease-out;
+      }
+
+      @keyframes slideIn {
+        from {
+          opacity: 0;
+          transform: translateX(-20px);
+        }
+        to {
+          opacity: 1;
+          transform: translateX(0);
+        }
+      }
+
+      .event-item.payment {
+        border-left: 3px solid var(--green);
+      }
+      .event-item.receipt {
+        border-left: 3px solid var(--gold);
+      }
+      .event-item.ledger {
+        border-left: 3px solid var(--blue);
+      }
+      .event-item.test {
+        border-left: 3px solid var(--muted);
+      }
+
+      .event-time {
+        color: var(--muted);
+        font-size: 11px;
+        margin-bottom: 4px;
+      }
+
+      .event-type {
+        font-weight: 700;
+        color: var(--gold);
+        font-size: 12px;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+      }
+
+      .event-data {
+        margin-top: 8px;
+        padding: 8px;
+        background: rgba(0, 0, 0, 0.2);
+        border-radius: 4px;
+        font-family: monospace;
+        font-size: 12px;
+        color: #a8b5c4;
+        white-space: pre-wrap;
+        word-break: break-all;
+      }
+
+      .grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+        gap: 20px;
+      }
+
+      .info-box {
+        background: rgba(52, 152, 219, 0.08);
+        border: 1px solid rgba(52, 152, 219, 0.2);
+        border-radius: 8px;
+        padding: 16px;
+        margin-top: 16px;
+      }
+
+      .info-box h4 {
+        color: var(--blue);
+        font-size: 13px;
+        margin-bottom: 8px;
+      }
+
+      .info-box p {
+        color: var(--muted);
+        font-size: 12px;
+        line-height: 1.5;
+      }
+
+      code {
+        background: rgba(0, 0, 0, 0.3);
+        padding: 2px 6px;
+        border-radius: 4px;
+        font-size: 11px;
+        color: var(--gold2);
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <h1>🔌 RCTS-QC Webhook Real-Time Tester</h1>
+      <p class="subtitle">TO-BE Feature: Webhook-Based Real-Time Updates</p>
+
+      <div class="status-bar" id="statusBar">
+        <div class="status-dot"></div>
+        <span
+          ><strong>Real-Time Updates:</strong> Connected - Polling for webhook
+          events every 3 seconds</span
+        >
+      </div>
+
+      <div class="grid">
+        <div class="card">
+          <h3>🎯 Trigger Test Events</h3>
+          <p class="subtitle" style="margin-bottom: 16px">
+            Manually trigger webhook events to test real-time updates
+          </p>
+
+          <div class="btn-group">
+            <button class="btn" onclick="triggerEvent('payment.completed')">
+              💳 Trigger Payment
+            </button>
+            <button
+              class="btn btn-secondary"
+              onclick="triggerEvent('receipt.issued')"
+            >
+              🧾 Trigger Receipt
+            </button>
+            <button
+              class="btn btn-secondary"
+              onclick="triggerEvent('ledger.updated')"
+            >
+              📊 Trigger Ledger
+            </button>
+          </div>
+
+          <button class="btn btn-danger" onclick="stopPolling()">
+            ⏹ Stop Real-Time Updates
+          </button>
+
+          <div class="info-box">
+            <h4>ℹ️ About This Feature</h4>
+            <p>
+              <strong>AS-IS:</strong> Currently uses polling/manual refresh -
+              users must manually refresh pages to see new data.<br /><br />
+              <strong>TO-BE:</strong> Instant webhook notifications - the
+              dashboard and citizen portal update in real-time when payments are
+              made, receipts are issued, or the ledger is updated.
+            </p>
+          </div>
+        </div>
+
+        <div class="card">
+          <h3>📡 Available Event Types</h3>
+          <div class="event-list" id="eventTypes" style="max-height: 250px">
+            <div class="event-item test">
+              <div class="event-time">Loading...</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <h3>📬 Real-Time Event Feed</h3>
+        <p class="subtitle" style="margin-bottom: 16px">
+          Events will appear here in real-time when triggered
+        </p>
+        <div class="event-list" id="eventFeed">
+          <div class="event-item test">
+            <div class="event-time">Waiting for events...</div>
+            <div class="event-type">System Ready</div>
+            <div class="event-data">
+              Click a trigger button or make a payment to see real-time updates
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <h3>🔧 Webhook API Endpoints</h3>
+        <table style="width: 100%; font-size: 12px; color: var(--muted)">
+          <tr style="border-bottom: 1px solid rgba(201, 168, 76, 0.1)">
+            <td style="padding: 8px 0"><code>?action=subscribe</code></td>
+            <td>Subscribe to webhook events</td>
+          </tr>
+          <tr style="border-bottom: 1px solid rgba(201, 168, 76, 0.1)">
+            <td style="padding: 8px 0"><code>?action=unsubscribe</code></td>
+            <td>Unsubscribe from webhook events</td>
+          </tr>
+          <tr style="border-bottom: 1px solid rgba(201, 168, 76, 0.1)">
+            <td style="padding: 8px 0"><code>?action=events</code></td>
+            <td>List available event types</td>
+          </tr>
+          <tr style="border-bottom: 1px solid rgba(201, 168, 76, 0.1)">
+            <td style="padding: 8px 0"><code>?action=trigger</code></td>
+            <td>Manually trigger an event (testing)</td>
+          </tr>
+          <tr>
+            <td style="padding: 8px 0"><code>?action=poll</code></td>
+            <td>Frontend polling for real-time updates</td>
+          </tr>
+        </table>
+      </div>
+    </div>
+
+    <script src="../public/js/webhook-client.js"></script>
+    <script>
+      const webhookClient = window.WebhookManager;
+      const eventFeed = document.getElementById("eventFeed");
+      const statusBar = document.getElementById("statusBar");
+
+      // Load available event types
+      async function loadEventTypes() {
+        try {
+          const response = await fetch(
+            "../api/endpoints/webhook.php?action=events",
+          );
+          const result = await response.json();
+
+          if (result.success) {
+            const container = document.getElementById("eventTypes");
+            container.innerHTML = result.events
+              .map(
+                (e) => `
+                        <div class="event-item test">
+                            <div class="event-type">${e.name}</div>
+                            <div class="event-data">${e.description}</div>
+                        </div>
+                    `,
+              )
+              .join("");
+          }
+        } catch (e) {
+          console.error("Failed to load event types:", e);
+        }
+      }
+
+      // Add event to feed
+      function addEventToFeed(eventType, data) {
+        const eventClass = eventType.includes("payment")
+          ? "payment"
+          : eventType.includes("receipt")
+            ? "receipt"
+            : eventType.includes("ledger")
+              ? "ledger"
+              : "test";
+
+        const eventHtml = `
+                <div class="event-item ${eventClass}">
+                    <div class="event-time">${new Date().toLocaleTimeString()}</div>
+                    <div class="event-type">${eventType}</div>
+                    <div class="event-data">${JSON.stringify(data, null, 2)}</div>
+                </div>
+            `;
+
+        eventFeed.insertAdjacentHTML("afterbegin", eventHtml);
+
+        // Keep only last 20 events
+        const events = eventFeed.querySelectorAll(".event-item");
+        if (events.length > 20) {
+          events[events.length - 1].remove();
+        }
+      }
+
+      // Set up event listeners
+      webhookClient.on("payment.completed", (data) => {
+        console.log("Payment completed received:", data);
+        addEventToFeed("payment.completed", data);
+      });
+
+      webhookClient.on("receipt.issued", (data) => {
+        console.log("Receipt issued received:", data);
+        addEventToFeed("receipt.issued", data);
+      });
+
+      webhookClient.on("ledger.updated", (data) => {
+        console.log("Ledger updated received:", data);
+        addEventToFeed("ledger.updated", data);
+      });
+
+      // Start real-time polling
+      webhookClient.startPolling([
+        "payment.completed",
+        "receipt.issued",
+        "ledger.updated",
+        "bill.created",
+        "disbursement.completed",
+      ]);
+
+      // Trigger manual event
+      async function triggerEvent(eventType) {
+        const testData = {
+          test: true,
+          timestamp: new Date().toISOString(),
+          transaction_id: "TXN-TEST-" + Date.now(),
+          amount: Math.floor(Math.random() * 10000) + 1000,
+          message: "This is a test " + eventType + " event",
+        };
+
+        try {
+          await webhookClient.triggerEvent(eventType, testData);
+          addEventToFeed(eventType + " (sent)", testData);
+          console.log("Triggered event:", eventType);
+        } catch (e) {
+          console.error("Failed to trigger event:", e);
+        }
+      }
+
+      // Stop polling
+      function stopPolling() {
+        webhookClient.stopPolling();
+        statusBar.classList.add("inactive");
+        statusBar.innerHTML = `
+                <div class="status-dot"></div>
+                <span><strong>Real-Time Updates:</strong> Disconnected</span>
+            `;
+        addEventToFeed("system", { message: "Real-time updates stopped" });
+      }
+
+      // Load event types on page load
+      loadEventTypes();
+
+      console.log(
+        "%c🔌 RCTS-QC Webhook Tester Loaded",
+        "color: #c9a84c; font-weight: bold;",
+      );
+    </script>
+  </body>
+</html>

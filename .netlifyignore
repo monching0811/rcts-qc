@@ -1,0 +1,21 @@
+# Netlify ignore file for RCTS frontend deployment
+api/
+database/
+logs/
+mock-data/
+tests/
+includes/db.php
+.git/
+README.md
+SETUP.md
+MARKET-STALL-MODULE-SUMMARY.md
+*.php
+*.sql
+*.md
+test-*.php
+check-*.php
+debug-*.php
+create-*.php
+fix-*.php
+verify-*.php
+recreate-*.php

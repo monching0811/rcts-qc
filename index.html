@@ -1,0 +1,501 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>RCTS-QC | Revenue Collection & Treasury Services</title>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=DM+Sans:wght@300;400;500;600&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      :root {
+        --navy: #ffffff;
+        --navy2: #f5f5f5;
+        --gold: #c9a84c;
+        --gold2: #e8c878;
+        --white: #1a1a1a;
+        --muted: #666666;
+        --green: #2ecc71;
+      }
+      *,
+      *::before,
+      *::after {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+      }
+      body {
+        font-family: "DM Sans", sans-serif;
+        background: #f5f5f5;
+        color: #1a1a1a;
+        min-height: 100vh;
+        overflow-x: hidden;
+      }
+      body::before {
+        content: "";
+        position: fixed;
+        inset: 0;
+        background-image:
+          repeating-linear-gradient(
+            45deg,
+            transparent,
+            transparent 40px,
+            rgba(201, 168, 76, 0.03) 40px,
+            rgba(201, 168, 76, 0.03) 41px
+          ),
+          repeating-linear-gradient(
+            -45deg,
+            transparent,
+            transparent 40px,
+            rgba(201, 168, 76, 0.03) 40px,
+            rgba(201, 168, 76, 0.03) 41px
+          );
+        pointer-events: none;
+        z-index: 0;
+      }
+      .top-bar {
+        position: relative;
+        z-index: 10;
+        background: var(--gold);
+        padding: 8px 40px;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+      }
+      .top-bar span {
+        font-size: 12px;
+        font-weight: 600;
+        color: #ffffff;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+      }
+      .top-bar .dot {
+        width: 4px;
+        height: 4px;
+        border-radius: 50%;
+        background: #ffffff;
+        opacity: 0.5;
+      }
+      header {
+        position: relative;
+        z-index: 10;
+        padding: 32px 40px 28px;
+        display: flex;
+        align-items: center;
+        gap: 20px;
+        border-bottom: 1px solid #dddddd;
+        background: #ffffff;
+      }
+      .logo-seal {
+        width: 60px;
+        height: 60px;
+        border-radius: 50%;
+        background: linear-gradient(135deg, var(--gold), var(--gold2));
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 24px;
+        font-weight: 700;
+        color: #ffffff;
+        font-family: "Playfair Display", serif;
+        box-shadow: 0 0 0 3px rgba(201, 168, 76, 0.3);
+        flex-shrink: 0;
+      }
+      .header-text h1 {
+        font-family: "Playfair Display", serif;
+        font-size: 20px;
+        font-weight: 700;
+        color: #1a1a1a;
+        line-height: 1.2;
+      }
+      .header-text p {
+        font-size: 11px;
+        color: #8a6d3b;
+        letter-spacing: 0.1em;
+        text-transform: uppercase;
+        margin-top: 3px;
+      }
+      .header-right {
+        margin-left: auto;
+        text-align: right;
+      }
+      .header-right .date {
+        font-size: 12px;
+        color: #666666;
+      }
+      .status-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        background: rgba(46, 204, 113, 0.1);
+        border: 1px solid rgba(46, 204, 113, 0.3);
+        border-radius: 20px;
+        padding: 4px 12px;
+        font-size: 11px;
+        color: var(--green);
+        font-weight: 600;
+        letter-spacing: 0.05em;
+        margin-top: 6px;
+      }
+      .status-badge::before {
+        content: "";
+        width: 6px;
+        height: 6px;
+        border-radius: 50%;
+        background: var(--green);
+        animation: pulse 2s infinite;
+      }
+      @keyframes pulse {
+        0%,
+        100% {
+          opacity: 1;
+        }
+        50% {
+          opacity: 0.4;
+        }
+      }
+      .hero {
+        position: relative;
+        z-index: 10;
+        text-align: center;
+        padding: 60px 40px 44px;
+      }
+      .hero-label {
+        display: inline-block;
+        border: 1px solid rgba(201, 168, 76, 0.4);
+        border-radius: 3px;
+        padding: 5px 16px;
+        font-size: 11px;
+        letter-spacing: 0.15em;
+        text-transform: uppercase;
+        color: #8a6d3b;
+        margin-bottom: 20px;
+      }
+      .hero h2 {
+        font-family: "Playfair Display", serif;
+        font-size: clamp(28px, 5vw, 50px);
+        font-weight: 700;
+        line-height: 1.15;
+        max-width: 680px;
+        margin: 0 auto 14px;
+        color: #1a1a1a;
+      }
+      .hero h2 span {
+        color: var(--gold);
+      }
+      .hero p {
+        font-size: 14px;
+        color: #666666;
+        max-width: 460px;
+        margin: 0 auto;
+        line-height: 1.7;
+      }
+      .divider {
+        position: relative;
+        z-index: 10;
+        display: flex;
+        align-items: center;
+        gap: 16px;
+        padding: 0 40px;
+        margin-bottom: 36px;
+      }
+      .divider::before,
+      .divider::after {
+        content: "";
+        flex: 1;
+        height: 1px;
+        background: rgba(201, 168, 76, 0.2);
+      }
+      .divider span {
+        font-size: 11px;
+        letter-spacing: 0.12em;
+        color: #666666;
+        text-transform: uppercase;
+        white-space: nowrap;
+      }
+      .cards-grid {
+        position: relative;
+        z-index: 10;
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+        gap: 22px;
+        padding: 0 40px 56px;
+        max-width: 1100px;
+        margin: 0 auto;
+      }
+      .role-card {
+        background: #ffffff;
+        border: 1px solid #dddddd;
+        border-radius: 12px;
+        padding: 32px 28px;
+        cursor: pointer;
+        text-decoration: none;
+        color: inherit;
+        transition:
+          transform 0.25s,
+          border-color 0.25s,
+          box-shadow 0.25s;
+        display: block;
+        position: relative;
+        overflow: hidden;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+      }
+      .role-card::before {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 3px;
+        background: linear-gradient(90deg, var(--gold), var(--gold2));
+        transform: scaleX(0);
+        transform-origin: left;
+        transition: transform 0.3s;
+      }
+      .role-card:hover {
+        transform: translateY(-6px);
+        border-color: rgba(201, 168, 76, 0.5);
+        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+      }
+      .role-card:hover::before {
+        transform: scaleX(1);
+      }
+      .card-icon {
+        width: 52px;
+        height: 52px;
+        border-radius: 10px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 24px;
+        margin-bottom: 18px;
+      }
+      .card-icon.blue {
+        background: rgba(52, 152, 219, 0.15);
+      }
+      .card-icon.gold {
+        background: rgba(201, 168, 76, 0.15);
+      }
+      .card-icon.purple {
+        background: rgba(155, 89, 182, 0.15);
+      }
+      .role-card h3 {
+        font-family: "Playfair Display", serif;
+        font-size: 19px;
+        font-weight: 700;
+        margin-bottom: 6px;
+        color: #1a1a1a;
+      }
+      .role-card .subtitle {
+        font-size: 11px;
+        color: #8a6d3b;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        margin-bottom: 12px;
+      }
+      .role-card p {
+        font-size: 13px;
+        color: #666666;
+        line-height: 1.65;
+        margin-bottom: 20px;
+      }
+      .card-features {
+        list-style: none;
+        margin-bottom: 24px;
+      }
+      .card-features li {
+        font-size: 12px;
+        color: #666666;
+        padding: 4px 0;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+      .card-features li::before {
+        content: "›";
+        color: var(--gold);
+        font-size: 14px;
+      }
+      .card-btn {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        background: rgba(201, 168, 76, 0.1);
+        border: 1px solid rgba(201, 168, 76, 0.3);
+        border-radius: 8px;
+        padding: 11px 16px;
+        font-size: 13px;
+        font-weight: 600;
+        color: #8a6d3b;
+        letter-spacing: 0.04em;
+        transition: background 0.2s;
+      }
+      .role-card:hover .card-btn {
+        background: rgba(201, 168, 76, 0.2);
+      }
+      .info-bar {
+        position: relative;
+        z-index: 10;
+        border-top: 1px solid #dddddd;
+        padding: 20px 40px;
+        display: flex;
+        flex-wrap: wrap;
+        gap: 28px;
+        justify-content: center;
+        background: #ffffff;
+      }
+      .info-item {
+        text-align: center;
+      }
+      .info-item .val {
+        font-family: "Playfair Display", serif;
+        font-size: 20px;
+        color: var(--gold);
+      }
+      .info-item .lbl {
+        font-size: 11px;
+        color: #666666;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        margin-top: 2px;
+      }
+      .role-card {
+        opacity: 0;
+        animation: fadeUp 0.5s forwards;
+      }
+      .role-card:nth-child(1) {
+        animation-delay: 0.1s;
+      }
+      .role-card:nth-child(2) {
+        animation-delay: 0.22s;
+      }
+      .role-card:nth-child(3) {
+        animation-delay: 0.34s;
+      }
+      @keyframes fadeUp {
+        from {
+          opacity: 0;
+          transform: translateY(24px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+      .hero h2,
+      .hero p,
+      .hero-label {
+        opacity: 0;
+        animation: fadeUp 0.5s forwards;
+      }
+      .hero-label {
+        animation-delay: 0.05s;
+      }
+      .hero h2 {
+        animation-delay: 0.12s;
+      }
+      .hero p {
+        animation-delay: 0.2s;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="top-bar">
+      <span>Republic of the Philippines</span>
+      <div class="dot"></div>
+      <span>Quezon City Government</span>
+      <div class="dot"></div>
+      <span>City Treasurer's Office</span>
+    </div>
+    <header>
+      <div class="logo-seal">QC</div>
+      <div class="header-text">
+        <h1>Revenue Collection &amp; Treasury Services</h1>
+        <p>Department 8 — Government Service Management System</p>
+      </div>
+      <div class="header-right">
+        <div class="date" id="live-date"></div>
+        <div class="status-badge">System Online</div>
+      </div>
+    </header>
+    <section class="hero">
+      <div class="hero-label">QCitizen Digital Services Portal</div>
+      <h2>The <span>Financial Heart</span> of Quezon City</h2>
+      <p>
+        Unified, real-time revenue collection and treasury management. Pay
+        taxes, monitor collections, and manage city finances — all in one place.
+      </p>
+    </section>
+    <div class="divider"><span>Select your access portal</span></div>
+    <div class="cards-grid">
+      <a class="role-card" href="pages/treasurer/login.html">
+        <div class="card-icon gold">📊</div>
+        <div class="subtitle">Internal Staff</div>
+        <h3>Treasurer / Revenue Officer</h3>
+        <p>
+          Monitor real-time collections, manage disbursements, generate e-SRE
+          reports, and oversee city-wide financial health.
+        </p>
+        <ul class="card-features">
+          <li>Live Treasury Dashboard &amp; KPIs</li>
+          <li>Unified Treasury Ledger</li>
+          <li>Disbursement Management (S3/S5/S6)</li>
+          <li>Market Stall Billing Management</li>
+          <li>QRF Fund Management</li>
+        </ul>
+        <div class="card-btn">
+          <span>Enter Treasury Portal</span><span>→</span>
+        </div>
+      </a>
+      <a class="role-card" href="pages/auditor/login.html">
+        <div class="card-icon purple">🔍</div>
+        <div class="subtitle">Read-Only Access</div>
+        <h3>COA Auditor</h3>
+        <p>
+          View immutable transaction logs, audit trails, and auto-generated
+          e-SRE financial statements for compliance review.
+        </p>
+        <ul class="card-features">
+          <li>Immutable Audit Trail Viewer</li>
+          <li>e-SRE Report Download</li>
+          <li>Transaction Log Search</li>
+          <li>Revenue vs. Target Analytics</li>
+          <li>Blockchain-Verified Records</li>
+        </ul>
+        <div class="card-btn">
+          <span>Enter Auditor Portal</span><span>→</span>
+        </div>
+      </a>
+    </div>
+    <div class="info-bar">
+      <div class="info-item">
+        <div class="val">5</div>
+        <div class="lbl">RCTS Modules</div>
+      </div>
+      <div class="info-item">
+        <div class="val">9</div>
+        <div class="lbl">Integrated Subsystems</div>
+      </div>
+      <div class="info-item">
+        <div class="val">12</div>
+        <div class="lbl">Database Tables</div>
+      </div>
+      <div class="info-item">
+        <div class="val">24/7</div>
+        <div class="lbl">System Availability</div>
+      </div>
+      <div class="info-item">
+        <div class="val">Real-Time</div>
+        <div class="lbl">Ledger Updates</div>
+      </div>
+    </div>
+    <script>
+      const d = new Date();
+      document.getElementById("live-date").textContent = d.toLocaleDateString(
+        "en-PH",
+        { weekday: "long", year: "numeric", month: "long", day: "numeric" },
+      );
+    </script>
+  </body>
+</html>
