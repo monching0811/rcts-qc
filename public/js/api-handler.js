@@ -6,7 +6,7 @@
 
 const RCTS_API = (() => {
   /* ── API Base URL (change for deployment) ───────────────────── */
-  const API_BASE = "https://rcts-qc.up.railway.app/"; // Railway deployment
+  const API_BASE = "https://rcts-qc.wuaze.com/"; // InfinityFree deployment
 
   const ENDPOINTS = {
     rpt: API_BASE + "api/endpoints/rpt.php",

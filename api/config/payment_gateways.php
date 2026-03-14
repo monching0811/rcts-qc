@@ -59,7 +59,7 @@ define('PAYMENT_GATEWAYS', [
         // For local development, set this to your publicly reachable URL (ngrok) so that
         // PayMongo can redirect back to your portal after payment.
         // Example: https://9169-120-29-78-157.ngrok-free.app/rcts-qc
-        'redirect_base_url' => 'https://435c-120-29-78-157.ngrok-free.app/rcts-qc',
+        'redirect_base_url' => 'https://rcts-qc.wuaze.com',
     ],
 
     // Example: Stripe (credit card payments)
