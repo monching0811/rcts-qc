@@ -1,0 +1,40 @@
+{
+	"version": "2.0.0",
+	"tasks": [
+		{
+			"label": "Deploy to Railway",
+			"type": "shell",
+			"command": "railway up"
+		},
+		{
+			"label": "Redeploy to Railway",
+			"type": "shell",
+			"command": "railway up"
+		},
+		{
+			"label": "Redeploy with Procfile",
+			"type": "shell",
+			"command": "railway up"
+		},
+		{
+			"label": "Final deploy to Railway",
+			"type": "shell",
+			"command": "railway up"
+		},
+		{
+			"label": "Deploy with PORT",
+			"type": "shell",
+			"command": "railway up"
+		},
+		{
+			"label": "Deploy without railway.toml",
+			"type": "shell",
+			"command": "railway up"
+		},
+		{
+			"label": "Deploy with Heroku PHP",
+			"type": "shell",
+			"command": "railway up"
+		}
+	]
+}

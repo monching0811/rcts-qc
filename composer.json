@@ -1,0 +1,8 @@
+{
+    "name": "rcts-qc/api",
+    "description": "RCTS QC API",
+    "type": "project",
+    "require": {
+        "php": ">=7.4"
+    }
+}
