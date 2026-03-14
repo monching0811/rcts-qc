@@ -14,10 +14,18 @@ echo "Creating Traffic Fine Bills for Raven Pogi\n";
 echo "═══════════════════════════════════════════════════════════════\n\n";
 
 // Get traffic violations for Raven from S9 API
-$s9_url = 'http://localhost/rcts-qc/mock-data/subsystem9/traffic-api.php?action=get_violations&qcitizen_id=' . urlencode($raven_id);
-$s9_response = @file_get_contents($s9_url);
-$s9_data = json_decode($s9_response, true);
-$violations = $s9_data['data'] ?? [];
+// $s9_url = 'http://localhost/rcts-qc/mock-data/subsystem9/traffic-api.php?action=get_violations&qcitizen_id=' . urlencode($raven_id);
+// $s9_response = @file_get_contents($s9_url);
+// $s9_data = json_decode($s9_response, true);
+// $violations = $s9_data['data'] ?? [];
+
+// For testing, directly read the JSON file
+$violations_file = __DIR__ . '/mock-data/subsystem9/traffic-violations.json';
+$violations_data = json_decode(file_get_contents($violations_file), true);
+$all_violations = $violations_data['violations'] ?? [];
+$violations = array_filter($all_violations, function($v) use ($raven_id) {
+    return $v['qcitizen_id'] === $raven_id;
+});
 
 echo "Found " . count($violations) . " violations from S9 for Raven:\n\n";
 

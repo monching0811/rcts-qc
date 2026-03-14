@@ -67,6 +67,57 @@
       "verification_source_subsystem_id": 10,
       "iot_device_id": "IOT-STL-DAVE-002",
       "status": "Active"
+    },
+    {
+      "stall_asset_id": "STL-QC-2026-DAVE-003",
+      "stall_name": "Dave's Clothing Boutique",
+      "qcitizen_id": "eacd934b-0195-4640-b37c-aa0a8b40a9d2",
+      "facility_location_id": "MKT-NOVALICHES-STALL-ROW-E",
+      "facility_name": "Novaliches Public Market",
+      "lease_start_date": "2026-03-01",
+      "lease_end_date": "2027-02-28",
+      "stall_size_sqm": 18,
+      "monthly_rental_rate": 3200,
+      "occupancy_status_flag": "Active",
+      "occupancy_verification_method": "QR_CHECKIN",
+      "occupancy_last_verified_timestamp": "2026-03-12T11:00:00Z",
+      "verification_source_subsystem_id": 10,
+      "qr_code_hash": "QR20260312DAVE003",
+      "status": "Active"
+    },
+    {
+      "stall_asset_id": "STL-QC-2026-DAVE-004",
+      "stall_name": "Dave's Food Stall",
+      "qcitizen_id": "eacd934b-0195-4640-b37c-aa0a8b40a9d2",
+      "facility_location_id": "MKT-NOVALICHES-STALL-ROW-F",
+      "facility_name": "Novaliches Public Market",
+      "lease_start_date": "2026-01-20",
+      "lease_end_date": "2027-01-19",
+      "stall_size_sqm": 10,
+      "monthly_rental_rate": 2000,
+      "occupancy_status_flag": "Active",
+      "occupancy_verification_method": "IOT_SENSOR",
+      "occupancy_last_verified_timestamp": "2026-03-12T12:15:00Z",
+      "verification_source_subsystem_id": 10,
+      "iot_device_id": "IOT-STL-DAVE-004",
+      "status": "Active"
+    },
+    {
+      "stall_asset_id": "STL-QC-2026-DAVE-005",
+      "stall_name": "Dave's Bookstore",
+      "qcitizen_id": "eacd934b-0195-4640-b37c-aa0a8b40a9d2",
+      "facility_location_id": "MKT-NOVALICHES-STALL-ROW-G",
+      "facility_name": "Novaliches Public Market",
+      "lease_start_date": "2026-02-10",
+      "lease_end_date": "2027-02-09",
+      "stall_size_sqm": 15,
+      "monthly_rental_rate": 2800,
+      "occupancy_status_flag": "Active",
+      "occupancy_verification_method": "QR_CHECKIN",
+      "occupancy_last_verified_timestamp": "2026-03-12T13:30:00Z",
+      "verification_source_subsystem_id": 10,
+      "qr_code_hash": "QR20260312DAVE005",
+      "status": "Active"
     }
   ]
 }

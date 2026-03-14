@@ -8,6 +8,17 @@
 # Allow all requests within this folder
 Options -Indexes +FollowSymLinks
 
+# Environment Variables for Supabase
+SetEnv SUPABASE_URL "https://ipjtrqcncyvmtzrbsjya.supabase.co"
+SetEnv SUPABASE_ANON_KEY "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImlwanRycWNuY3l2bXR6cmJzanlhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI2NDI0NTMsImV4cCI6MjA4ODIxODQ1M30.BLSGY7O-uXRf-OTiFwb1Vq05I3ZdG-D82tzXp64fGrQ"
+SetEnv SUPABASE_SERVICE_ROLE_KEY "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImlwanRycWNuY3l2bXR6cmJzanlhIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc3MjY0MjQ1MywiZXhwIjoyMDg4MjE4NDUzfQ.oZtMHlzG57tZHkpFKvFT5oqKZ9PVfVTgH6t2S10DKdI"
+SetEnv S9_SUPABASE_URL "https://nhnynmdhamvspyujjpws.supabase.co"
+SetEnv S9_SUPABASE_SERVICE_ROLE_KEY "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5obnlubWRoYW12c3B5dWpqcHdzIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc3MzQ2MzE3OCwiZXhwIjoyMDg5MDM5MTc4fQ.j7gfUTF-G2riitI13k-N9OYcRymeNnchC3KF06Wniys"
+
+# PayMongo Environment Variables
+SetEnv PAYMONGO_API_KEY "pk_test_1dvaGURJpDphXHM41rTfSWR7"
+SetEnv PAYMONGO_WEBHOOK_SECRET "whsk_6yZ8eB2V7bM6iqF26k5FGsNi"
+
 # ── PHP error display (dev mode) ─────────────────────────────
 php_flag  display_errors      On
 php_value error_reporting     E_ALL

@@ -21,6 +21,39 @@
       "officer_badge": "QCTO-0107",
       "location": "Commonwealth Ave",
       "status": "Issued"
+    },
+    {
+      "ticket_number": "TKT-20260314-RAVEN-001",
+      "plate_number": "RVN-2024",
+      "qcitizen_id": "92be37af-7c34-4c9b-80cb-47cde7c3a9fd",
+      "violation_type": "Overtaking",
+      "fine_amount": 1000.0,
+      "issued_at": "2026-03-14T16:45:00+00:00",
+      "officer_badge": "QCTO-0023",
+      "location": "North Ave",
+      "status": "Issued"
+    },
+    {
+      "ticket_number": "TKT-20260315-RAVEN-001",
+      "plate_number": "RVN-2024",
+      "qcitizen_id": "92be37af-7c34-4c9b-80cb-47cde7c3a9fd",
+      "violation_type": "No Seatbelt",
+      "fine_amount": 500.0,
+      "issued_at": "2026-03-15T09:20:00+00:00",
+      "officer_badge": "QCTO-0056",
+      "location": "Timog Ave",
+      "status": "Issued"
+    },
+    {
+      "ticket_number": "TKT-20260316-RAVEN-001",
+      "plate_number": "RVN-2024",
+      "qcitizen_id": "92be37af-7c34-4c9b-80cb-47cde7c3a9fd",
+      "violation_type": "Speeding",
+      "fine_amount": 2000.0,
+      "issued_at": "2026-03-16T11:30:00+00:00",
+      "officer_badge": "QCTO-0089",
+      "location": "C5 Road",
+      "status": "Issued"
     }
   ]
 }

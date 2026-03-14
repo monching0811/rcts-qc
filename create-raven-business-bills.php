@@ -22,6 +22,33 @@ $businesses = [
         'sanitary_fee' => 1000,
         'garbage_fee' => 500,
         'fire_safety_fee' => 300
+    ],
+    [
+        'bin_number' => 'BIN-QC-2024-RAVEN-003',
+        'business_name' => 'Raven\'s Retail Store',
+        'gross_sales_declared' => 600000,
+        'business_tax_rate' => 0.03,
+        'sanitary_fee' => 600,
+        'garbage_fee' => 400,
+        'fire_safety_fee' => 250
+    ],
+    [
+        'bin_number' => 'BIN-QC-2024-RAVEN-004',
+        'business_name' => 'Raven\'s Service Center',
+        'gross_sales_declared' => 400000,
+        'business_tax_rate' => 0.03,
+        'sanitary_fee' => 400,
+        'garbage_fee' => 250,
+        'fire_safety_fee' => 150
+    ],
+    [
+        'bin_number' => 'BIN-QC-2024-RAVEN-005',
+        'business_name' => 'Raven\'s Online Shop',
+        'gross_sales_declared' => 300000,
+        'business_tax_rate' => 0.03,
+        'sanitary_fee' => 300,
+        'garbage_fee' => 200,
+        'fire_safety_fee' => 100
     ]
 ];
 
