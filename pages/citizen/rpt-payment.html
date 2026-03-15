@@ -640,7 +640,7 @@
         document.getElementById("compute-card").style.display = "block";
       }
 
-      // --- Detailed Computation Explanation ---
+      // --- Detailed Computation Explanation (English) ---
       const assessmentLevels = {
         'Commercial': '50%',
         'Residential': '20%',
@@ -650,18 +650,18 @@
       const assessmentLevel = assessmentLevels[prop.property_class] || 'N/A';
       const explanationBox = `
     <div class='explanation-box' style='margin-top:18px;font-size:12px;color:#555;background:#f8f8f8;padding:12px 14px;border-radius:6px;line-height:1.7'>
-      <strong>Paano nakuha ang mga amounts na ito?</strong><br>
+      <strong>How were these amounts computed?</strong><br>
       <ul style='margin:6px 0 0 18px;padding:0;list-style:disc inside;font-size:12px'>
-        <li><b>Market Value (₱${Number(prop.current_market_value).toLocaleString()})</b>: Galing sa Subsystem 7 (City Assessor) property record, batay sa Schedule of Fair Market Values at appraisal ng property mo (lokasyon, laki, uri).</li>
+        <li><b>Market Value (₱${Number(prop.current_market_value).toLocaleString()})</b>: This value comes from Subsystem 7 (City Assessor) property records, based on the Schedule of Fair Market Values and property appraisal (location, size, type).</li>
         <li><b>Assessed Value (₱${Number(prop.assessed_value).toLocaleString()})</b>: Market Value × Assessment Level.<br>
-          Para sa <b>${prop.property_class}</b>: <b>${assessmentLevel}</b> assessment level.<br>
+          For <b>${prop.property_class}</b>: <b>${assessmentLevel}</b> assessment level.<br>
           ₱${Number(prop.current_market_value).toLocaleString()} × ${assessmentLevel} = ₱${Number(prop.assessed_value).toLocaleString()}</li>
         <li><b>Annual Tax Due (₱${Number(prop.annual_rpt_due).toLocaleString()})</b>: Assessed Value × 2% (Basic RPT).<br>
           ₱${Number(prop.assessed_value).toLocaleString()} × 2% = ₱${Number(prop.annual_rpt_due).toLocaleString()} <span style='color:#888'>(RA 7160 Sec. 233)</span></li>
         <li><b>SEF (₱${Number(prop.annual_sef_due).toLocaleString()})</b>: Assessed Value × 1% (Special Education Fund).<br>
           ₱${Number(prop.assessed_value).toLocaleString()} × 1% = ₱${Number(prop.annual_sef_due).toLocaleString()} <span style='color:#888'>(RA 7160 Sec. 235)</span></li>
       </ul>
-      <span style='font-size:11px;color:#aaa'>Batay sa: <a href='https://lawphil.net/statutes/repacts/ra1991/ra_7160_1991.html' target='_blank'>RA 7160</a>, <a href='https://quezoncity.gov.ph/wp-content/uploads/2021/04/Revenue-Code-of-Quezon-City.pdf' target='_blank'>QC Revenue Code</a></span>
+      <span style='font-size:11px;color:#aaa'>Based on: <a href='https://lawphil.net/statutes/repacts/ra1991/ra_7160_1991.html' target='_blank'>RA 7160</a>, <a href='https://quezoncity.gov.ph/wp-content/uploads/2021/04/Revenue-Code-of-Quezon-City.pdf' target='_blank'>QC Revenue Code</a></span>
     </div>`;
 
       async function generateBill() {
