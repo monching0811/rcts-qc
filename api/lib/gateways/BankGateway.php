@@ -15,7 +15,7 @@ class BankGateway extends BaseGateway {
 
         // For mock behavior, we provide a direct URL to the execute endpoint
         $baseUrl = rtrim((isset($_SERVER['HTTPS']) ? 'https' : 'http') . '://' . $_SERVER['HTTP_HOST'] . dirname($_SERVER['PHP_SELF']), '/');
-        $executeUrl = $baseUrl . '/payment.php?action=execute';
+        $executeUrl = $baseUrl . '/payment.php?action=execute&transaction_id=' . urlencode($txnId);
 
         return [
             'transaction_id' => $txnId,

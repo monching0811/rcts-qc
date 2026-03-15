@@ -1297,7 +1297,7 @@ switch ($action) {
 
     // ── POST execute payment (simulates bank/wallet confirmation) ────────
     case 'execute':
-        $txn_id   = $body['transaction_id'] ?? '';
+        $txn_id   = $body['transaction_id'] ?? $_GET['transaction_id'] ?? '';
         $bank_ref = $body['bank_reference_no'] ?? 'MOCK-BANK-' . strtoupper(uniqid());
         if (!$txn_id) api_response(false, 'transaction_id required', null, 400);
 
