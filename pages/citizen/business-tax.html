@@ -9,6 +9,53 @@
       rel="stylesheet"
     />
     <style>
+      /* Computation panel styles (copied from RPT) */
+      .compute-panel {
+        background: #f9f9f9;
+        border: 1px solid #e0e0e0;
+        border-radius: 10px;
+        padding: 20px;
+        display: none;
+      }
+      .compute-row {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 10px 0;
+        border-bottom: 1px solid #e0e0e0;
+        font-size: 14px;
+        color: var(--text-dark);
+      }
+      .compute-row:last-child {
+        border-bottom: none;
+      }
+      .compute-row.total {
+        font-weight: 700;
+        font-size: 16px;
+        padding-top: 14px;
+        margin-top: 4px;
+        border-top: 2px solid var(--gold);
+      }
+      .compute-row.total .val {
+        color: var(--gold);
+        font-family: "Playfair Display", serif;
+        font-size: 20px;
+      }
+      .discount-row {
+        color: var(--green);
+      }
+      .penalty-row {
+        color: var(--red);
+      }
+      .explanation-box {
+        margin-top: 18px;
+        font-size: 12px;
+        color: #555;
+        background: #f8f8f8;
+        padding: 12px 14px;
+        border-radius: 6px;
+        line-height: 1.7;
+      }
       :root {
         --navy: #0a1628;
         --navy2: #112240;
@@ -515,7 +562,7 @@
           <div class="loading">Loading your businesses...</div>
         </div>
       </div>
-      <div class="card" id="compute-biz-card" style="display:none">
+      <div class="card" id="compute-biz-card" style="display: none">
         <h3>📋 Business Tax Computation</h3>
         <div class="compute-panel" id="compute-biz-panel"></div>
       </div>
@@ -578,25 +625,25 @@
         const totalDue = baseAmount - discAmt;
         // Explanation box
         const explanationBox = `
-    <div class='explanation-box' style='margin-top:18px;font-size:12px;color:#555;background:#f8f8f8;padding:12px 14px;border-radius:6px;line-height:1.7'>
+    <div class='explanation-box'>
       <strong>How were these amounts computed?</strong><br>
       <ul style='margin:6px 0 0 18px;padding:0;list-style:disc inside;font-size:12px'>
         <li><b>Gross Sales (₱${grossSales.toLocaleString()})</b>: Declared by the business owner as required by law. This is the main basis for business tax computation.</li>
-        <li><b>Business Tax Rate (${(taxRate*100).toFixed(2)}%)</b>: Determined by the nature of business, as per the QC Revenue Code.</li>
-        <li><b>Business Tax (₱${businessTax.toLocaleString(undefined, {minimumFractionDigits:2})})</b>: Gross Sales × Tax Rate.<br>
-          ₱${grossSales.toLocaleString()} × ${(taxRate*100).toFixed(2)}% = ₱${businessTax.toLocaleString(undefined, {minimumFractionDigits:2})}</li>
+        <li><b>Business Tax Rate (${(taxRate * 100).toFixed(2)}%)</b>: Determined by the nature of business, as per the QC Revenue Code.</li>
+        <li><b>Business Tax (₱${businessTax.toLocaleString(undefined, { minimumFractionDigits: 2 })})</b>: Gross Sales × Tax Rate.<br>
+          ₱${grossSales.toLocaleString()} × ${(taxRate * 100).toFixed(2)}% = ₱${businessTax.toLocaleString(undefined, { minimumFractionDigits: 2 })}</li>
         <li><b>Regulatory Fees</b>:<br>
           Sanitary: ₱${sanitaryFee.toLocaleString()}<br>
           Garbage: ₱${garbageFee.toLocaleString()}<br>
           Fire Safety: ₱${fireFee.toLocaleString()}</li>
-        <li><b>Subtotal (₱${baseAmount.toLocaleString(undefined, {minimumFractionDigits:2})})</b>: Business Tax + Regulatory Fees.</li>
-        ${discRate > 0 ? `<li><b>Discount (${(discRate*100).toFixed(0)}%)</b>: -₱${discAmt.toLocaleString(undefined, {minimumFractionDigits:2})} <span style='color:#888'>${discNote}</span></li>` : ""}
-        <li><b>Total Due (₱${totalDue.toLocaleString(undefined, {minimumFractionDigits:2})})</b>: Subtotal minus any discounts.</li>
+        <li><b>Subtotal (₱${baseAmount.toLocaleString(undefined, { minimumFractionDigits: 2 })})</b>: Business Tax + Regulatory Fees.</li>
+        ${discRate > 0 ? `<li><b>Discount (${(discRate * 100).toFixed(0)}%)</b>: -₱${discAmt.toLocaleString(undefined, { minimumFractionDigits: 2 })} <span style='color:#888'>${discNote}</span></li>` : ""}
+        <li><b>Total Due (₱${totalDue.toLocaleString(undefined, { minimumFractionDigits: 2 })})</b>: Subtotal minus any discounts.</li>
       </ul>
       <span style='font-size:11px;color:#aaa'>Based on: <a href='https://quezoncity.gov.ph/wp-content/uploads/2021/04/Revenue-Code-of-Quezon-City.pdf' target='_blank'>QC Revenue Code</a></span>
     </div>`;
         document.getElementById("compute-biz-panel").innerHTML = `
-      <div class="compute-row"><span>Business Tax (${(taxRate*100).toFixed(2)}% of ₱${grossSales.toLocaleString()})</span><span>₱${businessTax.toLocaleString("en-PH", { minimumFractionDigits: 2 })}</span></div>
+      <div class="compute-row"><span>Business Tax (${(taxRate * 100).toFixed(2)}% of ₱${grossSales.toLocaleString()})</span><span>₱${businessTax.toLocaleString("en-PH", { minimumFractionDigits: 2 })}</span></div>
       <div class="compute-row"><span>Sanitary Fee</span><span>₱${sanitaryFee.toLocaleString("en-PH", { minimumFractionDigits: 2 })}</span></div>
       <div class="compute-row"><span>Garbage Fee</span><span>₱${garbageFee.toLocaleString("en-PH", { minimumFractionDigits: 2 })}</span></div>
       <div class="compute-row"><span>Fire Safety Fee</span><span>₱${fireFee.toLocaleString("en-PH", { minimumFractionDigits: 2 })}</span></div>
@@ -606,7 +653,10 @@
       <div style="font-size:11px;color:var(--muted);margin-top:10px">BIN: ${biz.bin_number} | Nature: ${biz.nature_of_business}</div>
       ${explanationBox}`;
         document.getElementById("compute-biz-card").style.display = "block";
-        window.scrollTo({top: document.getElementById("compute-biz-card").offsetTop - 40, behavior: 'smooth'});
+        window.scrollTo({
+          top: document.getElementById("compute-biz-card").offsetTop - 40,
+          behavior: "smooth",
+        });
       }
 
       async function loadBusinesses() {
@@ -701,7 +751,7 @@
                   : "⏳ Waiting for remaining clearances from Subsystem 4.";
               }
 
-                return `
+              return `
               <div class="biz-card" onclick="showBizComputation(_rctsBizList[${idx}])" style="cursor:pointer">
           <div class="biz-header">
             <div>
