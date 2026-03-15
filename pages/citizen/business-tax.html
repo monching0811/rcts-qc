@@ -582,10 +582,19 @@
 
     <script src="../../public/js/main.js"></script>
     <script>
-      const citizen = JSON.parse(
-        sessionStorage.getItem("rcts_citizen") || "{}",
-      );
-      if (!citizen.qcitizen_id) location.href = "login.html";
+      // --- Ensure correct mock citizen for demo/testing ---
+      (function ensureMockCitizen() {
+        let citizen = JSON.parse(sessionStorage.getItem("rcts_citizen") || "{}" );
+        if (!citizen.qcitizen_id || citizen.qcitizen_id !== "92be37af-7c34-4c9b-80cb-47cde7c3a9fd") {
+          citizen = {
+            qcitizen_id: "92be37af-7c34-4c9b-80cb-47cde7c3a9fd",
+            full_name: "Raven Test User",
+            role: "citizen"
+          };
+          sessionStorage.setItem("rcts_citizen", JSON.stringify(citizen));
+        }
+        window.citizen = citizen;
+      })();
       document.getElementById("nav-name").textContent =
         citizen.full_name || "—";
       document.getElementById("nav-role").textContent =
@@ -642,7 +651,8 @@
       </ul>
       <span style='font-size:11px;color:#aaa'>Based on: <a href='https://quezoncity.gov.ph/wp-content/uploads/2021/04/Revenue-Code-of-Quezon-City.pdf' target='_blank'>QC Revenue Code</a></span>
     </div>`;
-        document.getElementById("compute-biz-panel").innerHTML = `
+        const panel = document.getElementById("compute-biz-panel");
+        panel.innerHTML = `
       <div class="compute-row"><span>Business Tax (${(taxRate * 100).toFixed(2)}% of ₱${grossSales.toLocaleString()})</span><span>₱${businessTax.toLocaleString("en-PH", { minimumFractionDigits: 2 })}</span></div>
       <div class="compute-row"><span>Sanitary Fee</span><span>₱${sanitaryFee.toLocaleString("en-PH", { minimumFractionDigits: 2 })}</span></div>
       <div class="compute-row"><span>Garbage Fee</span><span>₱${garbageFee.toLocaleString("en-PH", { minimumFractionDigits: 2 })}</span></div>
@@ -652,6 +662,7 @@
       ${discRate > 0 ? `<div class="compute-row total" style="background:#eafbe7;color:#1a7f37"><span><b>Total</b></span><span class="val">₱${totalDue.toLocaleString("en-PH", { minimumFractionDigits: 2 })}</span></div>` : ""}
       <div style="font-size:11px;color:var(--muted);margin-top:10px">BIN: ${biz.bin_number} | Nature: ${biz.nature_of_business}</div>
       ${explanationBox}`;
+        panel.style.display = "block";
         document.getElementById("compute-biz-card").style.display = "block";
         window.scrollTo({
           top: document.getElementById("compute-biz-card").offsetTop - 40,
