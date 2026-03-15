@@ -12,27 +12,20 @@ require_once __DIR__ . '/BaseGateway.php';
 class BankGateway extends BaseGateway {
     public function createPayment(array $transaction): array {
         $txnId = $transaction['transaction_id'] ?? $this->generateTransactionId();
-        $amount = $this->normalizeAmount($transaction['amount_settled'] ?? 0);
 
-        $apiBase = rtrim($this->getConfig('api_base') ?: 'https://sandbox.bank.com/v1', '/');
-        $host = $_SERVER['HTTP_HOST'] ?? 'localhost';
-        $scheme = (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') ? 'https' : 'http';
-
-        // Placeholder redirect URL for bank payment portal.
-        $callbackUrl = urlencode("$scheme://$host/api/endpoints/payment.php?action=webhook&gateway_provider=Bank");
-        $redirectUrl = "$apiBase/pay?transaction_id=" . urlencode($txnId)
-            . "&amount=" . urlencode($amount)
-            . "&callback=" . $callbackUrl;
+        // For mock behavior, we provide a direct URL to the execute endpoint
+        $baseUrl = rtrim((isset($_SERVER['HTTPS']) ? 'https' : 'http') . '://' . $_SERVER['HTTP_HOST'] . dirname($_SERVER['PHP_SELF']), '/');
+        $executeUrl = $baseUrl . '/payment.php?action=execute';
 
         return [
             'transaction_id' => $txnId,
             'status' => 'Pending',
             'provider' => 'Bank',
-            'redirect_url' => $redirectUrl,
+            'redirect_url' => $executeUrl,
             'extra' => [
-                'api_base' => $apiBase,
-                'callback_url' => $callbackUrl,
-            ],
+                'execute_method' => 'POST',
+                'execute_payload' => ['transaction_id' => $txnId],
+            ]
         ];
     }
 

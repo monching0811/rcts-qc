@@ -41,7 +41,7 @@ function complete_payment_transaction(string $txn_id, string $bank_ref = null, a
 
     $txn = $txn_result['data'][0];
 
-    // Interpret bank_reference_no: may be a legacy JSON list of bills, or an object with bills + provider_reference.
+    // Interpret bank_reference_no: may be clean text "BILL_REF PROVIDER_REF", JSON object, or legacy JSON array
     $bankRefRaw = $txn['bank_reference_no'] ?? null;
     $bankRefParsed = json_decode($bankRefRaw ?? '', true);
 
@@ -49,6 +49,7 @@ function complete_payment_transaction(string $txn_id, string $bank_ref = null, a
     $provider_ref = null;
 
     if (is_array($bankRefParsed)) {
+        // JSON format
         if (isset($bankRefParsed['bills']) && is_array($bankRefParsed['bills'])) {
             $bill_refs_to_update = $bankRefParsed['bills'];
             $provider_ref = $bankRefParsed['provider_reference'] ?? null;
@@ -56,6 +57,11 @@ function complete_payment_transaction(string $txn_id, string $bank_ref = null, a
             // Numeric array (legacy storage)
             $bill_refs_to_update = $bankRefParsed;
         }
+    } elseif (is_string($bankRefRaw) && strpos($bankRefRaw, ' ') !== false) {
+        // Clean text format: "BILL_REF PROVIDER_REF"
+        $parts = explode(' ', $bankRefRaw, 2);
+        $bill_refs_to_update = [$parts[0]];
+        $provider_ref = $parts[1] ?? null;
     }
 
     if (empty($bill_refs_to_update)) {
@@ -68,10 +74,18 @@ function complete_payment_transaction(string $txn_id, string $bank_ref = null, a
     }
 
     // Persist structured bank_reference_no (bills + provider_reference)
-    $updatedBankRef = json_encode([
-        'bills' => $bill_refs_to_update,
-        'provider_reference' => $provider_ref,
-    ]);
+    // For Stripe and mock gateways, use clean text format. For others, use JSON.
+    if ($txn['gateway_provider'] === 'Stripe' || $txn['gateway_provider'] === 'Mock' || $txn['gateway_provider'] === 'GCash' || $txn['gateway_provider'] === 'Maya' || $txn['gateway_provider'] === 'Bank') {
+        // Clean text format: "BILL_REF PROVIDER_REF"
+        $billRef = is_array($bill_refs_to_update) ? $bill_refs_to_update[0] : $bill_refs_to_update;
+        $updatedBankRef = $billRef . ' ' . $provider_ref;
+    } else {
+        // JSON format for complex gateways like PayMongo
+        $updatedBankRef = json_encode([
+            'bills' => $bill_refs_to_update,
+            'provider_reference' => $provider_ref,
+        ]);
+    }
 
     // Mark transaction Success
     $updated = supabase_request('rcts_payment_transaction', 'PATCH', [

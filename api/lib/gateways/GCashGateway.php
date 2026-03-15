@@ -19,85 +19,20 @@ class GCashGateway extends BaseGateway {
 
     public function createPayment(array $transaction): array {
         $txnId = $transaction['transaction_id'] ?? $this->generateTransactionId();
-        $amount = $this->normalizeAmount($transaction['amount_settled'] ?? 0);
 
-        // CONFIG
-        $apiBase       = rtrim($this->getConfig('api_base') ?: 'https://sandbox.gcash.com/v1', '/');
-        $clientId      = $this->getConfig('client_id');
-        $clientSecret  = $this->getConfig('client_secret');
-        $webhookSecret = $this->getConfig('webhook_secret');
-
-        // If you don't have sandbox creds yet, return a placeholder URL so the
-        // frontend flow can still be tested without real GCash.
-        if (!$clientId || !$clientSecret) {
-            $host = $_SERVER['HTTP_HOST'] ?? 'localhost';
-            $scheme = (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') ? 'https' : 'http';
-            $callbackUrl = urlencode("$scheme://$host/api/endpoints/payment.php?action=webhook&gateway_provider=GCash");
-
-            return [
-                'transaction_id' => $txnId,
-                'status' => 'Pending',
-                'provider' => 'GCash',
-                'redirect_url' => "$apiBase/checkout?transaction_id=" . urlencode($txnId)
-                    . "&amount=" . urlencode($amount)
-                    . "&callback=" . $callbackUrl,
-                'extra' => [
-                    'api_base' => $apiBase,
-                    'callback_url' => $callbackUrl,
-                    'note' => 'Missing client_id/client_secret; this is a placeholder URL. Replace with real GCash checkout call once you have credentials.',
-                ],
-            ];
-        }
-
-        // 1) Obtain an access token (client credentials grant, or whatever GCash uses)
-        $token = $this->getAccessToken($apiBase, $clientId, $clientSecret);
-        if (!$token) {
-            return [
-                'transaction_id' => $txnId,
-                'status' => 'Failed',
-                'error' => 'Unable to obtain access token for GCash API',
-            ];
-        }
-
-        // 2) Create a checkout session / payment request
-        // TODO: Replace the URL + payload with actual GCash Checkout API spec.
-        $checkoutUrl = "$apiBase/payments";
-        $payload = json_encode([
-            'merchant_transaction_id' => $txnId,
-            'amount' => $amount,
-            'currency' => 'PHP',
-            'description' => 'QC-PAY Billing Payment',
-            'callback_url' => "https://{$_SERVER['HTTP_HOST']}/rcts-qc/api/endpoints/payment.php?action=webhook&gateway_provider=GCash",
-            'metadata' => [
-                'transaction_id' => $txnId,
-            ],
-        ]);
-
-        $response = $this->httpRequest('POST', $checkoutUrl, [
-            "Authorization: Bearer $token",
-            'Content-Type: application/json',
-        ], $payload);
-
-        $body = json_decode($response['body'] ?? '', true);
-
-        // TODO: adjust these according to actual response fields
-        $redirectUrl = $body['redirect_url'] ?? ($body['payment_url'] ?? null);
-
-        if (!$response['success'] || !$redirectUrl) {
-            return [
-                'transaction_id' => $txnId,
-                'status' => 'Failed',
-                'error' => $body ?: $response,
-            ];
-        }
+        // For mock behavior, we provide a direct URL to the execute endpoint
+        $baseUrl = rtrim((isset($_SERVER['HTTPS']) ? 'https' : 'http') . '://' . $_SERVER['HTTP_HOST'] . dirname($_SERVER['PHP_SELF']), '/');
+        $executeUrl = $baseUrl . '/payment.php?action=execute';
 
         return [
             'transaction_id' => $txnId,
             'status' => 'Pending',
             'provider' => 'GCash',
-            'redirect_url' => $redirectUrl,
-            'provider_reference' => $body['payment_id'] ?? null,
-            'extra' => $body,
+            'redirect_url' => $executeUrl,
+            'extra' => [
+                'execute_method' => 'POST',
+                'execute_payload' => ['transaction_id' => $txnId],
+            ]
         ];
     }
 
