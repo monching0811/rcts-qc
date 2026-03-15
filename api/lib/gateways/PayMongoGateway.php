@@ -48,11 +48,12 @@ class PayMongoGateway extends BaseGateway {
                     'currency' => 'PHP',
                     'description' => 'RCTS-QC Payment',
                     'redirect' => [
-                        'success' => "{$redirectBase}/pages/citizen/payment-gateway.html?payment=success&transaction_id=$txnId",
+                        'success' => "{$redirectBase}/pages/citizen/payment-gateway.html?payment=success&transaction_id=$txnId&use_polling=true",
                         'failed' => "{$redirectBase}/pages/citizen/payment-gateway.html?payment=failed&transaction_id=$txnId",
                     ],
                     'metadata' => [
                         'transaction_id' => $txnId,
+                        'use_polling' => 'true', // Mark for polling since webhooks are blocked
                     ],
                 ],
             ],
@@ -113,6 +114,44 @@ class PayMongoGateway extends BaseGateway {
             'status' => $resultStatus,
             'provider_reference' => $providerRef,
             'metadata' => $payload,
+        ];
+    }
+
+    public function pollPaymentStatus(string $providerReference): array {
+        $apiKey = $this->getConfig('api_key') ?: getenv('PAYMONGO_API_KEY');
+        if (!$apiKey) {
+            return [
+                'status' => 'Failed',
+                'error' => 'Missing PayMongo API key (PAYMONGO_API_KEY)',
+            ];
+        }
+
+        $response = $this->httpRequest('GET', "https://api.paymongo.com/v1/links/{$providerReference}", [
+            "Authorization: Basic " . base64_encode($apiKey . ':'),
+        ]);
+
+        if (!$response['success']) {
+            return [
+                'status' => 'Failed',
+                'error' => 'Failed to poll payment status',
+                'response' => $response,
+            ];
+        }
+
+        $body = json_decode($response['body'] ?? '', true);
+        $status = $body['data']['attributes']['status'] ?? null;
+        $txnId = $body['data']['attributes']['metadata']['transaction_id'] ?? null;
+
+        // Normalize PayMongo statuses to our system
+        $successStatuses = ['paid', 'succeeded'];
+        $resultStatus = in_array(strtolower($status), $successStatuses, true) ? 'Success' : 'Pending';
+
+        return [
+            'transaction_id' => $txnId,
+            'status' => $resultStatus,
+            'provider_reference' => $providerReference,
+            'raw_status' => $status,
+            'metadata' => $body,
         ];
     }
 }

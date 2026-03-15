@@ -919,7 +919,16 @@
       ) {
         // User returned from successful payment
         const txnId = urlParams.get("transaction_id");
-        showPaymentSuccess(txnId);
+        const usePolling = urlParams.get("use_polling") === "true";
+
+        if (usePolling) {
+          // For polling-based verification, show pending overlay and start polling
+          showPendingOverlay(txnId);
+          startPollingForPayment(txnId);
+        } else {
+          // Normal webhook-based flow
+          showPaymentSuccess(txnId);
+        }
       } else if (urlParams.get("payment") === "failed") {
         // Payment failed
         Toast.error("Payment was cancelled or failed. Please try again.");
@@ -998,6 +1007,75 @@
           console.error("Error checking payment status:", e);
           Toast.error("Unable to check payment status. Please try again.");
         }
+      }
+
+      async function startPollingForPayment(txnId) {
+        let pollCount = 0;
+        const maxPolls = 30; // Poll for up to 5 minutes (30 * 10 seconds)
+
+        const pollInterval = setInterval(async () => {
+          pollCount++;
+          console.log(
+            `Polling attempt ${pollCount}/${maxPolls} for transaction ${txnId}`,
+          );
+
+          try {
+            const res = await fetch(
+              `../../api/endpoints/payment.php?action=poll_payment_status&transaction_id=${txnId}`,
+            );
+            const data = await res.json();
+
+            if (!data.success) {
+              console.log("Polling failed:", data.message);
+              if (pollCount >= maxPolls) {
+                clearInterval(pollInterval);
+                Toast.error(
+                  "Payment verification timed out. Please check your transaction history.",
+                );
+                document
+                  .getElementById("pending-overlay")
+                  .classList.remove("show");
+              }
+              return;
+            }
+
+            const status = data.data?.status;
+            console.log(`Payment status: ${status}`);
+
+            if (status === "Success") {
+              clearInterval(pollInterval);
+              showPaymentSuccess(txnId);
+            } else if (status === "Failed") {
+              clearInterval(pollInterval);
+              Toast.error(
+                "Payment failed. Please try again or contact support.",
+              );
+              document
+                .getElementById("pending-overlay")
+                .classList.remove("show");
+            } else if (pollCount >= maxPolls) {
+              clearInterval(pollInterval);
+              Toast.error(
+                "Payment verification timed out. Please check your transaction history.",
+              );
+              document
+                .getElementById("pending-overlay")
+                .classList.remove("show");
+            }
+            // Continue polling if still pending
+          } catch (e) {
+            console.error("Error during polling:", e);
+            if (pollCount >= maxPolls) {
+              clearInterval(pollInterval);
+              Toast.error(
+                "Payment verification failed. Please check your transaction history.",
+              );
+              document
+                .getElementById("pending-overlay")
+                .classList.remove("show");
+            }
+          }
+        }, 10000); // Poll every 10 seconds
       }
 
       function showPendingOverlay(txnId) {

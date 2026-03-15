@@ -895,6 +895,71 @@ switch ($action) {
         ]);
         break;
 
+    // ── POLL PayMongo payment status (for webhook-free verification) ──────
+    case 'poll_payment_status':
+        $txn_id = $_GET['transaction_id'] ?? '';
+        if (!$txn_id) api_response(false, 'transaction_id required', null, 400);
+
+        // Get transaction details
+        $txn_result = supabase_request('rcts_payment_transaction', 'GET', [
+            'transaction_id' => 'eq.' . $txn_id
+        ], [], true);
+
+        if (empty($txn_result['data'])) {
+            api_response(false, 'Transaction not found', null, 404);
+        }
+
+        $txn = $txn_result['data'][0];
+
+        // Only poll if it's a PayMongo transaction and still pending
+        if ($txn['gateway_provider'] !== 'PayMongo' || $txn['transaction_status'] !== 'Pending') {
+            api_response(true, 'Transaction status', [
+                'status' => $txn['transaction_status'],
+                'transaction_id' => $txn_id
+            ]);
+        }
+
+        // Extract provider reference from bank_reference_no
+        $bankRefRaw = $txn['bank_reference_no'] ?? '';
+        $bankRefParsed = json_decode($bankRefRaw, true);
+        $providerRef = null;
+
+        if (is_array($bankRefParsed) && isset($bankRefParsed['provider_reference'])) {
+            $providerRef = $bankRefParsed['provider_reference'];
+        } elseif (is_string($bankRefRaw) && !empty($bankRefRaw)) {
+            $providerRef = $bankRefRaw;
+        }
+
+        if (!$providerRef) {
+            api_response(false, 'No provider reference found for polling', null, 400);
+        }
+
+        // Initialize PayMongo gateway and poll
+        require_once __DIR__ . '/../lib/gateways/PayMongoGateway.php';
+        $gateway = new PayMongoGateway(PAYMENT_GATEWAYS['PayMongo'] ?? []);
+
+        $pollResult = $gateway->pollPaymentStatus($providerRef);
+
+        if (!$pollResult['status'] || $pollResult['status'] === 'Failed') {
+            api_response(false, $pollResult['error'] ?? 'Polling failed', null, 500);
+        }
+
+        // If payment succeeded, complete the transaction
+        if ($pollResult['status'] === 'Success') {
+            $complete = complete_payment_transaction($txn_id, $providerRef, $pollResult['metadata'] ?? []);
+            if (!$complete['success']) {
+                api_response(false, 'Failed to complete transaction: ' . ($complete['message'] ?? 'Unknown error'), null, 500);
+            }
+        }
+
+        api_response(true, 'Payment status polled', [
+            'status' => $pollResult['status'],
+            'transaction_id' => $txn_id,
+            'provider_reference' => $providerRef,
+            'raw_status' => $pollResult['raw_status'] ?? null
+        ]);
+        break;
+
     // ── GET transaction history for a citizen ────────────────────────────
     case 'get_transaction_history':
         $id = $_GET['qcitizen_id'] ?? '';
