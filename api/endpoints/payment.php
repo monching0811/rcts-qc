@@ -1306,6 +1306,12 @@ switch ($action) {
             api_response(false, $result['message'] ?? 'Payment processing failed', $result, 500);
         }
 
+        // If accessed via GET (e.g., mock gateway redirect), redirect to receipt page
+        if (empty($rawBody)) {
+            header('Location: ../../pages/citizen/receipt.html?txn=' . urlencode($txn_id));
+            exit;
+        }
+
         api_response(true, 'Payment executed', $result);
         break;
 
