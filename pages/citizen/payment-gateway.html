@@ -673,6 +673,43 @@
             sessionStorage.getItem("pay_bills") || "[]",
           );
 
+          // Check if specific violations were pre-selected
+          const preSelectedViolations = JSON.parse(
+            sessionStorage.getItem("pay_violations") || "[]",
+          );
+
+          // If violations selected, add them as bills
+          if (preSelectedViolations.length > 0) {
+            const violationRes = await fetch(
+              `../../api/endpoints/dashboard.php?action=get_traffic_violations&qcitizen_id=${citizen.qcitizen_id}&t=${Date.now()}`,
+            );
+            const violationData = await violationRes.json();
+            const violations = violationData.data || [];
+            const violationMap = {};
+            violations.forEach(
+              (v) => (violationMap[v.violation_ticket_id] = v),
+            );
+
+            const violationBills = preSelectedViolations.map((ticketId) => {
+              const v = violationMap[ticketId];
+              return {
+                bill_type: "TrafficFine",
+                bill_reference_no: ticketId,
+                tax_year: new Date().getFullYear(),
+                base_amount: v ? v.fine_amount : 0,
+                discount_amount: 0,
+                penalty_amount: 0,
+                total_amount_due: v ? v.total_amount_due : 0,
+                due_date: v
+                  ? v.apprehension_date
+                  : new Date().toISOString().split("T")[0],
+                asset_id: ticketId,
+                source: "S9-Traffic",
+              };
+            });
+            bills = [...bills, ...violationBills];
+          }
+
           if (!allBills.length) {
             container.innerHTML =
               '<div style="text-align:center;padding:32px;color:var(--muted)">No pending bills.</div>';
@@ -682,7 +719,8 @@
             .map((b, i) => {
               const isChecked =
                 preSelectedRefs.length === 0 ||
-                preSelectedRefs.includes(b.bill_reference_no);
+                preSelectedRefs.includes(b.bill_reference_no) ||
+                preSelectedViolations.includes(b.bill_reference_no);
               return `
       <div class="bill-row">
         <input class="bill-check" type="checkbox" id="chk-${i}" onchange="updateSelection()" ${isChecked ? "checked" : ""}>
@@ -697,6 +735,7 @@
 
           // Clear the pre-selection after loading
           sessionStorage.removeItem("pay_bills");
+          sessionStorage.removeItem("pay_violations");
 
           updateSelection();
         } catch (e) {

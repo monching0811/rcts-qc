@@ -529,6 +529,7 @@
         <a href="transactions.html">Transaction History</a>
         <a href="rpt-payment.html">Real Property Tax</a>
         <a href="business-tax.html" class="active">Business Tax</a>
+        <a href="traffic-fines.html">Traffic Fines</a>
         <a href="market-stall.html">Market Stall</a>
         <a href="payment-gateway.html">Pay Now</a>
       </div>
@@ -584,12 +585,17 @@
     <script>
       // --- Ensure correct mock citizen for demo/testing ---
       (function ensureMockCitizen() {
-        let citizen = JSON.parse(sessionStorage.getItem("rcts_citizen") || "{}" );
-        if (!citizen.qcitizen_id || citizen.qcitizen_id !== "92be37af-7c34-4c9b-80cb-47cde7c3a9fd") {
+        let citizen = JSON.parse(
+          sessionStorage.getItem("rcts_citizen") || "{}",
+        );
+        if (
+          !citizen.qcitizen_id ||
+          citizen.qcitizen_id !== "92be37af-7c34-4c9b-80cb-47cde7c3a9fd"
+        ) {
           citizen = {
             qcitizen_id: "92be37af-7c34-4c9b-80cb-47cde7c3a9fd",
             full_name: "Raven Test User",
-            role: "citizen"
+            role: "citizen",
           };
           sessionStorage.setItem("rcts_citizen", JSON.stringify(citizen));
         }

@@ -1,0 +1,410 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1.0" />
+    <title>RCTS-QC | Traffic Fines</title>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=DM+Sans:wght@300;400;500;600&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      :root {
+        --navy: #0a1628;
+        --navy2: #112240;
+        --gold: #c9a84c;
+        --gold2: #e8c878;
+        --white: #ffffff;
+        --black: #000000;
+        --text-dark: #1a1a1a;
+        --text-gray: #555555;
+        --muted: #666666;
+        --green: #2ecc71;
+        --red: #e74c3c;
+        --orange: #f39c12;
+      }
+      *,
+      *::before,
+      *::after {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+      }
+      body {
+        font-family: "DM Sans", sans-serif;
+        background: #f5f5f5;
+        color: var(--text-dark);
+        min-height: 100vh;
+      }
+      body::before {
+        content: "";
+        position: fixed;
+        inset: 0;
+        background-image: repeating-linear-gradient(
+          45deg,
+          transparent,
+          transparent 40px,
+          rgba(201, 168, 76, 0.03) 40px,
+          rgba(201, 168, 76, 0.03) 41px
+        );
+        pointer-events: none;
+        z-index: 0;
+      }
+      nav {
+        position: relative;
+        z-index: 20;
+        background: #ffffff;
+        border-bottom: 2px solid #e0e0e0;
+        padding: 0 32px;
+        display: flex;
+        align-items: center;
+        gap: 0;
+        height: 60px;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+      }
+      .nav-brand {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        text-decoration: none;
+        color: inherit;
+        margin-right: 32px;
+      }
+      .nav-seal {
+        width: 34px;
+        height: 34px;
+        border-radius: 50%;
+        background: linear-gradient(135deg, var(--gold), var(--gold2));
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 13px;
+        font-weight: 700;
+        color: var(--navy);
+        font-family: "Playfair Display", serif;
+      }
+      .nav-brand span {
+        font-size: 14px;
+        font-weight: 600;
+        color: var(--text-dark);
+        letter-spacing: 0.04em;
+      }
+      .nav-links {
+        display: flex;
+        align-items: center;
+        gap: 2px;
+        flex: 1;
+        overflow-x: auto;
+        white-space: nowrap;
+      }
+      .nav-links a {
+        padding: 10px 16px;
+        font-size: 13px;
+        font-weight: 500;
+        color: var(--text-gray);
+        text-decoration: none;
+        border-radius: 6px;
+        letter-spacing: 0.03em;
+        transition:
+          color 0.2s,
+          background 0.2s;
+      }
+      .nav-links a:hover,
+      .nav-links a.active {
+        color: var(--gold);
+        background: rgba(201, 168, 76, 0.1);
+      }
+      .btn-logout {
+        background: none;
+        border: 1px solid #cccccc;
+        border-radius: 6px;
+        padding: 6px 14px;
+        font-size: 12px;
+        color: var(--text-gray);
+        cursor: pointer;
+        font-family: "DM Sans", sans-serif;
+        transition:
+          color 0.2s,
+          border-color 0.2s;
+      }
+      .btn-logout:hover {
+        color: var(--red);
+        border-color: var(--red);
+      }
+      .nav-user {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        font-size: 13px;
+      }
+      .nav-user .name {
+        color: var(--text-dark);
+        font-weight: 500;
+      }
+      .nav-user .tag {
+        font-size: 11px;
+        padding: 3px 10px;
+        border-radius: 12px;
+        background: rgba(52, 152, 219, 0.15);
+        color: #2980b9;
+        font-weight: 600;
+      }
+      main {
+        position: relative;
+        z-index: 10;
+        max-width: 1000px;
+        margin: 0 auto;
+        padding: 36px 32px;
+      }
+      .page-header {
+        margin-bottom: 24px;
+      }
+      .page-header h1 {
+        font-family: "Playfair Display", serif;
+        font-size: 28px;
+        color: var(--text-dark);
+      }
+      .page-header p {
+        font-size: 14px;
+        color: var(--text-gray);
+        margin-top: 6px;
+      }
+      .card {
+        background: #ffffff;
+        border: 1px solid #e0e0e0;
+        border-radius: 12px;
+        padding: 22px;
+        margin-bottom: 18px;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+      }
+      .card h3 {
+        font-family: "Playfair Display", serif;
+        font-size: 18px;
+        margin-bottom: 16px;
+        padding-bottom: 12px;
+        border-bottom: 1px solid #e0e0e0;
+        color: var(--text-dark);
+      }
+      .violation-card {
+        background: #f9f9f9;
+        border: 1px solid #e0e0e0;
+        border-radius: 10px;
+        padding: 20px;
+        margin-bottom: 14px;
+      }
+      .violation-header {
+        display: flex;
+        align-items: flex-start;
+        justify-content: space-between;
+        margin-bottom: 14px;
+      }
+      .violation-type {
+        font-family: "Playfair Display", serif;
+        font-size: 18px;
+        color: var(--text-dark);
+      }
+      .violation-ticket {
+        font-size: 12px;
+        color: var(--gold);
+        letter-spacing: 0.06em;
+        margin-top: 3px;
+      }
+      .violation-status {
+        font-size: 11px;
+        padding: 3px 10px;
+        border-radius: 8px;
+        font-weight: 700;
+      }
+      .status-unpaid {
+        background: rgba(231, 76, 60, 0.15);
+        color: var(--red);
+      }
+      .status-paid {
+        background: rgba(46, 204, 113, 0.15);
+        color: var(--green);
+      }
+      .violation-details {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 12px;
+        margin-bottom: 14px;
+      }
+      .violation-detail .lbl {
+        font-size: 11px;
+        color: var(--text-gray);
+        text-transform: uppercase;
+        letter-spacing: 0.06em;
+      }
+      .violation-detail .val {
+        font-size: 14px;
+        margin-top: 2px;
+        font-weight: 500;
+        color: var(--text-dark);
+      }
+      .violation-detail .val.amount {
+        font-family: "Playfair Display", serif;
+        font-size: 17px;
+        color: var(--gold);
+      }
+      .btn-pay {
+        background: linear-gradient(135deg, var(--gold), var(--gold2));
+        border: none;
+        border-radius: 7px;
+        padding: 8px 16px;
+        font-size: 13px;
+        font-weight: 700;
+        color: var(--navy);
+        cursor: pointer;
+        font-family: "DM Sans", sans-serif;
+        transition: opacity 0.2s;
+      }
+      .btn-pay:hover {
+        opacity: 0.88;
+      }
+      .loading {
+        text-align: center;
+        padding: 28px;
+        color: var(--text-gray);
+      }
+      .empty-state {
+        text-align: center;
+        padding: 36px;
+        color: var(--text-gray);
+        font-size: 14px;
+      }
+      .alert {
+        border-radius: 8px;
+        padding: 12px 16px;
+        font-size: 13px;
+        margin-bottom: 16px;
+        display: none;
+      }
+      .alert.success {
+        background: rgba(46, 204, 113, 0.1);
+        border: 1px solid rgba(46, 204, 113, 0.3);
+        color: var(--green);
+      }
+      .alert.error {
+        background: rgba(231, 76, 60, 0.1);
+        border: 1px solid rgba(231, 76, 60, 0.3);
+        color: var(--red);
+      }
+    </style>
+  </head>
+  <body>
+    <nav>
+      <a class="nav-brand" href="dashboard.html">
+        <div class="nav-seal">QC</div>
+        <span>RCTS-QC Citizen Portal</span>
+      </a>
+      <div class="nav-links">
+        <a href="dashboard.html">Dashboard</a>
+        <a href="transactions.html">Transaction History</a>
+        <a href="rpt-payment.html">Real Property Tax</a>
+        <a href="business-tax.html">Business Tax</a>
+        <a href="traffic-fines.html" class="active">Traffic Fines</a>
+        <a href="market-stall.html">Market Stall</a>
+        <a href="payment-gateway.html">Pay Now</a>
+      </div>
+      <div class="nav-user">
+        <span class="name" id="nav-name">Loading...</span>
+        <span class="tag" id="nav-role">Citizen</span>
+        <button class="btn-logout" onclick="logoutWithConfirm()">
+          Sign Out
+        </button>
+      </div>
+    </nav>
+    <main>
+      <div class="page-header">
+        <h1>Traffic Fines & Violations</h1>
+        <p>
+          Your traffic violations from Subsystem 9: Transport and Mobility
+          Management.
+        </p>
+      </div>
+      <div class="alert success" id="ok-msg"></div>
+      <div class="alert error" id="err-msg"></div>
+
+      <div class="card">
+        <h3>
+          🚗 Your Traffic Violations
+          <small style="font-size: 12px; color: var(--muted); font-weight: 400"
+            >(from Subsystem 9)</small
+          >
+        </h3>
+        <div id="violations-container">
+          <div class="loading">Loading your traffic violations...</div>
+        </div>
+      </div>
+    </main>
+
+    <script src="../../public/js/main.js"></script>
+    <script>
+      const citizen = JSON.parse(
+        sessionStorage.getItem("rcts_citizen") || "{}",
+      );
+      if (!citizen.qcitizen_id) location.href = "login.html";
+      document.getElementById("nav-name").textContent =
+        citizen.full_name || "—";
+      document.getElementById("nav-role").textContent =
+        citizen.role || "citizen";
+
+      async function loadViolations() {
+        try {
+          const container = document.getElementById("violations-container");
+
+          // Fetch traffic violations for this citizen
+          const res = await fetch(
+            `../../api/endpoints/dashboard.php?action=get_traffic_violations&qcitizen_id=${citizen.qcitizen_id}&t=${Date.now()}`,
+          );
+          const data = await res.json();
+          const violations = data.data || [];
+
+          if (!violations.length) {
+            container.innerHTML =
+              '<div class="empty-state">No traffic violations found under your QCitizen ID.</div>';
+            return;
+          }
+
+          container.innerHTML = violations
+            .map((v) => {
+              const statusClass =
+                v.payment_status === "Paid" ? "status-paid" : "status-unpaid";
+              const statusText =
+                v.payment_status === "Paid" ? "Paid" : "Unpaid";
+              const canPay = v.payment_status !== "Paid";
+
+              return `
+              <div class="violation-card">
+          <div class="violation-header">
+            <div>
+              <div class="violation-type">${v.violation_type}</div>
+              <div class="violation-ticket">Ticket: ${v.violation_ticket_id}</div>
+            </div>
+            <span class="violation-status ${statusClass}">${statusText}</span>
+          </div>
+          <div class="violation-details">
+            <div class="violation-detail"><div class="lbl">Plate Number</div><div class="val">${v.vehicle_plate_no}</div></div>
+            <div class="violation-detail"><div class="lbl">Apprehension Date</div><div class="val">${new Date(v.apprehension_date).toLocaleDateString()}</div></div>
+            <div class="violation-detail"><div class="lbl">Fine Amount</div><div class="val amount">₱${Number(v.total_amount_due).toLocaleString("en-PH", { minimumFractionDigits: 2 })}</div></div>
+          </div>
+          ${canPay ? `<button class="btn-pay" onclick="payViolation('${v.violation_ticket_id}')">Pay Fine</button>` : ""}
+        </div>`;
+            })
+            .join("");
+        } catch (e) {
+          document.getElementById("violations-container").innerHTML =
+            '<div class="empty-state">Could not load traffic violations. Ensure XAMPP is running.</div>';
+        }
+      }
+
+      function payViolation(ticketId) {
+        sessionStorage.setItem("pay_violations", JSON.stringify([ticketId]));
+        Toast.info("Redirecting to payment gateway...");
+        location.href = "payment-gateway.html";
+      }
+
+      loadViolations();
+    </script>
+  </body>
+</html>

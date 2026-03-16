@@ -420,8 +420,22 @@ switch ($action) {
         api_response($insert['success'], 'Dashboard snapshot refreshed', $snapshot);
         break;
 
+    // ── GET traffic violations for a citizen ─────────────────────────────
+    case 'get_traffic_violations':
+        $qcitizen_id = $_GET['qcitizen_id'] ?? '';
+        if (!$qcitizen_id) {
+            api_response(false, 'qcitizen_id required', null, 400);
+        }
+
+        $result = db_select('rcts_traffic_violation', [
+            'qcitizen_id' => 'eq.' . $qcitizen_id,
+            'order'       => 'apprehension_date.desc'
+        ]);
+        api_response($result['success'], 'Traffic violations retrieved', $result['data']);
+        break;
+
     default:
         api_response(false, 'Unknown action', [
-            'available' => ['live_summary','ledger_feed','liquidity_check','delinquency_report','esre_data','refresh_snapshot']
+            'available' => ['live_summary','ledger_feed','liquidity_check','delinquency_report','esre_data','refresh_snapshot','get_traffic_violations']
         ], 400);
 }

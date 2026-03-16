@@ -40,14 +40,12 @@ if ($action === 'push_violation') {
         $payload = json_encode([
             'source'         => 'S9-Traffic',
             'action'         => 's9_violation_issued',
-            'ticket_number'  => $v['ticket_number'],
-            'plate_number'   => $v['plate_number'],
+            'violation_ticket_id'  => $v['ticket_number'],
+            'vehicle_plate_no'    => $v['plate_number'],
             'qcitizen_id'    => $v['qcitizen_id'],
             'violation_type' => $v['violation_type'],
             'fine_amount'    => $v['fine_amount'],
-            'issued_at'      => $v['issued_at'],
-            'officer_badge'  => $v['officer_badge'],
-            'location'       => $v['location'],
+            'apprehension_date'   => $v['issued_at'],
         ]);
         $ctx = stream_context_create(['http'=>['method'=>'POST','header'=>"Content-Type: application/json\r\nX-API-Key: DEV-BYPASS-KEY-LOCAL\r\n",'content'=>$payload]]);
         $raw = @file_get_contents('http://localhost/rcts-qc/api/endpoints/inbound.php?action=s9_violation_issued', false, $ctx);

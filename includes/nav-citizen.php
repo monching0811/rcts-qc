@@ -22,6 +22,7 @@ $base_url    = $base_url ?? '../../';
             'rpt'       => ['href' => 'rpt-payment.html',      'label' => 'Real Property Tax'],
             'business'  => ['href' => 'business-tax.html',     'label' => 'Business Tax'],
             'market'    => ['href' => 'market-stall.html',     'label' => 'Market Stall'],
+            'traffic'   => ['href' => 'traffic-fines.html',    'label' => 'Traffic Fines'],
             'payment'   => ['href' => 'payment-gateway.html',  'label' => 'Pay Now'],
         ];
         foreach ($links as $key => $link):
