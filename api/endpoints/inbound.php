@@ -129,6 +129,7 @@ switch ($action) {
             'vehicle_plate_no'    => $plate_no,
             'violation_type'      => $violation_type,
             'fine_amount'         => $fine_amount,
+            'total_amount_due'    => $fine_amount, // Initially same as fine_amount
             'apprehension_date'   => $apprehension,
             'payment_status'      => 'Unpaid',
             'source_subsystem_id' => 9

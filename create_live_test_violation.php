@@ -15,6 +15,7 @@ $violation_data = [
     'vehicle_plate_no' => 'ABC-123',
     'violation_type' => 'Illegal Parking',
     'fine_amount' => 1500.00,
+    'total_amount_due' => 1500.00, // Set total_amount_due to match fine_amount
     'apprehension_date' => '2026-03-17',
     'payment_status' => 'Unpaid',
     'source_subsystem_id' => 9
