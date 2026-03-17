@@ -9,6 +9,20 @@
       rel="stylesheet"
     />
     <style>
+      .table-responsive {
+        width: 100%;
+        /* No overflow, let table expand */
+      }
+      .txn-table {
+        width: 100%;
+        table-layout: auto;
+      }
+      .txn-table td,
+      .txn-table th {
+        white-space: normal;
+        word-break: break-word;
+        max-width: 320px;
+      }
       :root {
         --navy: #0a1628;
         --navy2: #112240;
@@ -152,9 +166,10 @@
       main {
         position: relative;
         z-index: 10;
-        max-width: 1000px;
-        margin: 0 auto;
-        padding: 36px 32px;
+        width: 100%;
+        max-width: none;
+        margin: 0;
+        padding: 36px 0;
       }
       .page-header {
         margin-bottom: 24px;
@@ -173,7 +188,7 @@
         background: #ffffff;
         border: 1px solid #e0e0e0;
         border-radius: 12px;
-        padding: 22px;
+        padding: 32px 48px;
         margin-bottom: 18px;
         box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
       }
@@ -534,21 +549,23 @@
           })
           .join("");
         container.innerHTML = `
-          <table class="txn-table">
-            <thead>
-              <tr>
-                <th>Transaction ID</th>
-                <th>Date & Time</th>
-                <th>Type</th>
-                <th>Gateway</th>
-                <th>Bank Ref</th>
-                <th>Amount Paid</th>
-                <th>Status</th>
-                <th>Receipt</th>
-              </tr>
-            </thead>
-            <tbody>${rows}</tbody>
-          </table>`;
+          <div class="table-responsive">
+            <table class="txn-table">
+              <thead>
+                <tr>
+                  <th>Transaction ID</th>
+                  <th>Date & Time</th>
+                  <th>Type</th>
+                  <th>Gateway</th>
+                  <th>Bank Ref</th>
+                  <th>Amount Paid</th>
+                  <th>Status</th>
+                  <th>Receipt</th>
+                </tr>
+              </thead>
+              <tbody>${rows}</tbody>
+            </table>
+          </div>`;
       }
 
       function applyFilter() {
