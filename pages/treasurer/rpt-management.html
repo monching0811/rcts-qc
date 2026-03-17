@@ -239,33 +239,45 @@
           <tr>
             <th>TDN</th>
             <th>Owner</th>
-            <th>Property</th>
-            <th>Assessed Value</th>
             <th>Amount Due</th>
             <th>Status</th>
+            <th>Due Date</th>
             <th>Actions</th>
           </tr>
         </thead>
-        <tbody>
-          <tr>
-            <td>TDN-00123</td>
-            <td>Juan Dela Cruz</td>
-            <td>123 Main St</td>
-            <td>₱2,000,000</td>
-            <td>₱8,500</td>
-            <td class="status-paid">Paid</td>
-            <td><button class="action-btn">View</button></td>
-          </tr>
-          <tr>
-            <td>TDN-00456</td>
-            <td>Maria Santos</td>
-            <td>456 Mabini Ave</td>
-            <td>₱1,500,000</td>
-            <td>₱6,200</td>
-            <td class="status-unpaid">Unpaid</td>
-            <td><button class="action-btn">View</button></td>
-          </tr>
+        <tbody id="rpt-bills-tbody">
+          <tr><td colspan="6" style="text-align:center;color:#888;">Loading...</td></tr>
         </tbody>
+      </table>
+      <script>
+        async function loadRPTBills() {
+          const tbody = document.getElementById('rpt-bills-tbody');
+          tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;color:#888;">Loading...</td></tr>';
+          try {
+            const res = await fetch('../../api/endpoints/dashboard.php?action=bill_status_overview');
+            const data = await res.json();
+            if (!data.success) throw new Error(data.message || 'API error');
+            const bills = (data.data?.bills || []).filter(b => b.bill_type === 'RPT');
+            if (!bills.length) {
+              tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;color:#888;">No RPT bills found.</td></tr>';
+              return;
+            }
+            tbody.innerHTML = bills.map(bill => `
+              <tr>
+                <td>${bill.asset_id || bill.tdn_number || '-'}</td>
+                <td>${bill.citizen_name || bill.qcitizen_id}</td>
+                <td>₱${Number(bill.amount).toLocaleString('en-PH', {minimumFractionDigits:2})}</td>
+                <td class="${bill.status === 'Paid' ? 'status-paid' : 'status-unpaid'}">${bill.status}</td>
+                <td>${bill.due_date ? new Date(bill.due_date).toLocaleDateString('en-PH') : '-'}</td>
+                <td><button class="action-btn">View</button></td>
+              </tr>
+            `).join('');
+          } catch (e) {
+            tbody.innerHTML = `<tr><td colspan="6" style="color:#e74c3c;text-align:center;">Error loading bills: ${e.message}</td></tr>`;
+          }
+        }
+        loadRPTBills();
+      </script>
       </table>
     </div>
   </body>

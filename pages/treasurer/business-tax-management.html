@@ -241,33 +241,45 @@
           <tr>
             <th>BIN</th>
             <th>Owner</th>
-            <th>Business Name</th>
-            <th>Gross Sales</th>
             <th>Amount Due</th>
             <th>Status</th>
+            <th>Due Date</th>
             <th>Actions</th>
           </tr>
         </thead>
-        <tbody>
-          <tr>
-            <td>BIN-2023-001</td>
-            <td>Pedro Reyes</td>
-            <td>Reyes Sari-Sari Store</td>
-            <td>₱500,000</td>
-            <td>₱7,500</td>
-            <td class="status-paid">Paid</td>
-            <td><button class="action-btn">View</button></td>
-          </tr>
-          <tr>
-            <td>BIN-2023-002</td>
-            <td>Ana Cruz</td>
-            <td>Cruz Bakery</td>
-            <td>₱1,200,000</td>
-            <td>₱18,000</td>
-            <td class="status-unpaid">Unpaid</td>
-            <td><button class="action-btn">View</button></td>
-          </tr>
+        <tbody id="btax-bills-tbody">
+          <tr><td colspan="6" style="text-align:center;color:#888;">Loading...</td></tr>
         </tbody>
+      </table>
+      <script>
+        async function loadBusinessTaxBills() {
+          const tbody = document.getElementById('btax-bills-tbody');
+          tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;color:#888;">Loading...</td></tr>';
+          try {
+            const res = await fetch('../../api/endpoints/dashboard.php?action=bill_status_overview');
+            const data = await res.json();
+            if (!data.success) throw new Error(data.message || 'API error');
+            const bills = (data.data?.bills || []).filter(b => b.bill_type === 'BusinessTax');
+            if (!bills.length) {
+              tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;color:#888;">No Business Tax bills found.</td></tr>';
+              return;
+            }
+            tbody.innerHTML = bills.map(bill => `
+              <tr>
+                <td>${bill.asset_id || bill.bin_number || '-'}</td>
+                <td>${bill.citizen_name || bill.qcitizen_id}</td>
+                <td>₱${Number(bill.amount).toLocaleString('en-PH', {minimumFractionDigits:2})}</td>
+                <td class="${bill.status === 'Paid' ? 'status-paid' : 'status-unpaid'}">${bill.status}</td>
+                <td>${bill.due_date ? new Date(bill.due_date).toLocaleDateString('en-PH') : '-'}</td>
+                <td><button class="action-btn">View</button></td>
+              </tr>
+            `).join('');
+          } catch (e) {
+            tbody.innerHTML = `<tr><td colspan="6" style="color:#e74c3c;text-align:center;">Error loading bills: ${e.message}</td></tr>`;
+          }
+        }
+        loadBusinessTaxBills();
+      </script>
       </table>
     </div>
   </body>
