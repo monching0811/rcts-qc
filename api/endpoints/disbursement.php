@@ -110,10 +110,15 @@ switch ($action) {
         $dept = $_GET['dept_id'] ?? '';
         if (!$dept) api_response(false, 'dept_id required', null, 400);
 
-        $result = db_select('rcts_aid_payout_registry', [
+        $status = $_GET['status'] ?? 'Scheduled';
+        $filters = [
             'originating_dept_id' => 'eq.' . $dept,
             'order'               => 'created_at.desc'
-        ]);
+        ];
+        if ($status !== 'all') {
+            $filters['status'] = 'eq.' . $status;
+        }
+        $result = db_select('rcts_aid_payout_registry', $filters);
         api_response($result['success'], 'Disbursements for Dept ' . $dept . ' retrieved', $result['data']);
         break;
 

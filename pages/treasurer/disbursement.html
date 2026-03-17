@@ -446,7 +446,12 @@
               : `../../api/endpoints/disbursement.php?action=get_by_dept&dept_id=${dept}`;
           const res = await fetch(url);
           const data = await res.json();
-          const disbs = data.data?.disbursements || data.data || [];
+          let disbs = data.data?.disbursements || data.data || [];
+
+          // For department tabs, filter to only show 'Scheduled' (pending) disbursements
+          if (dept !== "all") {
+            disbs = disbs.filter((d) => d.status === "Scheduled");
+          }
 
           if (!disbs.length) {
             container.innerHTML =
