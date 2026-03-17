@@ -292,29 +292,8 @@
     </style>
   </head>
   <body>
-    <nav>
-      <a class="nav-brand" href="dashboard.html">
-        <div class="nav-seal">QC</div>
-        <span>RCTS-QC Citizen Portal</span>
-      </a>
-      <div class="nav-links">
-        <a href="dashboard.html">Dashboard</a>
-        <a href="transactions.html">Transaction History</a>
-        <a href="rpt-payment.html">Real Property Tax</a>
-        <a href="business-tax.html">Business Tax</a>
-        <a href="traffic-fines.html" class="active">Traffic Fines</a>
-        <a href="market-stall.html">Market Stall</a>
-        <a href="payment-gateway.html">Pay Now</a>
-      </div>
-      <div class="nav-user">
-        <span class="name" id="nav-name">Loading...</span>
-        <span class="tag" id="nav-role">Citizen</span>
-        <button class="btn-logout" onclick="logoutWithConfirm()">
-          Sign Out
-        </button>
-      </div>
-    </nav>
-    <main>
+    <?php include '../../includes/nav-citizen.php'; ?>
+    <main style="margin-left: 220px; min-height: 100vh">
       <div class="page-header">
         <h1>Traffic Fines & Violations</h1>
         <p>
@@ -337,17 +316,24 @@
         </div>
       </div>
     </main>
-
-    <script src="../../public/js/main.js"></script>
     <script>
-      const citizen = JSON.parse(
-        sessionStorage.getItem("rcts_citizen") || "{}",
-      );
-      if (!citizen.qcitizen_id) location.href = "login.html";
-      document.getElementById("nav-name").textContent =
-        citizen.full_name || "—";
-      document.getElementById("nav-role").textContent =
-        citizen.role || "citizen";
+      // Highlight active nav link
+      const path = window.location.pathname.split("/").pop();
+      const navMap = {
+        "dashboard.html": "nav-dashboard",
+        "business-tax.html": "nav-business-tax",
+        "market-stall.html": "nav-market-stall",
+        "transactions.html": "nav-transactions",
+        "payment-gateway.html": "nav-payment-gateway",
+        "traffic-fines.html": "nav-traffic-fines",
+      };
+      if (navMap[path]) {
+        document.getElementById(navMap[path])?.classList.add("active");
+      }
+      // Set user info
+      const citizen = JSON.parse(sessionStorage.getItem("citizen") || "{}");
+      if (citizen.full_name)
+        document.getElementById("nav-name").textContent = citizen.full_name;
 
       async function loadViolations() {
         try {

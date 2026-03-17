@@ -347,229 +347,28 @@
     </style>
   </head>
   <body>
-    <nav>
-      <a class="nav-brand" href="dashboard.html">
-        <div class="nav-seal">QC</div>
-        <span>RCTS-QC Citizen Portal</span>
-      </a>
-      <div class="nav-links">
-        <a href="dashboard.html">Dashboard</a>
-        <a href="rpt-payment.html">Real Property Tax</a>
-        <a href="business-tax.html">Business Tax</a>
-        <a href="traffic-fines.html">Traffic Fines</a>
-        <a href="market-stall.html">Market Stall</a>
-        <a href="payment-gateway.html">Pay Now</a>
-        <a href="transactions.html" class="active">Transactions</a>
-      </div>
-      <div class="nav-user">
-        <span class="name" id="nav-name">Loading...</span>
-        <span class="tag" id="nav-role">Citizen</span>
-        <button class="btn-logout" onclick="logoutWithConfirm()">
-          Sign Out
-        </button>
-      </div>
-    </nav>
-
-    <main>
-      <div class="page-header">
-        <h1>Transaction History</h1>
-        <p>
-          All successful payments made through QC-PAY. Click View Receipt to
-          download your e-OR.
-        </p>
-      </div>
-
-      <!-- Summary strip -->
-      <div class="summary-strip">
-        <div class="summary-box">
-          <div class="val" id="s-count">—</div>
-          <div class="lbl">Total Transactions</div>
-        </div>
-        <div class="summary-box">
-          <div class="val" id="s-total">₱—</div>
-          <div class="lbl">Total Amount Paid</div>
-        </div>
-        <div class="summary-box">
-          <div class="val" id="s-last">—</div>
-          <div class="lbl">Last Payment</div>
-        </div>
-      </div>
-
-      <div class="card">
-        <h3>✅ Completed Payments</h3>
-
-        <div class="filter-row">
-          <select id="f-type" onchange="applyFilter()">
-            <option value="">All Types</option>
-            <option value="RPT">Real Property Tax</option>
-            <option value="BusinessTax">Business Tax</option>
-            <option value="MarketRental">Market Stall</option>
-            <option value="TrafficFine">Traffic Fine</option>
-            <option value="Multiple">Multiple</option>
-          </select>
-          <select id="f-gw" onchange="applyFilter()">
-            <option value="">All Gateways</option>
-            <option value="GCash">GCash</option>
-            <option value="Maya">Maya</option>
-            <option value="Landbank">Landbank</option>
-            <option value="CreditCard">Credit Card</option>
-          </select>
-          <input
-            type="text"
-            id="f-search"
-            placeholder="Search by reference or EOR..."
-            oninput="applyFilter()"
-            style="width: 240px"
-          />
-        </div>
-
-        <div id="txn-container">
-          <div class="loading">Loading transaction history...</div>
-        </div>
-      </div>
+    <?php include '../../includes/nav-citizen.php'; ?>
+    <main style="margin-left: 220px; min-height: 100vh">
+      <!-- ...existing code... -->
     </main>
-
-    <script src="../../public/js/main.js"></script>
     <script>
-      const citizen = JSON.parse(
-        sessionStorage.getItem("rcts_citizen") || "{}",
-      );
-      if (!citizen.qcitizen_id) location.href = "login.html";
-      document.getElementById("nav-name").textContent =
-        citizen.full_name || "—";
-      document.getElementById("nav-role").textContent =
-        citizen.role || "citizen";
-
-      const fmt = (n) =>
-        "₱" +
-        Number(n || 0).toLocaleString("en-PH", { minimumFractionDigits: 2 });
-      let allTxns = [];
-
-      async function downloadReceipt(transactionId) {
-        const confirmed = await rcts_confirm(
-          "Are you sure you want to download this receipt?",
-          "Download Receipt",
-        );
-        if (confirmed) {
-          window.location.href = `receipt.html?txn=${encodeURIComponent(transactionId)}`;
-        }
-      }
-
-      async function loadTransactions() {
-        try {
-          const res = await fetch(
-            `../../api/endpoints/payment.php?action=get_transaction_history&qcitizen_id=${citizen.qcitizen_id}`,
-          );
-          const data = await res.json();
-          const txns = (data.data?.transactions || []).filter(
-            (t) => t.transaction_status === "Success",
-          );
-
-          allTxns = txns;
-
-          // Summary
-          document.getElementById("s-count").textContent = txns.length;
-          const total = txns.reduce(
-            (sum, t) => sum + Number(t.amount_settled || 0),
-            0,
-          );
-          document.getElementById("s-total").textContent = fmt(total);
-          if (txns.length) {
-            const last = new Date(txns[0].transaction_timestamp);
-            document.getElementById("s-last").textContent =
-              last.toLocaleDateString("en-PH", {
-                month: "short",
-                day: "numeric",
-                year: "numeric",
-              });
-          } else {
-            document.getElementById("s-last").textContent = "—";
-          }
-
-          renderTable(txns);
-        } catch (e) {
-          document.getElementById("txn-container").innerHTML =
-            '<div class="empty-state">Could not load transactions. Ensure XAMPP is running.</div>';
-        }
-      }
-
-      const typeLabels = {
-        RPT: "Real Property Tax",
-        BusinessTax: "Business Tax",
-        MarketRental: "Market Stall",
-        TrafficFine: "Traffic Fine",
-        Multiple: "Multiple Bills",
+      // Highlight active nav link
+      const path = window.location.pathname.split("/").pop();
+      const navMap = {
+        "dashboard.html": "nav-dashboard",
+        "business-tax.html": "nav-business-tax",
+        "market-stall.html": "nav-market-stall",
+        "transactions.html": "nav-transactions",
+        "payment-gateway.html": "nav-payment-gateway",
+        "traffic-fines.html": "nav-traffic-fines",
       };
-      const typeClass = {
-        RPT: "type-rpt",
-        BusinessTax: "type-biz",
-        MarketRental: "type-mkt",
-        TrafficFine: "type-trf",
-        Multiple: "type-mult",
-      };
-
-      function renderTable(txns) {
-        const container = document.getElementById("txn-container");
-        if (!txns.length) {
-          container.innerHTML = `<div class="empty-state"><div class="icon">📭</div>No completed transactions yet.<br><span style="font-size:13px;color:var(--text-gray);margin-top:6px;display:block">Payments you make will appear here.</span></div>`;
-          return;
-        }
-        const rows = txns
-          .map((t) => {
-            const dt = new Date(t.transaction_timestamp).toLocaleString(
-              "en-PH",
-              { dateStyle: "medium", timeStyle: "short" },
-            );
-            const billType = t.bill_type || "Multiple";
-            return `<tr>
-            <td style="font-family:monospace;font-size:12px;color:var(--text-gray)">${t.transaction_id}</td>
-            <td style="color:var(--text-dark)">${dt}</td>
-            <td><span class="type-badge ${typeClass[billType] || "type-mult"}">${typeLabels[billType] || billType}</span></td>
-            <td style="color:var(--text-dark)">${t.gateway_provider || "—"}</td>
-            <td style="font-size:12px;color:var(--text-gray)">${t.bank_reference_no || "—"}</td>
-            <td style="font-family:'Playfair Display',serif;font-size:16px;color:var(--gold);font-weight:700">${fmt(t.amount_settled)}</td>
-            <td><span class="status-success">✅ Success</span></td>
-            <td><a class="btn-receipt" href="#" onclick="downloadReceipt('${t.transaction_id}'); return false;">View Receipt</a></td>
-          </tr>`;
-          })
-          .join("");
-        container.innerHTML = `
-          <table class="txn-table">
-            <thead>
-              <tr>
-                <th>Transaction ID</th>
-                <th>Date & Time</th>
-                <th>Type</th>
-                <th>Gateway</th>
-                <th>Bank Ref</th>
-                <th>Amount Paid</th>
-                <th>Status</th>
-                <th>Receipt</th>
-              </tr>
-            </thead>
-            <tbody>${rows}</tbody>
-          </table>`;
+      if (navMap[path]) {
+        document.getElementById(navMap[path])?.classList.add("active");
       }
-
-      function applyFilter() {
-        const type = document.getElementById("f-type").value;
-        const gw = document.getElementById("f-gw").value;
-        const search = document.getElementById("f-search").value.toLowerCase();
-        const filtered = allTxns.filter((t) => {
-          if (type && (t.bill_type || "Multiple") !== type) return false;
-          if (gw && t.gateway_provider !== gw) return false;
-          if (
-            search &&
-            !t.transaction_id.toLowerCase().includes(search) &&
-            !(t.bank_reference_no || "").toLowerCase().includes(search)
-          )
-            return false;
-          return true;
-        });
-        renderTable(filtered);
-      }
-
-      loadTransactions();
+      // Set user info
+      const citizen = JSON.parse(sessionStorage.getItem("citizen") || "{}");
+      if (citizen.full_name)
+        document.getElementById("nav-name").textContent = citizen.full_name;
     </script>
   </body>
 </html>

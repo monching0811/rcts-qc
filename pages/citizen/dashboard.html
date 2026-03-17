@@ -529,29 +529,8 @@
     </style>
   </head>
   <body>
-    <nav>
-      <a class="nav-brand" href="dashboard.html">
-        <div class="nav-seal">QC</div>
-        <span>RCTS-QC Citizen Portal</span>
-      </a>
-      <div class="nav-links">
-        <a href="dashboard.html" class="active">Dashboard</a>
-        <a href="transactions.html">Transaction History</a>
-        <a href="rpt-payment.html">Real Property Tax</a>
-        <a href="business-tax.html">Business Tax</a>
-        <a href="traffic-fines.html">Traffic Fines</a>
-        <a href="market-stall.html">Market Stall</a>
-        <a href="payment-gateway.html">Pay Now</a>
-      </div>
-      <div class="nav-user">
-        <span class="name" id="nav-name">Loading...</span>
-        <span class="tag" id="nav-role">Citizen</span>
-        <button class="btn-logout" onclick="logoutWithConfirm()">
-          Sign Out
-        </button>
-      </div>
-    </nav>
-    <main>
+    <?php include '../../includes/nav-citizen.php'; ?>
+    <main style="margin-left: 220px; min-height: 100vh">
       <div class="page-title">
         <h1>My Account Dashboard</h1>
         <p id="greeting">
@@ -649,9 +628,6 @@
         </div>
       </div>
     </main>
-
-    <script src="../../public/js/main.js"></script>
-    <script src="../../public/js/webhook-client.js"></script>
     <script>
       // Simple Toast notification
       const Toast = {
