@@ -170,7 +170,7 @@ switch ($action) {
 
             // Build query - use service key to bypass RLS
             $filters = [
-                'select' => 'bill_reference_no,qcitizen_id,bill_type,status,total_amount_due,due_date,created_at',
+                'select' => 'bill_reference_no,qcitizen_id,bill_type,asset_id,status,total_amount_due,due_date,created_at',
                 'order' => 'created_at.desc',
                 'limit' => 100
             ];
