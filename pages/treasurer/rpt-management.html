@@ -249,7 +249,15 @@
           <tr><td colspan="6" style="text-align:center;color:#888;">Loading...</td></tr>
         </tbody>
       </table>
+      <!-- Modal for bill details -->
+      <div id="rpt-modal" style="display:none;position:fixed;top:0;left:0;width:100vw;height:100vh;background:rgba(0,0,0,0.25);z-index:1000;align-items:center;justify-content:center;">
+        <div style="background:#fff;padding:32px 28px;border-radius:12px;max-width:420px;width:90vw;box-shadow:0 4px 24px rgba(0,0,0,0.12);position:relative;">
+          <button onclick="document.getElementById('rpt-modal').style.display='none'" style="position:absolute;top:12px;right:16px;background:none;border:none;font-size:20px;color:#888;cursor:pointer;">&times;</button>
+          <div id="rpt-modal-content">Loading...</div>
+        </div>
+      </div>
       <script>
+        let rptBillsCache = [];
         async function loadRPTBills() {
           const tbody = document.getElementById('rpt-bills-tbody');
           tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;color:#888;">Loading...</td></tr>';
@@ -258,23 +266,42 @@
             const data = await res.json();
             if (!data.success) throw new Error(data.message || 'API error');
             const bills = (data.data?.bills || []).filter(b => b.bill_type === 'RPT');
+            rptBillsCache = bills;
             if (!bills.length) {
               tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;color:#888;">No RPT bills found.</td></tr>';
               return;
             }
-            tbody.innerHTML = bills.map(bill => `
+            tbody.innerHTML = bills.map((bill, idx) => `
               <tr>
                 <td>${bill.asset_id || bill.tdn_number || '-'}</td>
                 <td>${bill.citizen_name || bill.qcitizen_id}</td>
                 <td>₱${Number(bill.amount).toLocaleString('en-PH', {minimumFractionDigits:2})}</td>
                 <td class="${bill.status === 'Paid' ? 'status-paid' : 'status-unpaid'}">${bill.status}</td>
                 <td>${bill.due_date ? new Date(bill.due_date).toLocaleDateString('en-PH') : '-'}</td>
-                <td><button class="action-btn">View</button></td>
+                <td><button class="action-btn" onclick="showRPTBillDetails(${idx})">View</button></td>
               </tr>
             `).join('');
           } catch (e) {
             tbody.innerHTML = `<tr><td colspan="6" style="color:#e74c3c;text-align:center;">Error loading bills: ${e.message}</td></tr>`;
           }
+        }
+        function showRPTBillDetails(idx) {
+          const bill = rptBillsCache[idx];
+          if (!bill) return;
+          const modal = document.getElementById('rpt-modal');
+          const content = document.getElementById('rpt-modal-content');
+          content.innerHTML = `
+            <h2 style='font-size:20px;margin-bottom:10px;'>RPT Bill Details</h2>
+            <div style='font-size:14px;line-height:1.7;'>
+              <b>TDN:</b> ${bill.asset_id || bill.tdn_number || '-'}<br>
+              <b>Owner:</b> ${bill.citizen_name || bill.qcitizen_id}<br>
+              <b>Amount Due:</b> ₱${Number(bill.amount).toLocaleString('en-PH', {minimumFractionDigits:2})}<br>
+              <b>Status:</b> ${bill.status}<br>
+              <b>Due Date:</b> ${bill.due_date ? new Date(bill.due_date).toLocaleDateString('en-PH') : '-'}<br>
+              <b>Bill Ref No:</b> ${bill.bill_reference_no || '-'}<br>
+            </div>
+          `;
+          modal.style.display = 'flex';
         }
         loadRPTBills();
       </script>
