@@ -1226,6 +1226,9 @@
       // Poll every 5 seconds for real-time updates (hyper-automation)
       setInterval(checkForRealTimeUpdates, 5000);
 
+      // Auto-refresh the Live Treasury Ledger every 5 seconds
+      setInterval(loadLedger, 5000);
+
       // Also refresh KPIs every 10 seconds as backup
       setInterval(loadDashboard, 10000);
 
