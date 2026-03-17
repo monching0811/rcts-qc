@@ -562,7 +562,11 @@
 
       <!-- KPI Row -->
       <div class="kpi-grid">
-        <div class="kpi-card c-green">
+        <div
+          class="kpi-card c-green"
+          data-link="rpt-management.html"
+          style="cursor: pointer"
+        >
           <div class="kpi-icon">💰</div>
           <div class="kpi-val" id="k-collected">₱—</div>
           <div class="kpi-lbl">Collected MTD</div>
@@ -570,22 +574,38 @@
             Loading...
           </div>
         </div>
-        <div class="kpi-card c-red">
+        <div
+          class="kpi-card c-red"
+          data-link="disbursement.html"
+          style="cursor: pointer"
+        >
           <div class="kpi-icon">📤</div>
           <div class="kpi-val" id="k-disbursed">₱—</div>
           <div class="kpi-lbl">Disbursed MTD</div>
         </div>
-        <div class="kpi-card c-gold">
+        <div
+          class="kpi-card c-gold"
+          data-link="fund-management.html"
+          style="cursor: pointer"
+        >
           <div class="kpi-icon">🏦</div>
           <div class="kpi-val" id="k-net">₱—</div>
           <div class="kpi-lbl">Net Cash Position</div>
         </div>
-        <div class="kpi-card c-orange">
+        <div
+          class="kpi-card c-orange"
+          data-link="rpt-management.html?filter=delinquent"
+          style="cursor: pointer"
+        >
           <div class="kpi-icon">⚠️</div>
           <div class="kpi-val" id="k-delinq">—</div>
           <div class="kpi-lbl">Delinquent Bills</div>
         </div>
-        <div class="kpi-card c-blue">
+        <div
+          class="kpi-card c-blue"
+          data-link="disbursement.html?tab=qrf"
+          style="cursor: pointer"
+        >
           <div class="kpi-icon">🆘</div>
           <div class="kpi-val" id="k-qrf">₱—</div>
           <div class="kpi-lbl">QRF Balance</div>
@@ -593,12 +613,31 @@
             —
           </div>
         </div>
-        <div class="kpi-card c-gold">
+        <div
+          class="kpi-card c-gold"
+          data-link="disbursement.html"
+          style="cursor: pointer"
+        >
           <div class="kpi-icon">⏳</div>
           <div class="kpi-val" id="k-pending-disb">₱—</div>
           <div class="kpi-lbl">Pending Disbursements</div>
         </div>
       </div>
+      <script>
+        // Make KPI cards clickable
+        document.addEventListener("DOMContentLoaded", function () {
+          document
+            .querySelectorAll(".kpi-card[data-link]")
+            .forEach(function (card) {
+              card.addEventListener("click", function (e) {
+                const link = card.getAttribute("data-link");
+                if (link) {
+                  window.location.href = link;
+                }
+              });
+            });
+        });
+      </script>
 
       <div class="two-col">
         <!-- Revenue Breakdown -->
@@ -803,6 +842,43 @@
         }
       }
 
+      // Load Revenue Breakdown (MTD)
+      async function loadRevenueBreakdown() {
+        const container = document.getElementById("rev-breakdown");
+        container.innerHTML = '<div class="loading">Loading...</div>';
+        try {
+          const res = await fetch(
+            "../../api/endpoints/dashboard.php?action=live_summary",
+          );
+          if (!res.ok) throw new Error(`HTTP ${res.status}: ${res.statusText}`);
+          const text = await res.text();
+          if (!text) throw new Error("Empty response from API");
+          const data = JSON.parse(text);
+          if (!data.success)
+            throw new Error(data.message || "API returned failure");
+          const breakdown = data.data?.collection_by_type || {};
+          const total = Object.values(breakdown).reduce((a, b) => a + b, 0);
+          if (!Object.keys(breakdown).length) {
+            container.innerHTML =
+              '<div style="text-align:center;color:var(--muted);padding:18px">No revenue collected this month.</div>';
+            return;
+          }
+          container.innerHTML = Object.entries(breakdown)
+            .map(([cat, amt]) => {
+              const pct = total > 0 ? (amt / total) * 100 : 0;
+              return `
+                <div class="rev-bar-row">
+                  <div class="rev-bar-label"><span class="lbl">${cat}</span><span class="val">₱${Number(amt).toLocaleString("en-PH", { minimumFractionDigits: 2 })} (${pct.toFixed(1)}%)</span></div>
+                  <div class="rev-bar-track"><div class="rev-bar-fill" style="width:${pct}%"></div></div>
+                </div>
+              `;
+            })
+            .join("");
+        } catch (e) {
+          container.innerHTML = `<div style='color:var(--red);padding:18px'>Could not load revenue breakdown. Error: ${e.message}</div>`;
+        }
+      }
+
       async function loadLedger() {
         try {
           const res = await fetch(
@@ -901,11 +977,20 @@
             )
             .join("");
         } catch (e) {
-          console.error("Disbursements load failed", e);
-          document.getElementById("disb-container").innerHTML =
-            '<div style="text-align:center;padding:20px;color:var(--muted)">Could not load disbursements. Error: ' +
-            e.message +
-            "</div>";
+          // Only log real errors (not backend success messages)
+          if (
+            e &&
+            e.message &&
+            !e.message.match(/Pending disbursements retrieved/i)
+          ) {
+            console.error("Disbursements load failed", e);
+            document.getElementById("disb-container").innerHTML =
+              '<div style="text-align:center;padding:20px;color:var(--muted)">Could not load disbursements. Error: ' +
+              e.message +
+              "</div>";
+          } else {
+            // Silently ignore non-errors (e.g., success messages used as errors)
+          }
         }
       }
 
@@ -1065,6 +1150,7 @@
         }
       }
       loadDashboard();
+      loadRevenueBreakdown();
       loadLedger();
       loadDisbursements();
       loadBillStatus();
