@@ -1,0 +1,89 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Allocate Demo Bills to Vince Nico (TO-BE Process)</title>
+    <style>
+      body {
+        font-family: sans-serif;
+        margin: 2em;
+      }
+      pre {
+        background: #f4f4f4;
+        padding: 1em;
+        border-radius: 6px;
+      }
+      .success {
+        color: green;
+      }
+      .fail {
+        color: red;
+      }
+    </style>
+  </head>
+  <body>
+    <h2>
+      Allocate 3 Business Tax, 3 Market Stall, 3 Traffic Fines to Vince Nico
+    </h2>
+    <button id="runBtn">Allocate Bills (TO-BE Process)</button>
+    <div id="output"></div>
+    <script>
+      const vinceId = "b529bf30-50bf-43ab-a314-cc4c2f79c3f5";
+      const apiBase = "https://rcts-qc.wuaze.com/api/endpoints/";
+      const output = document.getElementById("output");
+      function log(msg, ok) {
+        const el = document.createElement("pre");
+        el.className = ok ? "success" : "fail";
+        el.textContent = msg;
+        output.appendChild(el);
+      }
+      async function post(url, payload) {
+        try {
+          const res = await fetch(url, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(payload),
+          });
+          let data;
+          try {
+            data = await res.json();
+          } catch {
+            data = await res.text();
+          }
+          return data;
+        } catch (e) {
+          return { error: e.message };
+        }
+      }
+      async function allocate() {
+        output.innerHTML = "";
+        // 1. Business Tax Bills (3x)
+        for (let i = 1; i <= 3; i++) {
+          let r = await post(
+            apiBase + "business-tax.php?action=generate_bill",
+            { qcitizen_id: vinceId },
+          );
+          log(`[Business Tax] Bill ${i}: ` + JSON.stringify(r), r && r.success);
+        }
+        // 2. Market Stall Bills (3x)
+        for (let i = 1; i <= 3; i++) {
+          let r = await post(
+            apiBase + "market-stall.php?action=generate_bill",
+            { qcitizen_id: vinceId },
+          );
+          log(`[Market Stall] Bill ${i}: ` + JSON.stringify(r), r && r.success);
+        }
+        // 3. Traffic Fine Bills (3x)
+        for (let i = 1; i <= 3; i++) {
+          let r = await post(
+            apiBase + "subsystem9.php?action=generate_traffic_fines",
+            { qcitizen_id: vinceId },
+          );
+          log(`[Traffic Fine] Bill ${i}: ` + JSON.stringify(r), r && r.success);
+        }
+        log("All demo bills allocated to Vince Nico (TO-BE process).", true);
+      }
+      document.getElementById("runBtn").onclick = allocate;
+    </script>
+  </body>
+</html>
