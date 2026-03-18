@@ -5,7 +5,7 @@
  */
 
 /* ─── Google Fonts ──────────────────────────────────────────────── */
-@import url("https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=DM+Sans:wght@300;400;500;600&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=DM+Sans:wght@300;400;500;600&family=Roboto+Mono:wght@400;500;700&display=swap");
 
 /* ─── Design Tokens ─────────────────────────────────────────────── */
 :root {
@@ -30,6 +30,12 @@
   /* Typography */
   --font-display: "Playfair Display", Georgia, serif;
   --font-body: "DM Sans", system-ui, sans-serif;
+  --font-numeric: "Roboto Mono", "Courier New", Courier, monospace;
+  /* ─── Numeric Font Utility ─────────────────────────────────────── */
+  .num-font {
+    font-family: var(--font-numeric) !important;
+    letter-spacing: 0.01em;
+  }
 
   /* Spacing scale */
   --sp-1: 4px;
@@ -288,7 +294,7 @@ h3 {
   background: var(--kpi-accent, var(--gold));
 }
 .kpi-val {
-  font-family: var(--font-display);
+  font-family: var(--font-numeric);
   font-size: 20px;
   color: var(--white);
 }
@@ -520,6 +526,25 @@ h3 {
 .rcts-table td {
   padding: 11px 13px;
   border-bottom: 1px solid rgba(201, 168, 76, 0.05);
+}
+.rcts-table td.amount,
+.rcts-table td.number,
+.rcts-table td.total,
+.rcts-table td.balance,
+.rcts-table td[data-type="amount"],
+.rcts-table td[data-type="number"] {
+  font-family: var(--font-numeric);
+  letter-spacing: 0.01em;
+}
+/* Utility: Apply numeric font to any .num-font, .amount, .number, .total, .balance, or data-type="amount|number" */
+.amount,
+.number,
+.total,
+.balance,
+[data-type="amount"],
+[data-type="number"] {
+  font-family: var(--font-numeric) !important;
+  letter-spacing: 0.01em;
 }
 .rcts-table tr:last-child td {
   border-bottom: none;
