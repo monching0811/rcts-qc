@@ -624,24 +624,12 @@
 
     <script src="../../public/js/main.js"></script>
     <script>
-      // --- Ensure correct mock citizen for demo/testing ---
-      (function ensureMockCitizen() {
-        let citizen = JSON.parse(
-          sessionStorage.getItem("rcts_citizen") || "{}",
-        );
-        if (
-          !citizen.qcitizen_id ||
-          citizen.qcitizen_id !== "92be37af-7c34-4c9b-80cb-47cde7c3a9fd"
-        ) {
-          citizen = {
-            qcitizen_id: "92be37af-7c34-4c9b-80cb-47cde7c3a9fd",
-            full_name: "Raven Test User",
-            role: "citizen",
-          };
-          sessionStorage.setItem("rcts_citizen", JSON.stringify(citizen));
-        }
-        window.citizen = citizen;
-      })();
+      // Use actual logged-in citizen from sessionStorage
+      const citizen = JSON.parse(
+        sessionStorage.getItem("rcts_citizen") || "{}",
+      );
+      if (!citizen.qcitizen_id) location.href = "login.html";
+      window.citizen = citizen;
       document.getElementById("nav-name").textContent =
         citizen.full_name || "—";
       document.getElementById("nav-role").textContent =

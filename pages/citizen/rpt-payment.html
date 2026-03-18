@@ -610,9 +610,9 @@
         </div>
         <div class="prop-address">📍 ${p.property_address}</div>
         <div class="prop-stats">
-          <div class="prop-stat"><div class="lbl">Market Value</div><div class="val">₱${Number(p.current_market_value).toLocaleString()}</div></div>
-          <div class="prop-stat"><div class="lbl">Assessed Value</div><div class="val">₱${Number(p.assessed_value).toLocaleString()}</div></div>
-          <div class="prop-stat"><div class="lbl">Annual Tax Due</div><div class="val big">₱${Number(p.annual_rpt_due).toLocaleString()}</div></div>
+          <div class="prop-stat"><div class="lbl">Market Value</div><div class="val num-font">₱${Number(p.current_market_value).toLocaleString()}</div></div>
+          <div class="prop-stat"><div class="lbl">Assessed Value</div><div class="val num-font">₱${Number(p.assessed_value).toLocaleString()}</div></div>
+          <div class="prop-stat"><div class="lbl">Annual Tax Due</div><div class="val big num-font">₱${Number(p.annual_rpt_due).toLocaleString()}</div></div>
         </div>
         <span class="${statusClass[p.tax_clearance_status] || "clearance-pending"}">${statusIcon[p.tax_clearance_status] || "⏳"} Tax Clearance: ${p.tax_clearance_status || "Pending"}</span>
         ${p.assessed_value_update_flag ? '<div class="flag-banner" style="display:block">⚠️ Zoning reclassification detected by S7. RPT re-assessment triggered.</div>' : ""}
@@ -686,11 +686,11 @@
     </div>`;
 
         document.getElementById("compute-panel").innerHTML = `
-      <div class="compute-row"><span>Basic RPT (2% of ₱${Number(prop.assessed_value).toLocaleString()})</span><span>₱${rptAmount.toLocaleString("en-PH", { minimumFractionDigits: 2 })}</span></div>
-      <div class="compute-row"><span>Special Education Fund (SEF, 1%)</span><span>₱${sefAmount.toLocaleString("en-PH", { minimumFractionDigits: 2 })}</span></div>
-      <div class="compute-row total"><span>AMOUNT DUE</span><span class="val">₱${amountDue.toLocaleString("en-PH", { minimumFractionDigits: 2 })}</span></div>
-      ${discRate > 0 ? `<div class="compute-row" style="background:#f0f8ff;color:#555"><span style="font-size:12px">ℹ️ ${discNote}</span><span style="font-size:12px">-₱${discAmt.toLocaleString("en-PH", { minimumFractionDigits: 2 })}</span></div>` : ""}
-      ${discRate > 0 ? `<div class="compute-row total" style="background:#eafbe7;color:#1a7f37"><span><b>Total</b></span><span class="val">₱${(amountDue - discAmt).toLocaleString("en-PH", { minimumFractionDigits: 2 })}</span></div>` : ""}
+      <div class="compute-row"><span>Basic RPT (2% of <span class="num-font">₱${Number(prop.assessed_value).toLocaleString()}</span>)</span><span class="num-font">₱${rptAmount.toLocaleString("en-PH", { minimumFractionDigits: 2 })}</span></div>
+      <div class="compute-row"><span>Special Education Fund (SEF, 1%)</span><span class="num-font">₱${sefAmount.toLocaleString("en-PH", { minimumFractionDigits: 2 })}</span></div>
+      <div class="compute-row total"><span>AMOUNT DUE</span><span class="val num-font">₱${amountDue.toLocaleString("en-PH", { minimumFractionDigits: 2 })}</span></div>
+      ${discRate > 0 ? `<div class="compute-row" style="background:#f0f8ff;color:#555"><span style="font-size:12px">ℹ️ ${discNote}</span><span class="num-font" style="font-size:12px">-₱${discAmt.toLocaleString("en-PH", { minimumFractionDigits: 2 })}</span></div>` : ""}
+      ${discRate > 0 ? `<div class="compute-row total" style="background:#eafbe7;color:#1a7f37"><span><b>Total</b></span><span class="val num-font">₱${(amountDue - discAmt).toLocaleString("en-PH", { minimumFractionDigits: 2 })}</span></div>` : ""}
       <div style="font-size:11px;color:var(--muted);margin-top:10px">Property: ${prop.tdn_number} | Zone: ${prop.zoning_classification || prop.zoning_status}</div>
       ${explanationBox}`;
         document.getElementById("compute-panel").style.display = "block";
@@ -791,7 +791,7 @@
                     <div style="font-size:11px;color:var(--muted)">TDN: ${b.asset_id} · Due: ${b.due_date || "—"}</div>
                   </div>
                   <div style="display:flex;align-items:center;gap:14px">
-                    <div style="font-family:'Playfair Display',serif;font-size:16px;font-weight:700;color:var(--gold)">₱${Number(b.total_amount_due).toLocaleString("en-PH", { minimumFractionDigits: 2 })}</div>
+                    <div class="num-font" style="font-family:'Roboto Mono','Courier New',Courier,monospace!important;font-size:16px;font-weight:700;color:var(--gold)">₱${Number(b.total_amount_due).toLocaleString("en-PH", { minimumFractionDigits: 2 })}</div>
                     <button class="btn-pay-row" onclick="payBillRPT('${b.bill_reference_no}')">Pay</button>
                   </div>
                 </div>
@@ -815,7 +815,7 @@
                     <div style="font-size:11px;color:var(--muted)">📍 ${p.property_address} · Zone: ${p.zoning_classification}</div>
                   </div>
                   <div style="display:flex;align-items:center;gap:14px">
-                    <div style="font-family:'Playfair Display',serif;font-size:16px;font-weight:700;color:var(--gold)">₱${totalTax.toLocaleString("en-PH", { minimumFractionDigits: 2 })}</div>
+                    <div class="num-font" style="font-family:'Roboto Mono','Courier New',Courier,monospace!important;font-size:16px;font-weight:700;color:var(--gold)">₱${totalTax.toLocaleString("en-PH", { minimumFractionDigits: 2 })}</div>
                     <button class="btn-pay-row" onclick="payBillFromS7('${p.tdn_number}', ${totalTax})">Pay</button>
                   </div>
                 </div>
