@@ -283,7 +283,7 @@
         color: var(--text-dark);
       }
       .violation-detail .val.amount {
-        font-family: "Playfair Display", serif;
+        font-family: "Roboto Mono", "Courier New", Courier, monospace;
         font-size: 17px;
         color: var(--gold);
       }
@@ -427,7 +427,7 @@
           <div class="violation-details">
             <div class="violation-detail"><div class="lbl">Plate Number</div><div class="val">${v.vehicle_plate_no}</div></div>
             <div class="violation-detail"><div class="lbl">Apprehension Date</div><div class="val">${new Date(v.apprehension_date).toLocaleDateString()}</div></div>
-            <div class="violation-detail"><div class="lbl">Fine Amount</div><div class="val amount">₱${Number(v.total_amount_due).toLocaleString("en-PH", { minimumFractionDigits: 2 })}</div></div>
+            <div class="violation-detail"><div class="lbl">Fine Amount</div><div class="val amount num-font">₱${Number(v.total_amount_due).toLocaleString("en-PH", { minimumFractionDigits: 2 })}</div></div>
           </div>
           ${canPay ? `<button class="btn-pay" onclick="payViolation('${v.violation_ticket_id}')">Pay Fine</button>` : ""}
         </div>`;

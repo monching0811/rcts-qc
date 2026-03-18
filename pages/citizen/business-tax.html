@@ -819,7 +819,7 @@
             <span class="permit-badge ${permitCls}">${biz.permit_status}</span>
           </div>
           <div class="biz-stats">
-            <div class="biz-stat"><div class="lbl">Gross Sales Declared</div><div class="val">₱${Number(biz.gross_sales_declared || 0).toLocaleString()}</div></div>
+            <div class="biz-stat"><div class="lbl">Gross Sales Declared</div><div class="val num-font" style="font-family:'Roboto Mono','Courier New',Courier,monospace'">₱${Number(biz.gross_sales_declared || 0).toLocaleString()}</div></div>
             <div class="biz-stat"><div class="lbl">Assessment</div><div class="val">${biz.assessment_cycle || "Annual"}</div></div>
             <div class="biz-stat"><div class="lbl">Valid Until</div><div class="val">${biz.valid_until || "—"}</div></div>
           </div>
@@ -868,7 +868,7 @@
                 <div style="font-size:11px;color:var(--muted)">BIN: ${b.bill_reference_no} · Due: ${b.due_date || "—"}</div>
               </div>
               <div style="display:flex;align-items:center;gap:14px">
-                <div style="font-family:'Playfair Display',serif;font-size:16px;font-weight:700;color:var(--gold)">₱${Number(b.total_amount_due).toLocaleString("en-PH", { minimumFractionDigits: 2 })}</div>
+                <div class='num-font' style="font-family:'Roboto Mono','Courier New',Courier,monospace';font-size:16px;font-weight:700;color:var(--gold)">₱${Number(b.total_amount_due).toLocaleString("en-PH", { minimumFractionDigits: 2 })}</div>
                 <button class="btn-pay" onclick="payBillBiz('${b.bill_reference_no}')">Pay Now</button>
               </div>
             </div>
@@ -962,7 +962,7 @@
               <td>${t.transaction_id}</td>
               <td>${new Date(t.transaction_timestamp).toLocaleDateString("en-PH")}</td>
               <td><span class="type-badge ${getTypeClass(t.transaction_status)}">${t.transaction_status}</span></td>
-              <td>₱${Number(t.amount_settled).toLocaleString("en-PH", { minimumFractionDigits: 2 })}</td>
+              <td class='num-font' style="font-family:'Roboto Mono','Courier New',Courier,monospace'">₱${Number(t.amount_settled).toLocaleString("en-PH", { minimumFractionDigits: 2 })}</td>
               <td>${t.gateway_provider}</td>
               <td>
                 <button class="btn-pay-row" onclick="downloadReceipt('${t.transaction_id}')">
