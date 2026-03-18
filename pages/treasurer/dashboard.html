@@ -5,10 +5,26 @@
     <meta name="viewport" content="width=device-width,initial-scale=1.0" />
     <title>RCTS-QC | Treasury Dashboard</title>
     <link
-      href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=DM+Sans:wght@300;400;500;600&display=swap"
+      href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=DM+Sans:wght@300;400;500;600&family=Roboto+Mono:wght@400;500;700&display=swap"
       rel="stylesheet"
     />
     <style>
+      .num-font {
+        font-family:
+          "Roboto Mono", "Courier New", Courier, monospace !important;
+        letter-spacing: 0.01em;
+      }
+      /* Utility: Apply numeric font to any .num-font, .amount, .number, .total, .balance, or data-type="amount|number" */
+      .amount,
+      .number,
+      .total,
+      .balance,
+      [data-type="amount"],
+      [data-type="number"] {
+        font-family:
+          "Roboto Mono", "Courier New", Courier, monospace !important;
+        letter-spacing: 0.01em;
+      }
       :root {
         --bg-primary: #ffffff;
         --bg-secondary: #f5f5f5;
