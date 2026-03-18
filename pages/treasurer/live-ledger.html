@@ -427,19 +427,21 @@
       <div class="summary-strip">
         <div class="sum-card">
           <div class="lbl">Total Credits</div>
-          <div class="val credit" id="s-credits">₱—</div>
+          <div class="val credit num-font" id="s-credits">₱—</div>
         </div>
         <div class="sum-card">
           <div class="lbl">Total Debits</div>
-          <div class="val debit" id="s-debits">₱—</div>
+          <div class="val debit num-font" id="s-debits">₱—</div>
         </div>
         <div class="sum-card">
           <div class="lbl">Net Balance</div>
-          <div class="val" id="s-net">₱—</div>
+          <div class="val num-font" id="s-net">₱—</div>
         </div>
         <div class="sum-card">
           <div class="lbl">Total Entries</div>
-          <div class="val" id="s-count" style="color: var(--gold)">—</div>
+          <div class="val num-font" id="s-count" style="color: var(--gold)">
+            —
+          </div>
         </div>
       </div>
 
@@ -505,8 +507,7 @@
         citizen.full_name || "—";
 
       const fmt = (n) =>
-        "₱" +
-        Number(n || 0).toLocaleString("en-PH", { minimumFractionDigits: 2 });
+        `<span class=\"num-font\">₱${Number(n || 0).toLocaleString("en-PH", { minimumFractionDigits: 2 })}</span>`;
       let currentPage = 0,
         pageSize = 15;
 
@@ -535,12 +536,13 @@
           const totalD = entries
             .filter((e) => e.entry_type === "Debit")
             .reduce((s, e) => s + Number(e.amount), 0);
-          document.getElementById("s-credits").textContent = fmt(totalC);
-          document.getElementById("s-debits").textContent = fmt(totalD);
-          document.getElementById("s-net").textContent = fmt(totalC - totalD);
+          document.getElementById("s-credits").innerHTML = fmt(totalC);
+          document.getElementById("s-debits").innerHTML = fmt(totalD);
+          document.getElementById("s-net").innerHTML = fmt(totalC - totalD);
           document.getElementById("s-net").style.color =
             totalC - totalD >= 0 ? "var(--green)" : "var(--red)";
-          document.getElementById("s-count").textContent = entries.length;
+          document.getElementById("s-count").innerHTML =
+            `<span class=\"num-font\">${entries.length.toLocaleString("en-PH")}</span>`;
 
           if (!entries.length) {
             wrap.innerHTML =
@@ -558,7 +560,7 @@
         <td><span class="cat-tag">${e.revenue_category}</span></td>
         <td><span class="fund-tag">${e.fund_id}</span></td>
         <td style="font-family:monospace;font-size:11px">${e.gl_account_code}</td>
-        <td class="${e.entry_type === "Credit" ? "credit" : "debit"}" style="font-size:13px;text-align:right">${fmt(e.amount)}</td>
+        <td class="${e.entry_type === "Credit" ? "credit" : "debit"} num-font" style="font-size:13px;text-align:right">${fmt(e.amount)}</td>
         <td style="font-size:11px;color:var(--muted);max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="${e.remarks || ""}">${e.remarks || "—"}</td>
       </tr>`,
             )
