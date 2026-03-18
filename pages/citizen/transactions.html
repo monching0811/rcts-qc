@@ -413,7 +413,13 @@
           <div class="lbl">Total Transactions</div>
         </div>
         <div class="summary-box">
-          <div class="val" id="s-total">₱—</div>
+          <div
+            class="val num-font"
+            id="s-total"
+            style="font-family:'Roboto Mono','Courier New',Courier,monospace'"
+          >
+            ₱—
+          </div>
           <div class="lbl">Total Amount Paid</div>
         </div>
         <div class="summary-box">
@@ -554,7 +560,7 @@
             <td><span class="type-badge ${typeClass[billType] || "type-mult"}">${typeLabels[billType] || billType}</span></td>
             <td style="color:var(--text-dark)">${t.gateway_provider || "—"}</td>
             <td style="font-size:12px;color:var(--text-gray)">${t.bank_reference_no || "—"}</td>
-            <td style="font-family:'Playfair Display',serif;font-size:16px;color:var(--gold);font-weight:700">${fmt(t.amount_settled)}</td>
+            <td class='num-font' style="font-family:'Roboto Mono','Courier New',Courier,monospace';font-size:16px;color:var(--gold);font-weight:700">${fmt(t.amount_settled)}</td>
             <td><span class="status-success">✅ Success</span></td>
             <td><a class="btn-receipt" href="#" onclick="downloadReceipt('${t.transaction_id}'); return false;">View Receipt</a></td>
           </tr>`;

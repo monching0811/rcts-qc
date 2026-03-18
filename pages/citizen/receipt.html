@@ -227,7 +227,7 @@
         text-transform: uppercase;
       }
       .amount-section .val {
-        font-family: "Playfair Display", serif;
+        font-family: "Roboto Mono", "Courier New", Courier, monospace;
         font-size: 32px;
         color: var(--gold);
         margin-top: 6px;
@@ -364,7 +364,7 @@
           <div class="info-row"><span class="lbl">Date & Time Issued</span><span class="val">${paid_at}</span></div>
           <div class="amount-section">
             <div class="lbl">Total Amount Paid</div>
-            <div class="val">₱${Number(eor.amount_paid).toLocaleString("en-PH", { minimumFractionDigits: 2 })}</div>
+            <div class="val num-font">₱${Number(eor.amount_paid).toLocaleString("en-PH", { minimumFractionDigits: 2 })}</div>
           </div>
           <div class="verify-section">
             <h4>✅ Verification & Integrity</h4>
