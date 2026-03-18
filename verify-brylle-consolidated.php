@@ -28,14 +28,14 @@ if ($response['success']) {
         echo "[$type - " . count($type_bills) . " bills]\n";
         $subtotal = 0;
         foreach ($type_bills as $bill) {
-            echo "  • {$bill['bill_reference_no']}: ₱" . number_format($bill['total_amount_due'], 2) . "\n";
+            echo "  • {$bill['bill_reference_no']}: <span class=\"num-font\">₱" . number_format($bill['total_amount_due'], 2) . "</span>\n";
             $subtotal += $bill['total_amount_due'];
         }
-        echo "  Subtotal: ₱" . number_format($subtotal, 2) . "\n\n";
+        echo "  Subtotal: <span class=\"num-font\">₱" . number_format($subtotal, 2) . "</span>\n\n";
     }
     
     echo "═══════════════════════════════════════════\n";
-    echo "GRAND TOTAL: ₱" . number_format($total, 2) . "\n";
+    echo "GRAND TOTAL: <span class=\"num-font\">₱" . number_format($total, 2) . "</span>\n";
     echo "═══════════════════════════════════════════\n";
 } else {
     echo "✗ API Error\n";

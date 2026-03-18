@@ -12,7 +12,7 @@ if ($response['success']) {
     echo "✓ Found " . count($bills) . " pending bills\n\n";
     
     foreach ($bills as $bill) {
-        echo "• {$bill['bill_reference_no']} ({$bill['bill_type']}): ₱" . number_format($bill['total_amount_due'], 2) . "\n";
+        echo "• {$bill['bill_reference_no']} ({$bill['bill_type']}): <span class=\"num-font\">₱" . number_format($bill['total_amount_due'], 2) . "</span>\n";
     }
 } else {
     echo "✗ API Error\n";

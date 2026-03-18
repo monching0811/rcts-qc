@@ -700,13 +700,13 @@
     </div>`;
         const panel = document.getElementById("compute-biz-panel");
         panel.innerHTML = `
-      <div class="compute-row"><span>Business Tax (${(taxRate * 100).toFixed(2)}% of ₱${grossSales.toLocaleString()})</span><span>₱${businessTax.toLocaleString("en-PH", { minimumFractionDigits: 2 })}</span></div>
-      <div class="compute-row"><span>Sanitary Fee</span><span>₱${sanitaryFee.toLocaleString("en-PH", { minimumFractionDigits: 2 })}</span></div>
-      <div class="compute-row"><span>Garbage Fee</span><span>₱${garbageFee.toLocaleString("en-PH", { minimumFractionDigits: 2 })}</span></div>
-      <div class="compute-row"><span>Fire Safety Fee</span><span>₱${fireFee.toLocaleString("en-PH", { minimumFractionDigits: 2 })}</span></div>
-      <div class="compute-row total"><span>AMOUNT DUE</span><span class="val">₱${baseAmount.toLocaleString("en-PH", { minimumFractionDigits: 2 })}</span></div>
-      ${discRate > 0 ? `<div class="compute-row" style="background:#f0f8ff;color:#555"><span style="font-size:12px">ℹ️ ${discNote}</span><span style="font-size:12px">-₱${discAmt.toLocaleString("en-PH", { minimumFractionDigits: 2 })}</span></div>` : ""}
-      ${discRate > 0 ? `<div class="compute-row total" style="background:#eafbe7;color:#1a7f37"><span><b>Total</b></span><span class="val">₱${totalDue.toLocaleString("en-PH", { minimumFractionDigits: 2 })}</span></div>` : ""}
+      <div class="compute-row"><span>Business Tax (${(taxRate * 100).toFixed(2)}% of <span class=\"num-font\">₱${grossSales.toLocaleString()}</span>)</span><span class=\"num-font\">₱${businessTax.toLocaleString("en-PH", { minimumFractionDigits: 2 })}</span></div>
+      <div class="compute-row"><span>Sanitary Fee</span><span class=\"num-font\">₱${sanitaryFee.toLocaleString("en-PH", { minimumFractionDigits: 2 })}</span></div>
+      <div class="compute-row"><span>Garbage Fee</span><span class=\"num-font\">₱${garbageFee.toLocaleString("en-PH", { minimumFractionDigits: 2 })}</span></div>
+      <div class="compute-row"><span>Fire Safety Fee</span><span class=\"num-font\">₱${fireFee.toLocaleString("en-PH", { minimumFractionDigits: 2 })}</span></div>
+      <div class="compute-row total"><span>AMOUNT DUE</span><span class="val num-font">₱${baseAmount.toLocaleString("en-PH", { minimumFractionDigits: 2 })}</span></div>
+      ${discRate > 0 ? `<div class="compute-row" style="background:#f0f8ff;color:#555"><span style="font-size:12px">ℹ️ ${discNote}</span><span class="num-font" style="font-size:12px">-₱${discAmt.toLocaleString("en-PH", { minimumFractionDigits: 2 })}</span></div>` : ""}
+      ${discRate > 0 ? `<div class="compute-row total" style="background:#eafbe7;color:#1a7f37"><span><b>Total</b></span><span class="val num-font">₱${totalDue.toLocaleString("en-PH", { minimumFractionDigits: 2 })}</span></div>` : ""}
       <div style="font-size:11px;color:var(--muted);margin-top:10px">BIN: ${biz.bin_number} | Nature: ${biz.nature_of_business}</div>
       ${explanationBox}`;
         panel.style.display = "block";

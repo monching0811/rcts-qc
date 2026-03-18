@@ -62,7 +62,7 @@ foreach ($stalls as $stall) {
   echo "│ Name: {$stall['stall_name']}\n";
   echo "│ ID: {$stall['stall_asset_id']}\n";
   echo "│ Location: {$stall['facility_name']}\n";
-  echo "│ Size: {$stall['stall_size_sqm']} sqm\n";
+  echo "│ Size: <span class=\"num-font\">{$stall['stall_size_sqm']}</span> sqm\n";
   echo "│ Occupancy Status: {$stall['occupancy_status_flag']}\n";
   echo "│ Verification Method: $occupancy_method\n";
   echo "│\n";
