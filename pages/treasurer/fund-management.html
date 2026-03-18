@@ -425,22 +425,22 @@
       <div class="fund-grid">
         <div class="fund-card general">
           <div class="fund-name">General Fund</div>
-          <div class="fund-balance general-c" id="f-general">₱—</div>
+          <div class="fund-balance general-c num-font" id="f-general">₱—</div>
           <div class="fund-status fs-active">● Active</div>
         </div>
         <div class="fund-card sef">
           <div class="fund-name">Special Education Fund</div>
-          <div class="fund-balance sef-c" id="f-sef">₱—</div>
+          <div class="fund-balance sef-c num-font" id="f-sef">₱—</div>
           <div class="fund-status fs-active">● Active</div>
         </div>
         <div class="fund-card drrm">
           <div class="fund-name">DRRM Quick Response Fund</div>
-          <div class="fund-balance drrm-c" id="f-drrm">₱—</div>
+          <div class="fund-balance drrm-c num-font" id="f-drrm">₱—</div>
           <div class="fund-status fs-locked" id="f-drrm-status">● Locked</div>
         </div>
         <div class="fund-card trust">
           <div class="fund-name">Trust Fund</div>
-          <div class="fund-balance trust-c" id="f-trust">₱—</div>
+          <div class="fund-balance trust-c num-font" id="f-trust">₱—</div>
           <div class="fund-status fs-locked">● Locked</div>
         </div>
       </div>
@@ -467,7 +467,13 @@
         <div class="info-grid">
           <div class="info-box">
             <div class="lbl">QRF Balance</div>
-            <div class="val" id="qrf-balance" style="color: var(--red)">₱—</div>
+            <div
+              class="val num-font"
+              id="qrf-balance"
+              style="color: var(--red)"
+            >
+              ₱—
+            </div>
           </div>
           <div class="info-box">
             <div class="lbl">QRF Status</div>
@@ -475,7 +481,7 @@
           </div>
           <div class="info-box">
             <div class="lbl">Pending DRRM Payouts</div>
-            <div class="val" id="qrf-pending">₱—</div>
+            <div class="val num-font" id="qrf-pending">₱—</div>
           </div>
         </div>
         <div
@@ -541,14 +547,14 @@
           // Fund estimates (based on revenue categories)
           const generalFund = (sum.total_collected_mtd || 0) * 0.8;
           const sefFund = (sum.collection_by_type?.RPT || 0) * 0.333;
-          document.getElementById("f-general").textContent = fmt(generalFund);
-          document.getElementById("f-sef").textContent = fmt(sefFund);
-          document.getElementById("f-drrm").textContent = fmt(
-            sum.qrf_balance || 0,
-          );
-          document.getElementById("f-trust").textContent = fmt(
-            (sum.total_collected_mtd || 0) * 0.05,
-          );
+          document.getElementById("f-general").innerHTML =
+            `<span class='num-font'>${fmt(generalFund)}</span>`;
+          document.getElementById("f-sef").innerHTML =
+            `<span class='num-font'>${fmt(sefFund)}</span>`;
+          document.getElementById("f-drrm").innerHTML =
+            `<span class='num-font'>${fmt(sum.qrf_balance || 0)}</span>`;
+          document.getElementById("f-trust").innerHTML =
+            `<span class='num-font'>${fmt((sum.total_collected_mtd || 0) * 0.05)}</span>`;
           document.getElementById("f-drrm-status").textContent =
             "● " + (sum.qrf_status || "Locked");
           document.getElementById("f-drrm-status").className =
@@ -566,15 +572,13 @@
           );
           document.getElementById("qrf-bar").style.width = qrfPct + "%";
           document.getElementById("qrf-pct").textContent =
-            qrfPct.toFixed(1) + "% of ₱" + QRF_MAX / 1000000 + "M baseline";
-          document.getElementById("qrf-balance").textContent = fmt(
-            sum.qrf_balance || 0,
-          );
+            `<span class='num-font'>${qrfPct.toFixed(1)}%</span> of <span class='num-font'>₱${QRF_MAX / 1000000}M</span> baseline`;
+          document.getElementById("qrf-balance").innerHTML =
+            `<span class='num-font'>${fmt(sum.qrf_balance || 0)}</span>`;
           document.getElementById("qrf-status").textContent =
             sum.qrf_status || "Locked";
-          document.getElementById("qrf-pending").textContent = fmt(
-            sum.pending_bills_total || 0,
-          );
+          document.getElementById("qrf-pending").innerHTML =
+            `<span class='num-font'>${fmt(sum.pending_bills_total || 0)}</span>`;
 
           // Collection breakdown
           const cats = sum.collection_by_type || {};
@@ -599,7 +603,7 @@
           </div>
           <div style="display:flex;align-items:center;gap:14px">
             <div style="width:100px;height:6px;border-radius:3px;background:rgba(201,168,76,.1);overflow:hidden"><div style="height:100%;width:${(v / total) * 100}%;background:linear-gradient(90deg,var(--gold),var(--gold2));border-radius:3px"></div></div>
-            <span style="font-weight:700;color:var(--gold);min-width:100px;text-align:right">${fmt(v)}</span>
+            <span class="num-font" style="font-weight:700;color:var(--gold);min-width:100px;text-align:right;font-family:'Roboto Mono','Courier New',Courier,monospace">${fmt(v)}</span>
           </div>
         </div>`,
                 )
@@ -617,11 +621,11 @@
       <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px">
         <div style="background:rgba(10,22,40,.5);border-radius:8px;padding:14px">
           <div style="font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.06em">Current Cash Position</div>
-          <div style="font-family:'Playfair Display',serif;font-size:18px;color:var(--green);margin-top:5px">${fmt(liq.current_cash_position)}</div>
+          <div class="num-font" style="font-family:'Roboto Mono','Courier New',Courier,monospace;font-size:18px;color:var(--green);margin-top:5px">${fmt(liq.current_cash_position)}</div>
         </div>
         <div style="background:rgba(10,22,40,.5);border-radius:8px;padding:14px">
           <div style="font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.06em">Pending Disbursements</div>
-          <div style="font-family:'Playfair Display',serif;font-size:18px;color:var(--orange);margin-top:5px">${fmt(liq.total_pending_disburse)}</div>
+          <div class="num-font" style="font-family:'Roboto Mono','Courier New',Courier,monospace;font-size:18px;color:var(--orange);margin-top:5px">${fmt(liq.total_pending_disburse)}</div>
         </div>
         <div style="background:rgba(10,22,40,.5);border-radius:8px;padding:14px">
           <div style="font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.06em">Stress Result</div>
