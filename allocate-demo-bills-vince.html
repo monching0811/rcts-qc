@@ -1,0 +1,143 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Allocate Bills to Vince Nico (Subsystem Signal Approach)</title>
+    <style>
+      body {
+        font-family: sans-serif;
+        margin: 2em;
+      }
+      pre {
+        background: #f4f4f4;
+        padding: 1em;
+        border-radius: 6px;
+      }
+      .success {
+        color: green;
+      }
+      .fail {
+        color: red;
+      }
+    </style>
+  </head>
+  <body>
+    <h2>
+      Allocate 3 Business Tax, 3 Market Stall, 3 Traffic Fines to Vince Nico
+      (Subsystem Signal Approach)
+    </h2>
+    <button id="runBtn">Allocate Bills</button>
+    <div id="output"></div>
+    <script>
+      const vinceId = "b529bf30-50bf-43ab-a314-cc4c2f79c3f5";
+      const apiBase = "https://rcts-qc.wuaze.com/api/endpoints/";
+      const output = document.getElementById("output");
+      function log(msg, ok) {
+        const el = document.createElement("pre");
+        el.className = ok ? "success" : "fail";
+        el.textContent = msg;
+        output.appendChild(el);
+      }
+      async function post(url, payload, headers = {}) {
+        try {
+          const res = await fetch(url, {
+            method: "POST",
+            headers: Object.assign(
+              {
+                "Content-Type": "application/json",
+                "X-API-Key": "DEV-BYPASS-KEY-LOCAL",
+              },
+              headers,
+            ),
+            body: JSON.stringify(payload),
+          });
+          let data;
+          try {
+            data = await res.json();
+          } catch {
+            data = await res.text();
+          }
+          return data;
+        } catch (e) {
+          return { error: e.message };
+        }
+      }
+      async function allocate() {
+        output.innerHTML = "";
+        // 1. Business Tax Bills (S2/S4 signals)
+        for (let i = 1; i <= 3; i++) {
+          const bin = `BIN-QC-2026-VINCE-00${i}`;
+          const business = {
+            bin_number: bin,
+            qcitizen_id: vinceId,
+            business_name: `Vince's Demo Business ${i}`,
+            nature_of_business: "Retail",
+            business_address: `123 Demo St ${i}, QC`,
+            gross_sales_declared: 100000 * i,
+            assessment_cycle: "Annual",
+          };
+          let r1 = await post(
+            apiBase + "inbound.php?action=s2_business_approved",
+            business,
+          );
+          log(`[S2] Business ${i}: ` + JSON.stringify(r1), r1 && r1.success);
+          for (const type of ["Health", "Sanitary"]) {
+            const clearance = {
+              clearance_ref_id: `CLR-2026-VINCE-00${i}-${type[0]}`,
+              business_bin: bin,
+              clearance_type: type,
+              status_flag: "Passed",
+              qcitizen_id: vinceId,
+              inspection_date: new Date().toISOString().slice(0, 10),
+              inspector_name: "Demo Inspector",
+            };
+            let r2 = await post(
+              apiBase + "inbound.php?action=s4_clearance_passed",
+              clearance,
+            );
+            log(
+              `[S4] ${type} Clearance ${i}: ` + JSON.stringify(r2),
+              r2 && r2.success,
+            );
+          }
+        }
+        // 2. Market Stall Bills (S10 occupancy signal)
+        for (let i = 1; i <= 3; i++) {
+          const stall = {
+            stall_asset_id: `STL-QC-2026-VINCE-00${i}`,
+            qcitizen_id: vinceId,
+            occupancy_status_flag: "Active",
+            verification_method: "Manual",
+            verified_at: new Date().toISOString(),
+          };
+          let r3 = await post(
+            apiBase + "inbound.php?action=s10_occupancy_update",
+            stall,
+          );
+          log(`[S10] Stall ${i}: ` + JSON.stringify(r3), r3 && r3.success);
+        }
+        // 3. Traffic Fine Bills (S9 violation signal)
+        for (let i = 1; i <= 3; i++) {
+          const ticket = {
+            violation_ticket_id: `TKT-20260319-VINCE-00${i}`,
+            qcitizen_id: vinceId,
+            vehicle_plate_no: "VNC-2026",
+            violation_type: `Demo Violation ${i}`,
+            fine_amount: 1000 * i,
+            apprehension_date: new Date().toISOString().slice(0, 10),
+          };
+          let r4 = await post(
+            apiBase + "inbound.php?action=s9_violation_issued",
+            ticket,
+          );
+          log(`[S9] Violation ${i}: ` + JSON.stringify(r4), r4 && r4.success);
+        }
+        log(
+          "All demo bills allocated to Vince Nico (Subsystem Signal Approach).",
+          true,
+        );
+      }
+      document.getElementById("runBtn").onclick = allocate;
+    </script>
+  </body>
+</html>
