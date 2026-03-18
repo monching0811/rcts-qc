@@ -292,6 +292,20 @@ switch ($action) {
             $released[] = $disb_ref;
         }
 
+        // Auto-lock QRF after DRRM disbursement batch is executed
+        if ($priority === 'Emergency') {
+            // Get latest QRF balance
+            $snap_result = db_select('rcts_treasury_dashboard', ['order' => 'snapshot_timestamp.desc', 'limit' => '1']);
+            $snap        = $snap_result['data'][0] ?? null;
+            $qrf_balance = $snap ? (float)$snap['qrf_balance'] : 0;
+            db_insert('rcts_treasury_dashboard', [
+                'qrf_balance'             => $qrf_balance,
+                'qrf_status'              => 'Locked',
+                'liquidity_stress_result' => 'OK',
+                'generated_by'            => 'DRRM-QRF-AUTOLOCK'
+            ]);
+        }
+
         // Step 4: Send completion report back to originating dept
         $completion = [
             'signal_type'      => 'DISBURSEMENT_COMPLETE',
