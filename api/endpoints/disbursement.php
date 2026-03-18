@@ -96,7 +96,24 @@ switch ($action) {
 
     // ── GET all pending disbursements (treasurer view) ───────────────────
     case 'get_pending':
-        $result = db_select('v_pending_disbursements');
+        // Use direct query instead of view for debugging
+        $result = db_select('rcts_aid_payout_registry', [
+            'status' => 'eq.Scheduled',
+            'order'  => 'priority_flag.desc,scheduled_date.asc'
+        ]);
+        // Join with citizen registry for full_name
+        if ($result['success'] && !empty($result['data'])) {
+            foreach ($result['data'] as &$row) {
+                $citizen = db_select('rcts_citizen_registry', [
+                    'qcitizen_id' => 'eq.' . $row['qcitizen_id'],
+                    'select' => 'full_name,digital_wallet_link'
+                ]);
+                if (!empty($citizen['data'])) {
+                    $row['full_name'] = $citizen['data'][0]['full_name'];
+                    $row['digital_wallet_link'] = $citizen['data'][0]['digital_wallet_link'];
+                }
+            }
+        }
         $total  = array_sum(array_column($result['data'] ?? [], 'approved_amount'));
         api_response($result['success'], 'Pending disbursements retrieved', [
             'disbursements'  => $result['data'],
@@ -227,6 +244,16 @@ switch ($action) {
                         'recommendation'    => 'Reduce batch size or wait for more revenue collection.'
                     ], 422);
                 }
+            }
+        } else {
+            // For Emergency: Verify QRF is unlocked
+            $dashboard = db_select('rcts_treasury_dashboard', ['order' => 'snapshot_timestamp.desc', 'limit' => '1']);
+            $snap      = $dashboard['data'][0] ?? null;
+            if (!$snap || $snap['qrf_status'] !== 'Active') {
+                api_response(false, 'Emergency disbursement DENIED. Quick Response Fund (QRF) must be unlocked first via DRRM request.', [
+                    'qrf_status' => $snap['qrf_status'] ?? 'Unknown',
+                    'required_action' => 'POST /api/endpoints/disbursement.php?action=request_qrf_unlock with disaster details'
+                ], 403);
             }
         }
 

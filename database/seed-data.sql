@@ -120,8 +120,12 @@ INSERT INTO rcts_aid_payout_registry (disbursement_ref_id, qcitizen_id, originat
 ('DISB-QCS-2025-001', 'QC-2024-000001',5,'QCS-2025-BATCH1','QC-Iskolar Stipend',              6000.00,'DigitalWallet', 'Normal',    'Scheduled', CURRENT_DATE),
 ('DISB-QCS-2025-002', 'QC-2024-000002',5,'QCS-2025-BATCH1','QC-Iskolar Stipend',              6000.00,'BankTransfer', 'Normal',    'Scheduled', CURRENT_DATE),
 ('DISB-QCS-2025-003', 'QC-2024-000003',5,'QCS-2025-BATCH1','QC-Iskolar Stipend',              6000.00,'DigitalWallet', 'Normal',    'Scheduled', CURRENT_DATE),
+('DISB-AICS-2025-002','QC-2024-000003',3,'AICS-2025-002',  'AICS Senior Allowance',           4000.00,'DigitalWallet', 'Normal',    'Scheduled', CURRENT_DATE + INTERVAL '2 days'),
+('DISB-QCS-2025-004', 'QC-2024-000004',5,'QCS-2025-BATCH2','QC-Iskolar Stipend Round 2',     5500.00,'DigitalWallet', 'Normal',    'Scheduled', CURRENT_DATE + INTERVAL '1 day'),
 ('DISB-DRRM-2025-001','QC-2024-000001',6,'DRRM-2025-001',  'Typhoon Quezon Relief',           5000.00,'DigitalWallet', 'Emergency', 'Scheduled', CURRENT_DATE),
-('DISB-DRRM-2025-002','QC-2024-000002',6,'DRRM-2025-001',  'Typhoon Quezon Relief',           5000.00,'BankTransfer', 'Emergency', 'Scheduled', CURRENT_DATE)
+('DISB-DRRM-2025-002','QC-2024-000002',6,'DRRM-2025-001',  'Typhoon Quezon Relief',           5000.00,'BankTransfer', 'Emergency', 'Scheduled', CURRENT_DATE),
+('DISB-DRRM-2025-003','QC-2024-000003',6,'DRRM-2025-002',  'Earthquake Marikina Aid',         6000.00,'DigitalWallet', 'Emergency', 'Scheduled', CURRENT_DATE + INTERVAL '3 days'),
+('DISB-DRRM-2025-004','QC-2024-000004',6,'DRRM-2025-002',  'Earthquake Marikina Aid',         6000.00,'BankTransfer', 'Emergency', 'Scheduled', CURRENT_DATE + INTERVAL '3 days')
 ON CONFLICT DO NOTHING;
 
 -- ============================================================
