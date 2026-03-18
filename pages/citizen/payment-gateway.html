@@ -770,7 +770,7 @@
           <div class="bill-type">${b.bill_type}<span class="type-badge ${typeMap[b.bill_type] || ""}">${b.bill_type}</span></div>
           <div class="bill-ref">${b.bill_reference_no} · Due: ${b.due_date || "—"}</div>
         </div>
-        <div class="bill-amount">₱${Number(b.total_amount_due).toLocaleString("en-PH", { minimumFractionDigits: 2 })}</div>
+        <div class="bill-amount num-font">₱${Number(b.total_amount_due).toLocaleString("en-PH", { minimumFractionDigits: 2 })}</div>
       </div>`;
             })
             .join("");
@@ -807,11 +807,12 @@
         rows.innerHTML = selectedBills
           .map(
             (b) =>
-              `<div class="sum-row"><span>${b.bill_type}</span><span>₱${Number(b.total_amount_due).toLocaleString("en-PH", { minimumFractionDigits: 2 })}</span></div>`,
+              `<div class="sum-row"><span>${b.bill_type}</span><span class="num-font">₱${Number(b.total_amount_due).toLocaleString("en-PH", { minimumFractionDigits: 2 })}</span></div>`,
           )
           .join("");
         document.getElementById("total-val").textContent =
           "₱" + total.toLocaleString("en-PH", { minimumFractionDigits: 2 });
+        document.getElementById("total-val").classList.add("num-font");
         totalRow.style.display = "block";
       }
 
@@ -962,11 +963,11 @@
           document.getElementById("eor-num").textContent =
             execData.data.eor_number;
           document.getElementById("success-amount").textContent =
-            "₱" +
+            "<span class='num-font'>₱" +
             Number(execData.data.amount_paid).toLocaleString("en-PH", {
               minimumFractionDigits: 2,
             }) +
-            " paid via " +
+            "</span> paid via " +
             execData.data.gateway;
           document.getElementById("success-overlay").classList.add("show");
 
@@ -1032,11 +1033,11 @@
 
             document.getElementById("eor-num").textContent = eor.eor_number;
             document.getElementById("success-amount").textContent =
-              "₱" +
+              "<span class='num-font'>₱" +
               Number(txn.amount_settled).toLocaleString("en-PH", {
                 minimumFractionDigits: 2,
               }) +
-              " paid via " +
+              "</span> paid via " +
               txn.gateway_provider;
             document.getElementById("success-overlay").classList.add("show");
 
