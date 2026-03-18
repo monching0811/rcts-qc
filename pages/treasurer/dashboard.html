@@ -584,7 +584,7 @@
           style="cursor: pointer"
         >
           <div class="kpi-icon">💰</div>
-          <div class="kpi-val" id="k-collected">₱—</div>
+          <div class="kpi-val num-font" id="k-collected">₱—</div>
           <div class="kpi-lbl">Collected MTD</div>
           <div class="kpi-sub" id="k-target-pct" style="color: var(--muted)">
             Loading...
@@ -596,7 +596,7 @@
           style="cursor: pointer"
         >
           <div class="kpi-icon">📤</div>
-          <div class="kpi-val" id="k-disbursed">₱—</div>
+          <div class="kpi-val num-font" id="k-disbursed">₱—</div>
           <div class="kpi-lbl">Disbursed MTD</div>
         </div>
         <div
@@ -605,7 +605,7 @@
           style="cursor: pointer"
         >
           <div class="kpi-icon">🏦</div>
-          <div class="kpi-val" id="k-net">₱—</div>
+          <div class="kpi-val num-font" id="k-net">₱—</div>
           <div class="kpi-lbl">Net Cash Position</div>
         </div>
         <div
@@ -614,7 +614,7 @@
           style="cursor: pointer"
         >
           <div class="kpi-icon">⚠️</div>
-          <div class="kpi-val" id="k-delinq">—</div>
+          <div class="kpi-val num-font" id="k-delinq">—</div>
           <div class="kpi-lbl">Delinquent Bills</div>
         </div>
         <div
@@ -623,7 +623,7 @@
           style="cursor: pointer"
         >
           <div class="kpi-icon">🆘</div>
-          <div class="kpi-val" id="k-qrf">₱—</div>
+          <div class="kpi-val num-font" id="k-qrf">₱—</div>
           <div class="kpi-lbl">QRF Balance</div>
           <div class="kpi-sub" id="k-qrf-status" style="color: var(--muted)">
             —
@@ -635,7 +635,7 @@
           style="cursor: pointer"
         >
           <div class="kpi-icon">⏳</div>
-          <div class="kpi-val" id="k-pending-disb">₱—</div>
+          <div class="kpi-val num-font" id="k-pending-disb">₱—</div>
           <div class="kpi-lbl">Pending Disbursements</div>
         </div>
       </div>
@@ -884,7 +884,7 @@
               const pct = total > 0 ? (amt / total) * 100 : 0;
               return `
                 <div class="rev-bar-row">
-                  <div class="rev-bar-label"><span class="lbl">${cat}</span><span class="val">₱${Number(amt).toLocaleString("en-PH", { minimumFractionDigits: 2 })} (${pct.toFixed(1)}%)</span></div>
+                  <div class="rev-bar-label"><span class="lbl">${cat}</span><span class="val num-font">₱${Number(amt).toLocaleString("en-PH", { minimumFractionDigits: 2 })} (${pct.toFixed(1)}%)</span></div>
                   <div class="rev-bar-track"><div class="rev-bar-fill" style="width:${pct}%"></div></div>
                 </div>
               `;
