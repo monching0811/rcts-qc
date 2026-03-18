@@ -930,8 +930,8 @@
         <td class="${e.entry_type === "Credit" ? "credit" : "debit"}">${e.entry_type === "Credit" ? "▲" : "▼"} ${e.entry_type}</td>
         <td>${e.revenue_category}</td>
         <td><span class="fund-tag">${e.fund_id}</span></td>
-        <td>${e.gl_account_code}</td>
-        <td class="${e.entry_type === "Credit" ? "credit" : "debit"}" style="font-weight:600">${fmt(e.amount)}</td>
+        <td class="num-font" style="font-family: 'Roboto Mono', 'Courier New', Courier, monospace; font-size: 12px;">${e.gl_account_code}</td>
+        <td class="${e.entry_type === "Credit" ? "credit" : "debit"} num-font" style="font-weight:600; font-family: 'Roboto Mono', 'Courier New', Courier, monospace;">${fmt(e.amount)}</td>
         <td style="font-size:11px;color:#666666;max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${e.remarks || "—"}</td>
       </tr>`,
             )
@@ -987,7 +987,7 @@
         </div>
         <div style="display:flex;align-items:center;gap:10px">
           <span class="priority-${d.priority_flag === "Emergency" ? "em" : "nm"}">${d.priority_flag}</span>
-          <span style="font-size:13px;font-weight:700;color:#1a1a1a">${fmt(d.approved_amount)}</span>
+          <span class=\"num-font\" style="font-size:13px;font-weight:700;color:#1a1a1a;font-family:'Roboto Mono','Courier New',Courier,monospace">${fmt(d.approved_amount)}</span>
         </div>
       </div>`,
             )
@@ -1047,8 +1047,8 @@
           document.getElementById("stress-badge").textContent = d.stress_result;
           out.innerHTML = `
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px">
-        <div style="background:#f5f5f5;border-radius:8px;padding:12px"><div style="font-size:10px;color:#666666;text-transform:uppercase;letter-spacing:.06em">Cash Position</div><div style="font-size:14px;font-weight:600;margin-top:4px">${fmt(d.current_cash_position)}</div></div>
-        <div style="background:#f5f5f5;border-radius:8px;padding:12px"><div style="font-size:10px;color:#666666;text-transform:uppercase;letter-spacing:.06em">After Payout</div><div style="font-size:14px;font-weight:600;margin-top:4px;color:${d.stress_result === "OK" ? "var(--green)" : d.stress_result === "Warning" ? "var(--orange)" : "var(--red)"}">${fmt(d.cash_after_payout)}</div></div>
+        <div style="background:#f5f5f5;border-radius:8px;padding:12px"><div style="font-size:10px;color:#666666;text-transform:uppercase;letter-spacing:.06em">Cash Position</div><div class=\"num-font\" style="font-size:14px;font-weight:600;margin-top:4px;font-family:'Roboto Mono','Courier New',Courier,monospace">${fmt(d.current_cash_position)}</div></div>
+        <div style="background:#f5f5f5;border-radius:8px;padding:12px"><div style="font-size:10px;color:#666666;text-transform:uppercase;letter-spacing:.06em">After Payout</div><div class=\"num-font\" style="font-size:14px;font-weight:600;margin-top:4px;color:${d.stress_result === "OK" ? "var(--green)" : d.stress_result === "Warning" ? "var(--orange)" : "var(--red)"};font-family:'Roboto Mono','Courier New',Courier,monospace">${fmt(d.cash_after_payout)}</div></div>
       </div>
       <div style="font-size:12px;padding:10px 14px;border-radius:7px;background:#f5f5f5;color:${d.stress_result === "OK" ? "var(--green)" : d.stress_result === "Warning" ? "var(--orange)" : "var(--red)"}">${d.recommendation}</div>`;
           out.style.display = "block";
@@ -1135,7 +1135,7 @@
                 <td>${bill.bill_type}</td>
                 <td>${bill.due_date ? new Date(bill.due_date).toLocaleDateString("en-PH") : "—"}</td>
                 <td class="${statusClass}">${statusText}</td>
-                <td style="text-align:right;font-weight:600">${fmt(amount)}</td>
+                <td class=\"num-font\" style="text-align:right;font-weight:600;font-family:'Roboto Mono','Courier New',Courier,monospace">${fmt(amount)}</td>
                 <td style="font-size:11px;color:#666666;max-width:150px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${bill.remarks || "—"}</td>
               </tr>
             `;
