@@ -279,7 +279,7 @@
               <tr>
                 <td>${bill.asset_id || bill.bin_number || '-'}</td>
                 <td>${bill.citizen_name || bill.qcitizen_id}</td>
-                <td>₱${Number(bill.amount).toLocaleString('en-PH', {minimumFractionDigits:2})}</td>
+                <td class='num-font' style="font-family:'Roboto Mono','Courier New',Courier,monospace">₱${Number(bill.amount).toLocaleString('en-PH', {minimumFractionDigits:2})}</td>
                 <td class="${bill.status === 'Paid' ? 'status-paid' : 'status-unpaid'}">${bill.status}</td>
                 <td>${bill.due_date ? new Date(bill.due_date).toLocaleDateString('en-PH') : '-'}</td>
                 <td><button class="action-btn" onclick="showBTaxBillDetails(${idx})">View</button></td>
@@ -299,7 +299,7 @@
             <div style='font-size:14px;line-height:1.7;'>
               <b>BIN:</b> ${bill.asset_id || bill.bin_number || '-'}<br>
               <b>Owner:</b> ${bill.citizen_name || bill.qcitizen_id}<br>
-              <b>Amount Due:</b> ₱${Number(bill.amount).toLocaleString('en-PH', {minimumFractionDigits:2})}<br>
+              <b>Amount Due:</b> <span class='num-font' style="font-family:'Roboto Mono','Courier New',Courier,monospace">₱${Number(bill.amount).toLocaleString('en-PH', {minimumFractionDigits:2})}</span><br>
               <b>Status:</b> ${bill.status}<br>
               <b>Due Date:</b> ${bill.due_date ? new Date(bill.due_date).toLocaleDateString('en-PH') : '-'}<br>
               <b>Bill Ref No:</b> ${bill.bill_reference_no || '-'}<br>
