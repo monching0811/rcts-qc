@@ -2,12 +2,15 @@
 // activate-qrf.php
 // Simple script to unlock QRF for DRRM emergency disbursement
 
-$url = 'https://rcts-qc.wuaze.com/api/endpoints/disbursement.php?action=request_qrf_unlock';
+$url = 'https://rcts-qc.great-site.net/api/endpoints/disbursement.php?action=request_qrf_unlock';
 
 $data = [
-    'disaster_id'     => 'EQ-MARIKINA-2026',
-    'calamity_signal' => 'Earthquake Marikina Emergency',
-    'amount_needed'   => 12000
+    'disaster_id'     => 'FLOOD-QC-2026',
+    'calamity_signal' => 'Flood Relief Emergency',
+    'amount_needed'   => 8000,
+    'disbursement_ref_id' => 'DISB-DRRM-2025-007',
+    'program_name'    => 'Flood Relief',
+    'priority_flag'   => 'Emergency'
 ];
 
 $options = [
