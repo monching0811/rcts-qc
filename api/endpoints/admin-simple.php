@@ -296,7 +296,14 @@ switch ($action) {
             'pendingPayments' => $pendingPayments,
             'pendingDisbursements' => $pendingDisbursements,
             'byModule' => array_filter($byModule),
-            'dailyRevenue' => $dailyData
+            'dailyRevenue' => $dailyData,
+            'debug' => [
+                'paymentsResult' => $paymentsResult,
+                'pendingResult' => $pendingResult,
+                'disbursementResult' => $disbursementResult,
+                'period' => $period,
+                'startDate' => $startDate
+            ]
         ]);
         break;
         

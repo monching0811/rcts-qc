@@ -877,6 +877,7 @@
               <option value="30">Last 30 Days</option>
               <option value="90">Last 90 Days</option>
               <option value="365">This Year</option>
+              <option value="all">All Time</option>
             </select>
           </div>
           <div
@@ -1218,11 +1219,25 @@
 
       function apiCall(action, method = "GET", body = null) {
         // Use simple admin API that doesn't require includes
-        const url = `../../api/endpoints/admin-simple.php?action=${action}`;
+        let url = "../../api/endpoints/admin-simple.php";
+        let params = [];
+        let baseAction = action;
+        // Support action with extra query params (e.g. analytics&period=all)
+        if (action.includes("?")) {
+          const [main, extra] = action.split("?");
+          baseAction = main;
+          params.push(`action=${encodeURIComponent(main)}`);
+          params.push(extra);
+        } else {
+          params.push(`action=${encodeURIComponent(action)}`);
+        }
+        if (method === "GET" && params.length) {
+          url += "?" + params.join("&");
+        }
         const options = { method, headers: AUTH_HEADER };
         if (body && method === "POST") {
           const formData = new FormData();
-          formData.append("action", action);
+          formData.append("action", baseAction);
           for (const [key, value] of Object.entries(body)) {
             formData.append(key, value);
           }
