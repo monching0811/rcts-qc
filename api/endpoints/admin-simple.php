@@ -180,6 +180,118 @@ switch ($action) {
         echo json_encode(['success' => true, 'key' => $newkey]);
         break;
         
+    case 'analytics':
+        // Fetch real analytics data from Supabase
+        $period = $_GET['period'] ?? 30;
+        $startDate = date('Y-m-d', strtotime("-{$period} days"));
+        
+        // Get total revenue (sum of successful payments)
+        $paymentsResult = supabase_request('rcts_payment_transaction', 'GET', [
+            'select' => 'amount_settled,transaction_timestamp,transaction_status,bill_reference_no',
+            'transaction_status' => 'eq.Success',
+            'transaction_timestamp' => 'gte.' . $startDate
+        ], [], true);
+        
+        $totalRevenue = 0;
+        $totalTransactions = 0;
+        $dailyRevenue = [];
+        $byModule = [
+            'Real Property Tax' => 0,
+            'Business Tax' => 0,
+            'Market Stall' => 0,
+            'Traffic Fines' => 0,
+            'Other' => 0
+        ];
+        
+        if ($paymentsResult['success'] && !empty($paymentsResult['data'])) {
+            $totalTransactions = count($paymentsResult['data']);
+            foreach ($paymentsResult['data'] as $p) {
+                $amount = floatval($p['amount_settled'] ?? 0);
+                $totalRevenue += $amount;
+                
+                // Track daily revenue
+                $day = date('Y-m-d', strtotime($p['transaction_timestamp']));
+                if (!isset($dailyRevenue[$day])) {
+                    $dailyRevenue[$day] = 0;
+                }
+                $dailyRevenue[$day] += $amount;
+            }
+            
+            // Get bill types for each payment to categorize
+            foreach ($paymentsResult['data'] as $p) {
+                $billRef = $p['bill_reference_no'] ?? '';
+                if ($billRef) {
+                    $billResult = supabase_request('rcts_assessment_billing_hub', 'GET', [
+                        'select' => 'bill_type',
+                        'bill_reference_no' => 'eq.' . $billRef
+                    ], [], true);
+                    
+                    if ($billResult['success'] && !empty($billResult['data'])) {
+                        $billType = $billResult['data'][0]['bill_type'] ?? 'Other';
+                        $amount = floatval($p['amount_settled'] ?? 0);
+                        
+                        switch ($billType) {
+                            case 'RPT':
+                                $byModule['Real Property Tax'] += $amount;
+                                break;
+                            case 'BusinessTax':
+                                $byModule['Business Tax'] += $amount;
+                                break;
+                            case 'MarketRental':
+                                $byModule['Market Stall'] += $amount;
+                                break;
+                            case 'TrafficFine':
+                                $byModule['Traffic Fines'] += $amount;
+                                break;
+                            default:
+                                $byModule['Other'] += $amount;
+                        }
+                    }
+                }
+            }
+        }
+        
+        // Get pending bills count
+        $pendingResult = supabase_request('rcts_assessment_billing_hub', 'GET', [
+            'select' => 'bill_reference_no',
+            'status' => 'eq.Pending'
+        ], [], true);
+        $pendingPayments = $pendingResult['success'] ? count($pendingResult['data']) : 0;
+        
+        // Get pending disbursements
+        $disbursementResult = supabase_request('rcts_aid_payout_registry', 'GET', [
+            'select' => 'disbursement_ref_id',
+            'status' => 'eq.Scheduled'
+        ], [], true);
+        $pendingDisbursements = $disbursementResult['success'] ? count($disbursementResult['data']) : 0;
+        
+        // Format daily revenue for chart
+        $dailyData = [];
+        $current = strtotime($startDate);
+        $end = strtotime(date('Y-m-d'));
+        while ($current <= $end) {
+            $day = date('Y-m-d', $current);
+            $dailyData[] = [
+                'date' => $day,
+                'amount' => isset($dailyRevenue[$day]) ? $dailyRevenue[$day] : 0
+            ];
+            $current = strtotime('+1 day', $current);
+        }
+        
+        $avgTransaction = $totalTransactions > 0 ? $totalRevenue / $totalTransactions : 0;
+        
+        echo json_encode([
+            'success' => true,
+            'totalRevenue' => $totalRevenue,
+            'totalTransactions' => $totalTransactions,
+            'avgTransaction' => $avgTransaction,
+            'pendingPayments' => $pendingPayments,
+            'pendingDisbursements' => $pendingDisbursements,
+            'byModule' => array_filter($byModule),
+            'dailyRevenue' => $dailyData
+        ]);
+        break;
+        
     default:
         echo json_encode(['success' => false, 'message' => 'Invalid action: ' . $action]);
 }

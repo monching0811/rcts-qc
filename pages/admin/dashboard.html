@@ -1802,43 +1802,64 @@
         document.getElementById("pendingPayments").textContent =
           data.pendingPayments || 0;
 
-        // Simple bar chart for revenue by module
-        const byModule = data.byModule || [];
-        const maxAmount = Math.max(...byModule.map((m) => m.amount));
+        // Revenue by module - handle both object (from API) and array (from demo) formats
+        let byModule = data.byModule || [];
+
+        // Convert object to array if needed
+        if (!Array.isArray(byModule) && typeof byModule === "object") {
+          byModule = Object.entries(byModule).map(([module, amount]) => ({
+            module: module,
+            amount: amount,
+          }));
+        }
+
+        const moduleEntries = byModule.length > 0 ? byModule : [];
+        const maxAmount =
+          moduleEntries.length > 0
+            ? Math.max(...moduleEntries.map((m) => m.amount || 0))
+            : 1;
+
         let html = '<table style="width:100%;font-size:12px">';
-        for (const m of byModule) {
-          const pct = (m.amount / maxAmount) * 100;
-          html += `<tr><td style="padding:4px 0;width:120px">${m.module}</td>
-            <td><div style="background:var(--gold);height:20px;width:${pct}%;border-radius:3px"></div></td>
-            <td style="text-align:right;padding-left:8px">₱${m.amount.toLocaleString()}</td></tr>`;
+        if (moduleEntries.length === 0) {
+          html +=
+            '<tr><td colspan="3" style="padding:20px;text-align:center;color:#666">No revenue data available</td></tr>';
+        } else {
+          for (const m of moduleEntries) {
+            const amount = m.amount || 0;
+            const pct = (amount / maxAmount) * 100;
+            html += `<tr><td style="padding:4px 0;width:120px">${m.module}</td>
+              <td><div style="background:var(--gold);height:20px;width:${pct}%;border-radius:3px"></div></td>
+              <td style="text-align:right;padding-left:8px">₱${amount.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td></tr>`;
+          }
         }
         html += "</table>";
         document.getElementById("revenueByModule").innerHTML = html;
 
-        // Payment Trends Line Chart
+        // Payment Trends Line Chart - use real data from API
         const trendsContainer = document.getElementById("paymentTrends");
 
-        // Generate sample trend data based on period
-        const days = parseInt(period);
-        const labels = [];
-        const values = [];
-        const now = new Date();
+        // Try to use real daily revenue data from API
+        let dailyData = data.dailyRevenue || [];
 
-        for (let i = days - 1; i >= 0; i--) {
-          const d = new Date(now);
-          d.setDate(d.getDate() - i);
-          labels.push(
-            d.toLocaleDateString("en-PH", { month: "short", day: "numeric" }),
-          );
-          // Generate realistic-looking random values
-          const base = 50000 + Math.random() * 30000;
-          const variance = Math.sin(i / 7) * 15000; // Weekly pattern
-          values.push(Math.round(base + variance));
+        // If no real data, show message
+        if (!dailyData || dailyData.length === 0) {
+          trendsContainer.innerHTML =
+            '<div style="padding:40px;text-align:center;color:#666">No payment data available for this period.<br><small>Make test payments to see analytics data.</small></div>';
+          return;
         }
 
+        const labels = dailyData.map((d) => {
+          const date = new Date(d.date);
+          return date.toLocaleDateString("en-PH", {
+            month: "short",
+            day: "numeric",
+          });
+        });
+        const values = dailyData.map((d) => d.amount || 0);
+
         // Calculate max for scaling
-        const maxVal = Math.max(...values);
-        const minVal = Math.min(...values);
+        const maxVal = Math.max(...values, 1);
+        const minVal = 0;
         const range = maxVal - minVal || 1;
 
         // Draw the chart
@@ -1883,7 +1904,7 @@
         ctx.beginPath();
 
         values.forEach((val, i) => {
-          const x = padding.left + (chartWidth / (values.length - 1)) * i;
+          const x = padding.left + (chartWidth / (values.length - 1 || 1)) * i;
           const y =
             padding.top + chartHeight - ((val - minVal) / range) * chartHeight;
 
@@ -1912,7 +1933,7 @@
 
         // Draw data points
         values.forEach((val, i) => {
-          const x = padding.left + (chartWidth / (values.length - 1)) * i;
+          const x = padding.left + (chartWidth / (values.length - 1 || 1)) * i;
           const y =
             padding.top + chartHeight - ((val - minVal) / range) * chartHeight;
 
@@ -1932,7 +1953,8 @@
         const labelStep = Math.ceil(labels.length / 7);
         labels.forEach((label, i) => {
           if (i % labelStep === 0) {
-            const x = padding.left + (chartWidth / (values.length - 1)) * i;
+            const x =
+              padding.left + (chartWidth / (values.length - 1 || 1)) * i;
             ctx.fillText(label, x, canvas.height - 10);
           }
         });
