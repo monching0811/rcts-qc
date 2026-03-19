@@ -79,10 +79,38 @@ switch ($action) {
         
     case 'list_settings':
         echo json_encode(['success' => true, 'settings' => [
-            ['key' => 'RPT_BASIC_RATE', 'value' => '0.025'],
-            ['key' => 'RPT_SEF_RATE', 'value' => '0.01'],
-            ['key' => 'BIZ_TAX_RATE_RETAIL', 'value' => '0.012'],
-            ['key' => 'BIZ_TAX_RATE_WHOLESALE', 'value' => '0.015'],
+            // Real Property Tax (RPT) Settings
+            ['key' => 'RPT_BASIC_RATE', 'value' => '0.025', 'category' => 'RPT', 'description' => 'Real Property Tax Basic Rate (2.5% of Assessed Value)'],
+            ['key' => 'RPT_SEF_RATE', 'value' => '0.01', 'category' => 'RPT', 'description' => 'Special Education Fund Rate (1% of Assessed Value)'],
+            
+            // Business Tax Settings
+            ['key' => 'BIZ_TAX_RATE_RETAIL', 'value' => '0.012', 'category' => 'Business Tax', 'description' => 'Business Tax Rate for Retail (1.2%)'],
+            ['key' => 'BIZ_TAX_RATE_WHOLESALE', 'value' => '0.015', 'category' => 'Business Tax', 'description' => 'Business Tax Rate for Wholesale (1.5%)'],
+            ['key' => 'BIZ_TAX_RATE_MFR', 'value' => '0.02', 'category' => 'Business Tax', 'description' => 'Business Tax Rate for Manufacturers (2%)'],
+            ['key' => 'BIZ_TAX_RATE_IMPORTER', 'value' => '0.025', 'category' => 'Business Tax', 'description' => 'Business Tax Rate for Importers (2.5%)'],
+            
+            // Penalty Settings
+            ['key' => 'PENALTY_RATE_MONTHLY', 'value' => '0.02', 'category' => 'Penalty', 'description' => 'Monthly Penalty Rate for late payments (2% per month)'],
+            ['key' => 'PENALTY_MAX_MONTHS', 'value' => '36', 'category' => 'Penalty', 'description' => 'Maximum months for penalty accumulation'],
+            
+            // Payment Due Dates
+            ['key' => 'RPT_DUE_DATE_Q1', 'value' => '03-31', 'category' => 'Due Dates', 'description' => 'RPT Q1 Due Date (March 31)'],
+            ['key' => 'RPT_DUE_DATE_Q2', 'value' => '06-30', 'category' => 'Due Dates', 'description' => 'RPT Q2 Due Date (June 30)'],
+            ['key' => 'RPT_DUE_DATE_Q3', 'value' => '09-30', 'category' => 'Due Dates', 'description' => 'RPT Q3 Due Date (September 30)'],
+            ['key' => 'RPT_DUE_DATE_Q4', 'value' => '12-31', 'category' => 'Due Dates', 'description' => 'RPT Q4 Due Date (December 31)'],
+            ['key' => 'BIZ_TAX_DUE_DATE', 'value' => '01-20', 'category' => 'Due Dates', 'description' => 'Business Tax Annual Due Date (January 20)'],
+            
+            // Discount Settings
+            ['key' => 'EARLY_PAYMENT_DISCOUNT_RATE', 'value' => '0.10', 'category' => 'Discount', 'description' => 'Early Payment Discount Rate (10% if paid within first month)'],
+            ['key' => 'EARLY_PAYMENT_DISCOUNT_DEADLINE', 'value' => '01-31', 'category' => 'Discount', 'description' => 'Early Payment Discount Deadline (January 31)'],
+            
+            // Market Stall Settings
+            ['key' => 'MARKET_STALL_DAILY_RATE', 'value' => '50.00', 'category' => 'Market', 'description' => 'Daily Market Stall Rate (PHP)'],
+            ['key' => 'MARKET_STALL_MONTHLY_RATE', 'value' => '1200.00', 'category' => 'Market', 'description' => 'Monthly Market Stall Rate (PHP)'],
+            
+            // Traffic Fine Settings
+            ['key' => 'TRAFFIC_VIOLATION_BASE_FINE', 'value' => '500.00', 'category' => 'Traffic', 'description' => 'Base Traffic Violation Fine (PHP)'],
+            ['key' => 'TRAFFIC_VIOLATION_SURCHARGE', 'value' => '0.10', 'category' => 'Traffic', 'description' => 'Traffic Violation Surcharge (10% per month late)'],
         ]]);
         break;
         

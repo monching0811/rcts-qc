@@ -83,6 +83,10 @@ php_value error_log logs/php-errors.log
     Header set X-Content-Type-Options "nosniff"
     Header set X-Frame-Options        "SAMEORIGIN"
     Header set Referrer-Policy        "strict-origin-when-cross-origin"
+    Header set X-XSS-Protection       "1; mode=block"
+    
+    # Remove dangerous headers that might trigger warnings
+    Header unset X-Powered-By
 </IfModule>
 
 # ── Deny access to sensitive files ───────────────────────────
