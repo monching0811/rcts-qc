@@ -213,48 +213,59 @@ switch ($action) {
         
         if ($paymentsResult['success'] && !empty($paymentsResult['data'])) {
             $totalTransactions = count($paymentsResult['data']);
+            // Gather all bill_reference_no from payments
+            $billRefs = [];
             foreach ($paymentsResult['data'] as $p) {
                 $amount = floatval($p['amount_settled'] ?? 0);
                 $totalRevenue += $amount;
-                
                 // Track daily revenue
                 $day = date('Y-m-d', strtotime($p['transaction_timestamp']));
                 if (!isset($dailyRevenue[$day])) {
                     $dailyRevenue[$day] = 0;
                 }
                 $dailyRevenue[$day] += $amount;
+                if (!empty($p['bill_reference_no'])) {
+                    $billRefs[] = $p['bill_reference_no'];
+                }
             }
-            
-            // Get bill types for each payment to categorize
-            foreach ($paymentsResult['data'] as $p) {
-                $billRef = $p['bill_reference_no'] ?? '';
-                if ($billRef) {
+            // Fetch all bill types in one query
+            $billTypeMap = [];
+            if (!empty($billRefs)) {
+                // Chunk billRefs to avoid URL length issues (Supabase/PostgREST limit)
+                $chunks = array_chunk($billRefs, 100);
+                foreach ($chunks as $chunk) {
+                    $csv = '"' . implode('","', $chunk) . '"';
                     $billResult = supabase_request('rcts_assessment_billing_hub', 'GET', [
-                        'select' => 'bill_type',
-                        'bill_reference_no' => 'eq.' . $billRef
+                        'bill_reference_no' => 'in.(' . $csv . ')',
+                        'select' => 'bill_reference_no,bill_type'
                     ], [], true);
-                    
                     if ($billResult['success'] && !empty($billResult['data'])) {
-                        $billType = $billResult['data'][0]['bill_type'] ?? 'Other';
-                        $amount = floatval($p['amount_settled'] ?? 0);
-                        
-                        switch ($billType) {
-                            case 'RPT':
-                                $byModule['Real Property Tax'] += $amount;
-                                break;
-                            case 'BusinessTax':
-                                $byModule['Business Tax'] += $amount;
-                                break;
-                            case 'MarketRental':
-                                $byModule['Market Stall'] += $amount;
-                                break;
-                            case 'TrafficFine':
-                                $byModule['Traffic Fines'] += $amount;
-                                break;
-                            default:
-                                $byModule['Other'] += $amount;
+                        foreach ($billResult['data'] as $row) {
+                            $billTypeMap[$row['bill_reference_no']] = $row['bill_type'] ?? 'Other';
                         }
                     }
+                }
+            }
+            // Aggregate by module using the map
+            foreach ($paymentsResult['data'] as $p) {
+                $billRef = $p['bill_reference_no'] ?? '';
+                $amount = floatval($p['amount_settled'] ?? 0);
+                $billType = $billTypeMap[$billRef] ?? 'Other';
+                switch ($billType) {
+                    case 'RPT':
+                        $byModule['Real Property Tax'] += $amount;
+                        break;
+                    case 'BusinessTax':
+                        $byModule['Business Tax'] += $amount;
+                        break;
+                    case 'MarketRental':
+                        $byModule['Market Stall'] += $amount;
+                        break;
+                    case 'TrafficFine':
+                        $byModule['Traffic Fines'] += $amount;
+                        break;
+                    default:
+                        $byModule['Other'] += $amount;
                 }
             }
         }

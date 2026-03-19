@@ -1258,7 +1258,8 @@
         document
           .querySelector(`.nav-tab[href="#${section}"]`)
           ?.classList.add("active");
-        document.getElementById(`section-${section}`)?.classList.add("active");
+        const sectionEl = document.getElementById(`section-${section}`);
+        sectionEl?.classList.add("active");
 
         // Lazy load data for each section
         if (section === "dashboard") loadDashboardStats();
@@ -1267,7 +1268,12 @@
         if (section === "logs") loadLogs();
         if (section === "rules") loadRuleLog();
         if (section === "apikeys") loadApiKeys();
-        if (section === "analytics") loadAnalytics();
+        if (section === "analytics") {
+          // Ensure analytics container is visible before rendering
+          setTimeout(() => {
+            loadAnalytics();
+          }, 10);
+        }
         if (section === "health") checkSubsystemHealth();
         if (section === "diagnostics") runDiagnostics();
       }
@@ -1775,6 +1781,24 @@
       async function loadAnalytics() {
         try {
           const period = document.getElementById("analyticsPeriod").value || 30;
+          // Show loading state
+          document.getElementById("totalRevenue").textContent = "...";
+          document.getElementById("totalTransactions").textContent = "...";
+          document.getElementById("avgTransaction").textContent = "...";
+          document.getElementById("pendingPayments").textContent = "...";
+          document.getElementById("revenueByModule").innerHTML =
+            '<div class="loading"><div class="spinner"></div>Loading...</div>';
+          document.getElementById("paymentTrends").innerHTML =
+            '<div class="loading"><div class="spinner"></div>Loading...</div>';
+
+          // Wait for container to be visible
+          const trendsContainer = document.getElementById("paymentTrends");
+          let tries = 0;
+          while (trendsContainer.offsetWidth < 50 && tries < 10) {
+            await new Promise((res) => setTimeout(res, 20));
+            tries++;
+          }
+
           const data = await apiCall("analytics" + "?period=" + period);
 
           if (!data.success) {
