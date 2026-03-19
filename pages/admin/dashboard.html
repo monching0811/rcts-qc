@@ -1,15 +1,19 @@
-<!-- Treasury Admin Panel (admin-new.html) -->
 <!doctype html>
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width,initial-scale=1.0" />
-    <title>Treasury Admin Panel | RCTS-QC</title>
+    <title>RCTS-QC | Treasury Admin Panel</title>
     <link
       href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=DM+Sans:wght@300;400;500;600&family=Roboto+Mono:wght@400;500;700&display=swap"
       rel="stylesheet"
     />
     <style>
+      .num-font {
+        font-family:
+          "Roboto Mono", "Courier New", Courier, monospace !important;
+        letter-spacing: 0.01em;
+      }
       :root {
         --bg-primary: #ffffff;
         --bg-secondary: #f5f5f5;
@@ -24,138 +28,239 @@
         --green: #2ecc71;
         --red: #e74c3c;
         --orange: #f39c12;
+        --blue: #3498db;
+        --purple: #9b59b6;
         --border-color: #dddddd;
+        --accent-color: #c9a84c;
       }
-      * {
+      *,
+      *::before,
+      *::after {
         box-sizing: border-box;
         margin: 0;
         padding: 0;
       }
       body {
         font-family: "DM Sans", sans-serif;
-        background: var(--bg-secondary);
-        color: var(--text-primary);
+        background: #f5f5f5;
+        color: #1a1a1a;
         min-height: 100vh;
       }
-      .container {
-        max-width: 1200px;
-        margin: 0 auto;
-        padding: 28px 24px;
+      body::before {
+        content: "";
+        position: fixed;
+        inset: 0;
+        background-image: repeating-linear-gradient(
+          45deg,
+          transparent,
+          transparent 40px,
+          rgba(201, 168, 76, 0.03) 40px,
+          rgba(201, 168, 76, 0.03) 41px
+        );
+        pointer-events: none;
+        z-index: 0;
       }
-      .page-header {
-        margin-bottom: 32px;
-      }
-      .page-title {
-        font-family: "Playfair Display", serif;
-        font-size: 2.4rem;
-        margin-bottom: 6px;
+      nav {
+        position: relative;
+        z-index: 20;
+        background: #ffffff;
+        border-bottom: 1px solid #dddddd;
+        padding: 0 28px;
         display: flex;
         align-items: center;
-        gap: 12px;
+        height: 60px;
+        gap: 0;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.08);
       }
-      .badge-admin {
-        background: var(--gold);
-        color: #fff;
-        padding: 4px 10px;
-        border-radius: 6px;
-        font-size: 11px;
-        font-weight: 600;
-        text-transform: uppercase;
-        letter-spacing: 0.05em;
+      .nav-brand {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        text-decoration: none;
+        color: inherit;
+        margin-right: 24px;
       }
-      .page-subtitle {
-        color: var(--text-muted);
+      .nav-seal {
+        width: 32px;
+        height: 32px;
+        border-radius: 50%;
+        background: linear-gradient(135deg, var(--gold), var(--gold2));
+        display: flex;
+        align-items: center;
+        justify-content: center;
         font-size: 14px;
+        font-weight: 700;
+        color: var(--navy);
+        font-family: "Playfair Display", serif;
       }
-      .section {
-        background: var(--bg-card);
-        border-radius: 10px;
-        padding: 28px;
-        margin-bottom: 24px;
-        border: 1px solid var(--border-color);
-      }
-      .section-title {
-        font-size: 1.2rem;
-        margin-bottom: 20px;
-        color: var(--text-primary);
-        font-weight: 600;
-        border-bottom: 2px solid var(--gold);
-        padding-bottom: 12px;
-      }
-      .card-grid {
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-        gap: 24px;
-        margin-bottom: 24px;
-      }
-      .stat-card {
-        background: var(--bg-secondary);
-        border: 1px solid var(--border-color);
-        border-radius: 8px;
-        padding: 18px;
-      }
-      .stat-label {
+      .nav-brand span {
         font-size: 12px;
-        color: var(--text-muted);
-        text-transform: uppercase;
-        letter-spacing: 0.05em;
-        margin-bottom: 6px;
-      }
-      .stat-value {
-        font-family: "Roboto Mono", monospace;
-        font-size: 1.8rem;
         font-weight: 600;
+        color: #1a1a1a;
+      }
+      .nav-links {
+        display: flex;
+        align-items: center;
+        gap: 2px;
+        flex: 1;
+      }
+      .nav-links a {
+        padding: 7px 12px;
+        font-size: 12px;
+        color: var(--text-secondary);
+        text-decoration: none;
+        border-radius: 6px;
+        transition:
+          color 0.2s,
+          background 0.2s;
+        cursor: pointer;
+      }
+      .nav-links a:hover,
+      .nav-links a.active {
         color: var(--gold);
+        background: rgba(201, 168, 76, 0.08);
+      }
+      .nav-right {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+      }
+      .admin-badge {
+        font-size: 10px;
+        padding: 2px 8px;
+        border-radius: 8px;
+        background: rgba(155, 89, 182, 0.15);
+        color: var(--purple);
+        font-weight: 600;
+      }
+      .btn-logout {
+        background: none;
+        border: 1px solid #dddddd;
+        border-radius: 6px;
+        padding: 5px 12px;
+        font-size: 11px;
+        color: #555555;
+        cursor: pointer;
+        font-family: "DM Sans", sans-serif;
+      }
+      main {
+        position: relative;
+        z-index: 10;
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 28px 28px;
+      }
+      /* Page header */
+      .page-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 24px;
+      }
+      .page-header h1 {
+        font-family: "Playfair Display", serif;
+        font-size: 28px;
+        color: #1a1a1a;
+      }
+      .page-header p {
+        font-size: 14px;
+        color: #666666;
+        margin-top: 3px;
+      }
+      .admin-section {
+        display: none;
+      }
+      .admin-section.active {
+        display: block;
+      }
+      /* Cards */
+      .card {
+        background: #ffffff;
+        border: 1px solid #dddddd;
+        border-radius: 12px;
+        padding: 20px;
+        margin-bottom: 18px;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+      }
+      .card-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 14px;
+        padding-bottom: 12px;
+        border-bottom: 1px solid #eeeeee;
+      }
+      .card-header h3 {
+        font-family: "Playfair Display", serif;
+        font-size: 16px;
+        color: #1a1a1a;
       }
       .btn {
-        background: var(--gold);
-        color: #fff;
-        border: none;
+        background: rgba(201, 168, 76, 0.1);
+        border: 1px solid rgba(201, 168, 76, 0.3);
         border-radius: 6px;
         padding: 8px 16px;
         font-size: 12px;
         font-weight: 600;
+        color: var(--gold);
         cursor: pointer;
-        transition: opacity 0.2s;
+        font-family: "DM Sans", sans-serif;
+        transition: background 0.2s;
         text-decoration: none;
         display: inline-block;
       }
       .btn:hover {
-        opacity: 0.9;
-      }
-      .btn-small {
-        padding: 5px 10px;
-        font-size: 11px;
-      }
-      .btn-danger {
-        background: var(--red);
+        background: rgba(201, 168, 76, 0.2);
       }
       .btn-secondary {
-        background: var(--border-color);
-        color: var(--text-primary);
+        background: #f5f5f5;
+        border-color: #dddddd;
+        color: #666666;
       }
+      .btn-secondary:hover {
+        background: #eeeeee;
+      }
+      .btn-purple {
+        background: rgba(155, 89, 182, 0.1);
+        border-color: rgba(155, 89, 182, 0.3);
+        color: var(--purple);
+      }
+      .btn-purple:hover {
+        background: rgba(155, 89, 182, 0.2);
+      }
+      .btn-danger {
+        background: rgba(231, 76, 60, 0.1);
+        border-color: rgba(231, 76, 60, 0.3);
+        color: var(--red);
+      }
+      .btn-danger:hover {
+        background: rgba(231, 76, 60, 0.2);
+      }
+      /* Tables */
       .table {
         width: 100%;
         border-collapse: collapse;
-        margin-bottom: 24px;
+        font-size: 12px;
       }
       .table th {
-        background: var(--bg-secondary);
+        background: #f9f9f9;
         padding: 12px;
         text-align: left;
-        font-size: 12px;
+        font-size: 11px;
         font-weight: 600;
         text-transform: uppercase;
         letter-spacing: 0.05em;
+        color: #666666;
         border-bottom: 2px solid var(--border-color);
       }
       .table td {
         padding: 12px;
-        border-bottom: 1px solid var(--border-color);
+        border-bottom: 1px solid #eeeeee;
       }
       .table tr:hover {
-        background: var(--bg-secondary);
+        background: #f9f9f9;
       }
+      /* Forms */
       .form-group {
         margin-bottom: 16px;
       }
@@ -184,6 +289,7 @@
         border-color: var(--gold);
         box-shadow: 0 0 0 3px rgba(201, 168, 76, 0.1);
       }
+      /* Alerts */
       .alert {
         padding: 12px 16px;
         border-radius: 6px;
@@ -200,6 +306,7 @@
         border: 1px solid rgba(46, 204, 113, 0.3);
         color: var(--green);
       }
+      /* Loading */
       .loading {
         text-align: center;
         padding: 32px;
@@ -213,12 +320,14 @@
         border-radius: 50%;
         border-top-color: var(--gold);
         animation: spin 0.6s linear infinite;
+        margin-right: 8px;
       }
       @keyframes spin {
         to {
           transform: rotate(360deg);
         }
       }
+      /* Modal */
       .modal {
         display: none;
         position: fixed;
@@ -244,6 +353,7 @@
       .modal-title {
         font-size: 1.4rem;
         margin-bottom: 16px;
+        font-family: "Playfair Display", serif;
       }
       .modal-actions {
         display: flex;
@@ -257,106 +367,404 @@
       .text-muted {
         color: var(--text-muted);
       }
-      .text-success {
-        color: var(--green);
+      /* Role badges */
+      .role-badge {
+        font-size: 10px;
+        padding: 2px 8px;
+        border-radius: 10px;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.03em;
       }
-      .text-error {
+      .role-citizen {
+        background: rgba(52, 152, 219, 0.2);
+        color: #3498db;
+      }
+      .role-treasurer {
+        background: rgba(201, 168, 76, 0.15);
+        color: var(--gold);
+      }
+      .role-revenue_officer {
+        background: rgba(52, 152, 219, 0.2);
+        color: #3498db;
+      }
+      .role-auditor {
+        background: rgba(155, 89, 182, 0.2);
+        color: #9b59b6;
+      }
+      .role-admin {
+        background: rgba(231, 76, 60, 0.15);
         color: var(--red);
+      }
+      .status-active {
+        color: var(--green);
+        font-weight: 600;
+      }
+      .status-inactive {
+        color: var(--red);
+        font-weight: 600;
+      }
+      /* KPI Grid */
+      .kpi-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 14px;
+        margin-bottom: 22px;
+      }
+      .kpi-card {
+        background: #ffffff;
+        border: 1px solid #dddddd;
+        border-radius: 10px;
+        padding: 18px 20px;
+        position: relative;
+        overflow: hidden;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+      }
+      .kpi-card::after {
+        content: "";
+        position: absolute;
+        top: 0;
+        right: 0;
+        width: 3px;
+        height: 100%;
+      }
+      .kpi-card.c-green::after {
+        background: var(--green);
+      }
+      .kpi-card.c-purple::after {
+        background: var(--purple);
+      }
+      .kpi-card.c-gold::after {
+        background: var(--gold);
+      }
+      .kpi-card.c-blue::after {
+        background: var(--blue);
+      }
+      .kpi-card.c-red::after {
+        background: var(--red);
+      }
+      .kpi-icon {
+        font-size: 20px;
+        margin-bottom: 8px;
+      }
+      .kpi-val {
+        font-family: "Playfair Display", serif;
+        font-size: 22px;
+        color: #1a1a1a;
+      }
+      .kpi-lbl {
+        font-size: 11px;
+        color: #666666;
+        text-transform: uppercase;
+        letter-spacing: 0.07em;
+        margin-top: 4px;
+      }
+      .quick-actions {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 14px;
+      }
+      .quick-action-card {
+        background: #ffffff;
+        border: 1px solid #dddddd;
+        border-radius: 10px;
+        padding: 20px;
+        cursor: pointer;
+        transition: all 0.2s;
+        text-decoration: none;
+        display: block;
+      }
+      .quick-action-card:hover {
+        border-color: var(--gold);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        transform: translateY(-2px);
+      }
+      .quick-action-card h4 {
+        font-size: 14px;
+        color: #1a1a1a;
+        margin-bottom: 6px;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+      .quick-action-card p {
+        font-size: 12px;
+        color: #666666;
+        line-height: 1.5;
       }
     </style>
   </head>
   <body>
-    <?php $active_page = 'dashboard'; $base_url = '../../'; require_once __DIR__
-    . '/../../includes/nav-admin.php'; ?>
-
-    <div class="container">
-      <div class="page-header">
-        <h1 class="page-title">
-          Treasury Administration
-          <span class="badge-admin">Admin</span>
-        </h1>
-        <p class="page-subtitle">
-          Manage system users, settings, and audit logs
-        </p>
+    <nav>
+      <a class="nav-brand" href="../../index.html">
+        <div class="nav-seal">QC</div>
+        <span>RCTS-QC Admin</span>
+      </a>
+      <div class="nav-links">
+        <a
+          href="#dashboard"
+          class="nav-tab active"
+          onclick="
+            showSection('dashboard');
+            return false;
+          "
+          >Dashboard</a
+        >
+        <a
+          href="#users"
+          class="nav-tab"
+          onclick="
+            showSection('users');
+            return false;
+          "
+          >User Management</a
+        >
+        <a
+          href="#settings"
+          class="nav-tab"
+          onclick="
+            showSection('settings');
+            return false;
+          "
+          >System Settings</a
+        >
+        <a
+          href="#logs"
+          class="nav-tab"
+          onclick="
+            showSection('logs');
+            return false;
+          "
+          >Audit Logs</a
+        >
+        <a
+          href="#rules"
+          class="nav-tab"
+          onclick="
+            showSection('rules');
+            return false;
+          "
+          >Rule Changes</a
+        >
+        <a
+          href="#apikeys"
+          class="nav-tab"
+          onclick="
+            showSection('apikeys');
+            return false;
+          "
+          >API Keys</a
+        >
       </div>
-
-      <!-- User Management Section -->
-      <div class="section">
-        <h2 class="section-title">User Management</h2>
-        <div style="margin-bottom: 20px">
-          <button class="btn" onclick="showAddUserModal()">
-            + Add New User
-          </button>
-        </div>
-        <div id="users-container">
-          <div class="loading">
-            <div class="spinner"></div>
-            Loading users...
-          </div>
-        </div>
-      </div>
-
-      <!-- System Settings Section -->
-      <div class="section">
-        <h2 class="section-title">System Settings</h2>
-        <div id="settings-container">
-          <div class="loading">
-            <div class="spinner"></div>
-            Loading settings...
-          </div>
-        </div>
-      </div>
-
-      <!-- Audit Logs Section -->
-      <div class="section">
-        <div
-          style="
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 20px;
+      <div class="nav-right">
+        <span class="admin-badge">System Admin</span>
+        <span id="nav-admin-name" style="font-size: 12px; color: #1a1a1a"
+          >—</span
+        >
+        <button
+          class="btn-logout"
+          onclick="
+            sessionStorage.clear();
+            location.href = '../citizen/login.html';
           "
         >
-          <h2
-            class="section-title"
-            style="margin-bottom: 0; border-bottom: none; padding-bottom: 0"
-          >
-            Audit Logs
-          </h2>
-          <button class="btn btn-secondary" onclick="exportLogs()">
-            📥 Export CSV
-          </button>
+          Sign Out
+        </button>
+      </div>
+    </nav>
+    <main>
+      <div class="page-header">
+        <div>
+          <h1>Admin Portal</h1>
+          <p id="admin-date">System Administration & Management</p>
         </div>
-        <div id="logs-container">
-          <div class="loading">
-            <div class="spinner"></div>
-            Loading logs...
+        <a
+          href="../treasurer/dashboard.html"
+          target="_blank"
+          class="btn btn-purple"
+        >
+          📊 Open Treasury Dashboard →
+        </a>
+      </div>
+
+      <!-- Dashboard Section -->
+      <div id="section-dashboard" class="admin-section active">
+        <!-- KPI Grid -->
+        <div class="kpi-grid">
+          <div class="kpi-card c-green">
+            <div class="kpi-icon">👥</div>
+            <div class="kpi-val num-font" id="k-users">—</div>
+            <div class="kpi-lbl">Total Users</div>
+          </div>
+          <div class="kpi-card c-purple">
+            <div class="kpi-icon">🔑</div>
+            <div class="kpi-val num-font" id="k-apikeys">—</div>
+            <div class="kpi-lbl">Active API Keys</div>
+          </div>
+          <div class="kpi-card c-gold">
+            <div class="kpi-icon">📝</div>
+            <div class="kpi-val num-font" id="k-logs">—</div>
+            <div class="kpi-lbl">Audit Events Today</div>
+          </div>
+          <div class="kpi-card c-blue">
+            <div class="kpi-icon">⚙️</div>
+            <div class="kpi-val num-font" id="k-settings">—</div>
+            <div class="kpi-lbl">System Settings</div>
+          </div>
+        </div>
+
+        <!-- Quick Actions -->
+        <div class="card">
+          <div class="card-header">
+            <h3>Quick Actions</h3>
+          </div>
+          <div class="quick-actions">
+            <a
+              href="#users"
+              class="quick-action-card"
+              onclick="
+                showSection('users');
+                return false;
+              "
+            >
+              <h4>👤 Manage Users</h4>
+              <p>Add, remove, or reset user accounts and permissions</p>
+            </a>
+            <a
+              href="#settings"
+              class="quick-action-card"
+              onclick="
+                showSection('settings');
+                return false;
+              "
+            >
+              <h4>⚙️ System Settings</h4>
+              <p>Configure tax rates, penalties, and system parameters</p>
+            </a>
+            <a
+              href="#logs"
+              class="quick-action-card"
+              onclick="
+                showSection('logs');
+                return false;
+              "
+            >
+              <h4>📋 View Audit Logs</h4>
+              <p>Monitor system activity and compliance events</p>
+            </a>
+            <a
+              href="#apikeys"
+              class="quick-action-card"
+              onclick="
+                showSection('apikeys');
+                return false;
+              "
+            >
+              <h4>🔐 Manage API Keys</h4>
+              <p>View and regenerate external subsystem API keys</p>
+            </a>
+          </div>
+        </div>
+
+        <!-- Recent Activity -->
+        <div class="card">
+          <div class="card-header">
+            <h3>Recent System Activity</h3>
+            <button class="btn btn-secondary" onclick="showSection('logs')">
+              View All →
+            </button>
+          </div>
+          <div id="recent-activity">
+            <div class="loading">
+              <div class="spinner"></div>
+              Loading recent activity...
+            </div>
           </div>
         </div>
       </div>
 
-      <!-- Business Rule Changes Section -->
-      <div class="section">
-        <h2 class="section-title">Business Rule Changes</h2>
-        <div id="rules-container">
-          <div class="loading">
-            <div class="spinner"></div>
-            Loading rule changes...
+      <!-- Users Section -->
+      <div id="section-users" class="admin-section">
+        <div class="card">
+          <div class="card-header">
+            <h3>User Management</h3>
+            <button class="btn" onclick="showAddUserModal()">
+              + Add New User
+            </button>
+          </div>
+          <div id="users-container">
+            <div class="loading">
+              <div class="spinner"></div>
+              Loading users...
+            </div>
           </div>
         </div>
       </div>
 
-      <!-- API Key Management Section -->
-      <div class="section">
-        <h2 class="section-title">API Key Management</h2>
-        <div id="apikeys-container">
-          <div class="loading">
-            <div class="spinner"></div>
-            Loading API keys...
+      <!-- Settings Section -->
+      <div id="section-settings" class="admin-section">
+        <div class="card">
+          <div class="card-header">
+            <h3>System Settings</h3>
+            <button class="btn" onclick="saveSettings()">Save Changes</button>
+          </div>
+          <div id="settings-container">
+            <div class="loading">
+              <div class="spinner"></div>
+              Loading settings...
+            </div>
           </div>
         </div>
       </div>
-    </div>
+
+      <!-- logs Section -->
+      <div id="section-logs" class="admin-section">
+        <div class="card">
+          <div class="card-header">
+            <h3>Audit Logs</h3>
+            <button class="btn btn-secondary" onclick="exportLogs()">
+              📥 Export CSV
+            </button>
+          </div>
+          <div id="logs-container">
+            <div class="loading">
+              <div class="spinner"></div>
+              Loading logs...
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Rules Section -->
+      <div id="section-rules" class="admin-section">
+        <div class="card">
+          <div class="card-header">
+            <h3>Business Rule Changes</h3>
+          </div>
+          <div id="rules-container">
+            <div class="loading">
+              <div class="spinner"></div>
+              Loading rule changes...
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- API Keys Section -->
+      <div id="section-apikeys" class="admin-section">
+        <div class="card">
+          <div class="card-header">
+            <h3>API Key Management</h3>
+          </div>
+          <div id="apikeys-container">
+            <div class="loading">
+              <div class="spinner"></div>
+              Loading API keys...
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
 
     <!-- Add User Modal -->
     <div id="addUserModal" class="modal">
@@ -449,17 +857,23 @@
         window.location.href = "../../index.html";
       }
 
+      // Set admin name
+      document.getElementById("nav-admin-name").textContent =
+        citizen.full_name || "System Admin";
+      document.getElementById("admin-date").textContent =
+        new Date().toLocaleDateString("en-PH", {
+          weekday: "long",
+          year: "numeric",
+          month: "long",
+          day: "numeric",
+        });
+
       const token = citizen.login_token || citizen.qcitizen_id;
       const AUTH_HEADER = { Authorization: `Bearer ${token}` };
 
       function apiCall(action, method = "GET", body = null) {
         const url = `../../api/endpoints/admin.php?action=${action}`;
-
-        const options = {
-          method,
-          headers: AUTH_HEADER,
-        };
-
+        const options = { method, headers: AUTH_HEADER };
         if (body && method === "POST") {
           const formData = new FormData();
           formData.append("action", action);
@@ -468,8 +882,93 @@
           }
           options.body = formData;
         }
-
         return fetch(url, options).then((r) => r.json());
+      }
+
+      // Section navigation
+      function showSection(section) {
+        document
+          .querySelectorAll(".nav-tab")
+          .forEach((link) => link.classList.remove("active"));
+        document
+          .querySelectorAll(".admin-section")
+          .forEach((sec) => sec.classList.remove("active"));
+
+        document
+          .querySelector(`.nav-tab[href="#${section}"]`)
+          ?.classList.add("active");
+        document.getElementById(`section-${section}`)?.classList.add("active");
+
+        // Lazy load data for each section
+        if (section === "dashboard") loadDashboardStats();
+        if (section === "users") loadUsers();
+        if (section === "settings") loadSettings();
+        if (section === "logs") loadLogs();
+        if (section === "rules") loadRuleLog();
+        if (section === "apikeys") loadApiKeys();
+      }
+
+      // Load Dashboard Stats
+      async function loadDashboardStats() {
+        try {
+          // Get user count
+          const users = await apiCall("list_users");
+          document.getElementById("k-users").textContent = users.success
+            ? users.users.length
+            : "—";
+
+          // Get API keys count
+          const apikeys = await apiCall("list_apikeys");
+          document.getElementById("k-apikeys").textContent = apikeys.success
+            ? apikeys.keys.length
+            : "—";
+
+          // Get settings count
+          const settings = await apiCall("list_settings");
+          document.getElementById("k-settings").textContent = settings.success
+            ? settings.settings.length
+            : "—";
+
+          // Get logs for today count
+          const logs = await apiCall("list_logs");
+          if (logs.success) {
+            const today = new Date().toISOString().split("T")[0];
+            const todayLogs = logs.logs.filter(
+              (l) => l.ts && l.ts.startsWith(today),
+            );
+            document.getElementById("k-logs").textContent = todayLogs.length;
+          }
+
+          // Load recent activity
+          loadRecentActivity();
+        } catch (e) {
+          console.error("Failed to load dashboard stats", e);
+        }
+      }
+
+      // Load Recent Activity
+      async function loadRecentActivity() {
+        try {
+          const data = await apiCall("list_logs");
+          if (!data.success) throw new Error(data.message);
+
+          const logs = data.logs.slice(0, 8);
+          if (!logs.length) {
+            document.getElementById("recent-activity").innerHTML =
+              '<div style="text-align:center;padding:20px;color:var(--muted)">No recent activity</div>';
+            return;
+          }
+
+          let html = `<table class="table"><thead><tr><th>Timestamp</th><th>Event</th></tr></thead><tbody>`;
+          for (const log of logs) {
+            html += `<tr><td>${log.ts}</td><td>${log.event}</td></tr>`;
+          }
+          html += `</tbody></table>`;
+          document.getElementById("recent-activity").innerHTML = html;
+        } catch (e) {
+          document.getElementById("recent-activity").innerHTML =
+            `<div class="alert alert-error">Error: ${e.message}</div>`;
+        }
       }
 
       // Load Users
@@ -484,14 +983,15 @@
             <tbody>`;
 
           for (const u of data.users) {
+            const roleClass = `role-${u.role}`;
             html += `<tr>
               <td>${u.full_name}</td>
               <td>${u.email}</td>
-              <td><span class="text-muted">${u.role}</span></td>
-              <td>${u.status}</td>
+              <td><span class="role-badge ${roleClass}">${u.role}</span></td>
+              <td class="status-${u.status}">${u.status}</td>
               <td>
-                <button class="btn btn-small" onclick="openResetPasswordModal('${u.qcitizen_id}', '${u.full_name}')">Reset PW</button>
-                <button class="btn btn-small btn-danger" onclick="deleteUser('${u.qcitizen_id}', '${u.full_name}')">Delete</button>
+                <button class="btn btn-sm" style="padding:4px 8px;font-size:11px" onclick="openResetPasswordModal('${u.qcitizen_id}', '${u.full_name}')">Reset PW</button>
+                <button class="btn btn-danger btn-sm" style="padding:4px 8px;font-size:11px" onclick="deleteUser('${u.qcitizen_id}', '${u.full_name}')">Delete</button>
               </td>
             </tr>`;
           }
@@ -535,11 +1035,11 @@
           });
           if (!data.success)
             throw new Error(data.message || "Failed to add user");
-
           showSuccess("addUserSuccess", "User created successfully");
           setTimeout(() => {
             closeAddUserModal();
             loadUsers();
+            loadDashboardStats();
           }, 1000);
         } catch (e) {
           showError("addUserError", e.message);
@@ -554,6 +1054,7 @@
           if (!data.success)
             throw new Error(data.message || "Failed to delete user");
           loadUsers();
+          loadDashboardStats();
         } catch (e) {
           alert("Error: " + e.message);
         }
@@ -603,32 +1104,33 @@
           if (!data.success)
             throw new Error(data.message || "Failed to load settings");
 
-          let html = `<form id="settingsForm" onsubmit="saveSettings(event)">`;
+          let html = ``;
           for (const s of data.settings) {
             html += `<div class="form-group">
               <label>${s.key}</label>
-              <input type="number" step="0.0001" name="${s.key}" value="${s.value}" required />
+              <input type="number" step="0.0001" name="${s.key}" value="${s.value}" />
             </div>`;
           }
-          html += `<button class="btn" type="submit">Save Settings</button></form>`;
+          html += `<button class="btn" onclick="saveSettings()">Save Settings</button>`;
           document.getElementById("settings-container").innerHTML = html;
         } catch (e) {
           document.getElementById("settings-container").innerHTML =
             `<div class="alert alert-error">Error: ${e.message}</div>`;
         }
       }
-      async function saveSettings(e) {
-        e.preventDefault();
-        const formData = new FormData(e.target);
+      async function saveSettings() {
+        const inputs = document.querySelectorAll("#settings-container input");
         const body = {};
-        formData.forEach((v, k) => (body[k] = parseFloat(v)));
+        inputs.forEach((input) => {
+          if (input.name) body[input.name] = parseFloat(input.value);
+        });
 
         try {
           const data = await apiCall("save_settings", "POST", body);
           if (!data.success)
             throw new Error(data.message || "Failed to save settings");
           alert("Settings saved successfully");
-          loadSettings();
+          loadDashboardStats();
         } catch (e) {
           alert("Error: " + e.message);
         }
@@ -643,13 +1145,13 @@
             throw new Error(data.message || "Failed to load logs");
 
           logsData = data.logs;
-          let html = `<div style="max-height: 300px; overflow-y: auto;">`;
+          let html = `<table class="table">
+            <thead><tr><th>Timestamp</th><th>Event</th></tr></thead>
+            <tbody>`;
           for (const log of data.logs) {
-            html += `<div style="padding: 8px 0; border-bottom: 1px solid var(--border-color); font-size: 13px;">
-              <span class="text-muted">${log.ts}</span> - ${log.event}
-            </div>`;
+            html += `<tr><td>${log.ts}</td><td>${log.event}</td></tr>`;
           }
-          html += `</div>`;
+          html += `</tbody></table>`;
           document.getElementById("logs-container").innerHTML = html;
         } catch (e) {
           document.getElementById("logs-container").innerHTML =
@@ -672,21 +1174,20 @@
         link.click();
       }
 
-      // Load Rule Changes
+      // Load Rule Log
       async function loadRuleLog() {
         try {
           const data = await apiCall("rule_log");
           if (!data.success)
             throw new Error(data.message || "Failed to load rule log");
 
-          let html = `<ul style="margin-left: 20px;">`;
+          let html = `<table class="table">
+            <thead><tr><th>Timestamp</th><th>User</th><th>Change</th></tr></thead>
+            <tbody>`;
           for (const r of data.log) {
-            html += `<li style="margin-bottom: 8px; line-height: 1.6;">
-              <span class="text-muted">${r.ts}</span> - <strong>${r.user}</strong><br/>
-              <span class="text-muted" style="font-size: 12px;">${r.change}</span>
-            </li>`;
+            html += `<tr><td>${r.ts}</td><td>${r.user}</td><td>${r.change}</td></tr>`;
           }
-          html += `</ul>`;
+          html += `</tbody></table>`;
           document.getElementById("rules-container").innerHTML = html;
         } catch (e) {
           document.getElementById("rules-container").innerHTML =
@@ -704,12 +1205,11 @@
           let html = `<table class="table">
             <thead><tr><th>Subsystem</th><th>API Key</th><th>Actions</th></tr></thead>
             <tbody>`;
-
           for (const k of data.keys) {
             html += `<tr>
               <td><strong>${k.subsystem}</strong></td>
-              <td><code style="font-size: 11px;">${k.key}</code></td>
-              <td><button class="btn btn-small" onclick="regenApiKey('${k.subsystem}')">Regenerate</button></td>
+              <td><code style="font-size:11px;background:#f5f5f5;padding:2px 6px;border-radius:4px">${k.key}</code></td>
+              <td><button class="btn btn-sm" onclick="regenApiKey('${k.subsystem}')">Regenerate</button></td>
             </tr>`;
           }
           html += `</tbody></table>`;
@@ -727,6 +1227,7 @@
             throw new Error(data.message || "Failed to regenerate key");
           alert(`New key: ${data.key}`);
           loadApiKeys();
+          loadDashboardStats();
         } catch (e) {
           alert("Error: " + e.message);
         }
@@ -744,20 +1245,14 @@
         el.style.display = "block";
       }
 
-      // Initial load
-      window.addEventListener("load", () => {
-        loadUsers();
-        loadSettings();
-        loadLogs();
-        loadRuleLog();
-        loadApiKeys();
-      });
-
       // Close modals on backdrop click
       document.addEventListener("click", (e) => {
         if (e.target.id === "addUserModal") closeAddUserModal();
         if (e.target.id === "resetPasswordModal") closeResetPasswordModal();
       });
+
+      // Initial load
+      loadDashboardStats();
     </script>
   </body>
 </html>
