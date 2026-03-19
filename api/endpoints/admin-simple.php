@@ -28,12 +28,41 @@ switch ($action) {
         break;
         
     case 'add_user':
+        require_once __DIR__ . '/../../includes/db.php';
         $name = $_POST['name'] ?? '';
         $email = $_POST['email'] ?? '';
         $role = $_POST['role'] ?? 'citizen';
-        
+        $password = $_POST['password'] ?? '';
+
+        if (!$name || !$email || !$role || !$password) {
+            echo json_encode(['success' => false, 'message' => 'All fields are required']);
+            break;
+        }
+
+        // Only add to internal_users if staff
+        $staffRoles = ['treasurer','revenue_officer','auditor','admin'];
+        if (in_array($role, $staffRoles)) {
+            // Check if email already exists
+            $exists = db('rcts_internal_users', ['email' => 'eq.' . strtolower($email)]);
+            if (!empty($exists['data'])) {
+                echo json_encode(['success' => false, 'message' => 'Email already exists in staff accounts']);
+                break;
+            }
+            $hash = password_hash($password, PASSWORD_DEFAULT);
+            $ins = db_create('rcts_internal_users', [
+                'full_name' => $name,
+                'email' => strtolower($email),
+                'password_hash' => $hash,
+                'role' => $role,
+                'status' => 'active'
+            ]);
+            if (!$ins['success']) {
+                echo json_encode(['success' => false, 'message' => 'Failed to create staff account']);
+                break;
+            }
+        }
+
         addLog("Created new user: $email ($role)", 'admin');
-        
         echo json_encode(['success' => true, 'message' => 'User created successfully']);
         break;
         

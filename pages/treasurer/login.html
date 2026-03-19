@@ -408,30 +408,68 @@
         spin.style.display = "block";
 
         try {
+          // 1. Try staff login (internal users)
+          let staffRes = await fetch(
+            "../../api/endpoints/internal-user-auth.php",
+            {
+              method: "POST",
+              body: new FormData(
+                Object.assign(document.createElement("form"), {
+                  elements: [
+                    { name: "email", value: email },
+                    { name: "password", value: pass },
+                  ],
+                }),
+              ),
+            },
+          );
+          let staffData = await staffRes.json();
+          if (staffData.success) {
+            const staff = staffData.data;
+            sessionStorage.setItem("rcts_citizen", JSON.stringify(staff));
+            sessionStorage.setItem("rcts_token", staff.login_token);
+            document.cookie = `rcts_citizen=${encodeURIComponent(JSON.stringify(staff))}; path=/; max-age=3600; SameSite=Lax`;
+            try {
+              await fetch("../../api/endpoints/audit-log.php", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                  actor: staff.full_name || staff.user_id || email,
+                  event: `login`,
+                  details: { email, role: staff.role },
+                }),
+              });
+            } catch (e) {}
+            const redirectPage =
+              staff.role === "admin" ? "admin.html" : "dashboard.html";
+            okEl.textContent = "Login successful! Redirecting...";
+            okEl.style.display = "block";
+            setTimeout(() => {
+              window.location.href = redirectPage;
+            }, 900);
+            btn.disabled = false;
+            txt.style.display = "block";
+            spin.style.display = "none";
+            return;
+          }
+
+          // 2. Fallback: Try citizen registry
           const url = `../../mock-data/subsystem1/citizen-registry-api.php?action=verify_login&email=${encodeURIComponent(email)}&password=${encodeURIComponent(pass)}`;
           const res = await fetch(url);
           const data = await res.json();
-
           if (!data.success) {
             showErr(data.message || "Login failed.");
             return;
           }
-
           const citizen = data.data;
-
-          // Check if role is allowed for treasury portal
           const allowedRoles = ["treasurer", "revenue_officer", "admin"];
           if (!allowedRoles.includes(citizen.role)) {
             showErr("Access denied. This portal is for treasury staff only.");
             return;
           }
-
           sessionStorage.setItem("rcts_citizen", JSON.stringify(citizen));
           sessionStorage.setItem("rcts_token", citizen.login_token);
-          // Store in cookie for server-side auth
           document.cookie = `rcts_citizen=${encodeURIComponent(JSON.stringify(citizen))}; path=/; max-age=3600; SameSite=Lax`;
-
-          // Log the login event (unified audit log)
           try {
             await fetch("../../api/endpoints/audit-log.php", {
               method: "POST",
@@ -442,16 +480,11 @@
                 details: { email, role: citizen.role },
               }),
             });
-          } catch (e) {
-            // Ignore logging errors
-          }
-
-          // Redirect based on role
+          } catch (e) {}
           const redirectPage =
             citizen.role === "admin" ? "admin.html" : "dashboard.html";
           okEl.textContent = "Login successful! Redirecting...";
           okEl.style.display = "block";
-
           setTimeout(() => {
             window.location.href = redirectPage;
           }, 900);
