@@ -3,21 +3,73 @@
 // Treasury Admin API endpoint for user management, settings, and logs
 
 header('Content-Type: application/json');
-require_once __DIR__ . '/../config/constants.php';
-require_once __DIR__ . '/../../includes/db.php';
+
+// Error handling - ensure we always output JSON
+set_error_handler(function($errno, $errstr, $errfile, $errline) {
+    error_log("PHP Error [$errno]: $errstr in $errfile on line $errline");
+    echo json_encode(['success' => false, 'message' => 'Server error occurred']);
+    exit;
+});
+
+try {
+    require_once __DIR__ . '/../config/constants.php';
+    require_once __DIR__ . '/../../includes/db.php';
+} catch (Exception $e) {
+    error_log("Include error: " . $e->getMessage());
+    echo json_encode(['success' => false, 'message' => 'Configuration error']);
+    exit;
+}
 
 session_start();
 
 function is_admin() {
     // Check Authorization header for token-based auth
-    $headers = getallheaders();
-    $auth = $headers['Authorization'] ?? '';
+    // Use fallback for servers without pecl_http
+    $auth = '';
+    if (function_exists('getallheaders')) {
+        $headers = getallheaders();
+        $auth = $headers['Authorization'] ?? $headers['authorization'] ?? '';
+    } else {
+        // Fallback: parse from $_SERVER
+        foreach ($_SERVER as $key => $value) {
+            if (strtolower(substr($key, 0, 5)) === 'http_') {
+                $header = str_replace(' ', '-', ucwords(str_replace('_', ' ', substr($key, 5))));
+                if (strtolower($header) === 'authorization') {
+                    $auth = $value;
+                    break;
+                }
+            }
+        }
+    }
+    
     if (strpos($auth, 'Bearer ') === 0) {
         $token = substr($auth, 7);
-        // For demo: check if token is admin token
-        // In real app, validate token against database
-        if (strpos($token, 'QC-ADMIN') === 0 || strpos($token, 'QC-STAFF-00001') === 0) {
+        
+        // Check for demo tokens - case insensitive
+        $token_upper = strtoupper($token);
+        if (strpos($token_upper, 'QC-ADMIN') === 0 || $token_upper === 'QC-STAFF-00001') {
             return true;
+        }
+        
+        // Try to find user in database by qcitizen_id with admin role
+        try {
+            $db = db();
+            $stmt = $db->prepare("SELECT role FROM rcts_citizen_registry WHERE qcitizen_id = ? AND role = 'admin'");
+            $stmt->execute([$token]);
+            $user = $stmt->fetch(PDO::FETCH_ASSOC);
+            if ($user && $user['role'] === 'admin') {
+                return true;
+            }
+            
+            // Try by email
+            $stmt2 = $db->prepare("SELECT role FROM rcts_citizen_registry WHERE email = ? AND role = 'admin'");
+            $stmt2->execute([$token]);
+            $user2 = $stmt2->fetch(PDO::FETCH_ASSOC);
+            if ($user2 && $user2['role'] === 'admin') {
+                return true;
+            }
+        } catch (Exception $e) {
+            // Database error - ignore
         }
     }
     return false;

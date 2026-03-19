@@ -103,26 +103,19 @@ switch ($action) {
             exit;
         }
 
-        // First, try to fetch from S1 Supabase (profiles table)
-        $result = fetch_s1_citizen($email);
-
-        if (!$result['success'] || empty($result['data'])) {
-            // FALLBACK: Try local JSON mock data
-            $local_data = load_local_citizens();
-            $profile = null;
-            
-            foreach ($local_data as $citizen) {
-                if (strtolower($citizen['email']) === strtolower($email)) {
-                    $profile = $citizen;
-                    break;
-                }
+        // SPECIAL HANDLING: Check local JSON first for admin users
+        // This ensures admin users are always properly recognized
+        $local_data = load_local_citizens();
+        $profile = null;
+        
+        foreach ($local_data as $citizen) {
+            if (strtolower($citizen['email']) === strtolower($email)) {
+                $profile = $citizen;
+                break;
             }
-            
-            if (!$profile) {
-                echo json_encode(['success' => false, 'message' => 'Citizen not found']);
-                exit;
-            }
-            
+        }
+        
+        if ($profile) {
             // Build from local data
             $citizen = [
                 'qcitizen_id' => $profile['qcitizen_id'],
@@ -156,6 +149,14 @@ switch ($action) {
             $citizen['pending_bills'] = get_rcts_bills($citizen['qcitizen_id']);
             
             echo json_encode(['success' => true, 'data' => $citizen, '_source' => 'local']);
+            exit;
+        }
+
+        // If not found locally, try S1 Supabase
+        $result = fetch_s1_citizen($email);
+
+        if (!$result['success'] || empty($result['data'])) {
+            echo json_encode(['success' => false, 'message' => 'Citizen not found']);
             exit;
         }
 
@@ -307,7 +308,14 @@ switch ($action) {
 
 // ── Helper: Determine Citizen Role ─────────────────────────────────────────────
 function determine_citizen_role(array $profile): string {
+    // First check if role is explicitly set in profile
+    if (!empty($profile['role'])) {
+        return $profile['role'];
+    }
+    
+    // Otherwise determine by email
     $email = strtolower($profile['email'] ?? '');
+    if (strpos($email, 'admin') !== false) return 'admin';
     if (strpos($email, 'treasurer') !== false || strpos($email, 'qc.gov.ph') !== false) return 'treasurer';
     if (strpos($email, 'auditor') !== false || strpos($email, 'coa') !== false) return 'auditor';
     return 'citizen';
