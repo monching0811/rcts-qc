@@ -40,7 +40,7 @@
       "is_solo_parent": false,
       "discount_eligible": true,
       "discount_type": "SeniorCitizen",
-      "discount_rate": 0.20,
+      "discount_rate": 0.2,
       "role": "citizen",
       "status": "active",
       "profile_photo": null
@@ -61,7 +61,7 @@
       "is_solo_parent": false,
       "discount_eligible": true,
       "discount_type": "PWD",
-      "discount_rate": 0.20,
+      "discount_rate": 0.2,
       "role": "citizen",
       "status": "active",
       "profile_photo": null
@@ -124,7 +124,7 @@
       "is_solo_parent": false,
       "discount_eligible": true,
       "discount_type": "SeniorCitizen",
-      "discount_rate": 0.20,
+      "discount_rate": 0.2,
       "role": "citizen",
       "status": "active",
       "profile_photo": null
@@ -210,6 +210,27 @@
       "discount_type": null,
       "discount_rate": 0,
       "role": "auditor",
+      "status": "active",
+      "profile_photo": null
+    },
+    {
+      "qcitizen_id": "QC-ADMIN-0001",
+      "full_name": "Admin User",
+      "date_of_birth": "1980-01-01",
+      "age": 46,
+      "address": "City Hall, Elliptical Road, Quezon City",
+      "barangay": "Central",
+      "district": "N/A",
+      "email": "admin@qc.gov.ph",
+      "mobile_no": "09171234567",
+      "digital_wallet_link": null,
+      "is_senior_citizen": false,
+      "is_pwd": false,
+      "is_solo_parent": false,
+      "discount_eligible": false,
+      "discount_type": null,
+      "discount_rate": 0,
+      "role": "admin",
       "status": "active",
       "profile_photo": null
     }
