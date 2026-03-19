@@ -431,6 +431,19 @@
           // Store in cookie for server-side auth
           document.cookie = `rcts_citizen=${encodeURIComponent(JSON.stringify(citizen))}; path=/; max-age=3600; SameSite=Lax`;
 
+          // Log the login event
+          try {
+            await fetch("../../api/endpoints/admin-simple.php?action=add_log", {
+              method: "POST",
+              body: new URLSearchParams({
+                event: `User login: ${email} (${citizen.role})`,
+                user: email,
+              }),
+            });
+          } catch (e) {
+            // Ignore logging errors
+          }
+
           // Redirect based on role
           const redirectPage =
             citizen.role === "admin" ? "admin.html" : "dashboard.html";

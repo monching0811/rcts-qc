@@ -874,7 +874,8 @@
       const AUTH_HEADER = { Authorization: `Bearer ${token}` };
 
       function apiCall(action, method = "GET", body = null) {
-        const url = `../../api/endpoints/admin.php?action=${action}`;
+        // Use simple admin API that doesn't require includes
+        const url = `../../api/endpoints/admin-simple.php?action=${action}`;
         const options = { method, headers: AUTH_HEADER };
         if (body && method === "POST") {
           const formData = new FormData();
