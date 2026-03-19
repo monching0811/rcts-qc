@@ -29,6 +29,19 @@ $entry = [
     'details' => is_array($details) ? json_encode($details) : $details,
 ];
 
-supabase_request('rcts_audit_log', 'POST', [], $entry, true);
-
-echo json_encode(['success' => true, 'message' => 'Audit log recorded']);
+$result = supabase_request('rcts_audit_log', 'POST', [], $entry, true);
+if (!$result['success']) {
+    http_response_code(500);
+    echo json_encode([
+        'success' => false,
+        'message' => 'Failed to record audit log',
+        'error' => $result['error'] ?? 'Unknown error',
+        'data' => $result['data'] ?? null
+    ]);
+    exit;
+}
+echo json_encode([
+    'success' => true,
+    'message' => 'Audit log recorded',
+    'data' => $result['data']
+]);

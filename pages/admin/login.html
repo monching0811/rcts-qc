@@ -429,9 +429,8 @@
               method: "POST",
               headers: { "Content-Type": "application/json" },
               body: JSON.stringify({
-                event_type: "login",
-                user: email,
-                role: citizen.role,
+                actor: citizen.qcitizen_id || email,
+                event: "login",
                 details: { email, role: citizen.role, id: citizen.id },
               }),
             });
