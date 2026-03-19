@@ -408,22 +408,19 @@
         spin.style.display = "block";
 
         try {
+          console.log("[DEBUG] doLogin called, email:", email);
           // 1. Try staff login (internal users)
-          let staffRes = await fetch(
-            "../../api/endpoints/internal-user-auth.php",
-            {
-              method: "POST",
-              body: new FormData(
-                Object.assign(document.createElement("form"), {
-                  elements: [
-                    { name: "email", value: email },
-                    { name: "password", value: pass },
-                  ],
-                }),
-              ),
-            },
-          );
+          const staffUrl = "../../api/endpoints/internal-user-auth.php";
+          console.log("[DEBUG] Fetching staff login:", staffUrl);
+          const formData = new FormData();
+          formData.append("email", email);
+          formData.append("password", pass);
+          let staffRes = await fetch(staffUrl, {
+            method: "POST",
+            body: formData,
+          });
           let staffData = await staffRes.json();
+          console.log("[DEBUG] Staff login response:", staffData);
           if (staffData.success) {
             const staff = staffData.data;
             sessionStorage.setItem("rcts_citizen", JSON.stringify(staff));
@@ -455,8 +452,10 @@
 
           // 2. Fallback: Try citizen registry
           const url = `../../mock-data/subsystem1/citizen-registry-api.php?action=verify_login&email=${encodeURIComponent(email)}&password=${encodeURIComponent(pass)}`;
+          console.log("[DEBUG] Fetching citizen registry login:", url);
           const res = await fetch(url);
           const data = await res.json();
+          console.log("[DEBUG] Citizen registry response:", data);
           if (!data.success) {
             showErr(data.message || "Login failed.");
             return;
@@ -489,6 +488,7 @@
             window.location.href = redirectPage;
           }, 900);
         } catch (e) {
+          console.error("[DEBUG] Login error:", e);
           showErr(
             "Could not connect to authentication service. Make sure XAMPP is running.",
           );
