@@ -183,14 +183,22 @@ switch ($action) {
     case 'analytics':
         // Fetch real analytics data from Supabase
         $period = $_GET['period'] ?? 30;
-        $startDate = date('Y-m-d', strtotime("-{$period} days"));
-        
-        // Get total revenue (sum of successful payments)
-        $paymentsResult = supabase_request('rcts_payment_transaction', 'GET', [
-            'select' => 'amount_settled,transaction_timestamp,transaction_status,bill_reference_no',
-            'transaction_status' => 'eq.Success',
-            'transaction_timestamp' => 'gte.' . $startDate
-        ], [], true);
+        $all_time = ($period === 'all' || $period === '0' || intval($period) > 1000);
+        if ($all_time) {
+            // No date filter, get all transactions
+            $paymentsResult = supabase_request('rcts_payment_transaction', 'GET', [
+                'select' => 'amount_settled,transaction_timestamp,transaction_status,bill_reference_no',
+                'transaction_status' => 'eq.Success'
+            ], [], true);
+            $startDate = '1970-01-01';
+        } else {
+            $startDate = date('Y-m-d', strtotime("-{$period} days"));
+            $paymentsResult = supabase_request('rcts_payment_transaction', 'GET', [
+                'select' => 'amount_settled,transaction_timestamp,transaction_status,bill_reference_no',
+                'transaction_status' => 'eq.Success',
+                'transaction_timestamp' => 'gte.' . $startDate
+            ], [], true);
+        }
         
         $totalRevenue = 0;
         $totalTransactions = 0;
