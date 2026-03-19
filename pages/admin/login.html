@@ -336,9 +336,6 @@
             placeholder="your.email@example.com"
             autocomplete="email"
           />
-          <div class="hint">
-            Registered email linked to your <strong>QCitizen ID</strong>
-          </div>
         </div>
         <div class="form-group">
           <label>Password</label>
@@ -354,30 +351,11 @@
           <div class="spinner" id="spinner"></div>
         </button>
 
-        <div class="divider"><span>Demo Account</span></div>
-
-        <div class="demo-accounts">
-          <h4>Click to auto-fill</h4>
-          <div
-            class="demo-row"
-            onclick="fillDemo('admin@qc.gov.ph', 'admin123')"
-          >
-            <div>
-              <div class="name">System Administrator</div>
-              <div class="creds">admin@qc.gov.ph</div>
-            </div>
-            <span class="role-tag tag-admin">Admin</span>
-          </div>
-        </div>
+        <!-- Demo accounts removed for production -->
       </div>
     </div>
 
     <script>
-      function fillDemo(email, pw) {
-        document.getElementById("email").value = email;
-        document.getElementById("password").value = pw;
-      }
-
       async function doLogin() {
         const email = document.getElementById("email").value.trim();
         const pass = document.getElementById("password").value;
@@ -400,8 +378,16 @@
         spin.style.display = "block";
 
         try {
-          const url = `../../mock-data/subsystem1/citizen-registry-api.php?action=verify_login&email=${encodeURIComponent(email)}&password=${encodeURIComponent(pass)}`;
-          const res = await fetch(url);
+          const formData = new FormData();
+          formData.append("email", email);
+          formData.append("password", pass);
+          const res = await fetch(
+            "../../api/endpoints/internal-user-auth.php",
+            {
+              method: "POST",
+              body: formData,
+            },
+          );
           const data = await res.json();
 
           if (!data.success) {
@@ -409,38 +395,31 @@
             return;
           }
 
-          const citizen = data.data;
-
-          // Check if role is admin
-          if (citizen.role !== "admin") {
+          const staff = data.data;
+          if (!staff || staff.role !== "admin") {
             showErr("Access denied. Admin access only.");
             return;
           }
 
-          sessionStorage.setItem("rcts_citizen", JSON.stringify(citizen));
-          sessionStorage.setItem("rcts_token", citizen.login_token);
-          // Store in cookie for server-side auth
-          document.cookie = `rcts_citizen=${encodeURIComponent(JSON.stringify(citizen))}; path=/; max-age=3600; SameSite=Lax`;
+          sessionStorage.setItem("rcts_admin", JSON.stringify(staff));
+          sessionStorage.setItem("rcts_token", staff.login_token);
+          document.cookie = `rcts_admin=${encodeURIComponent(JSON.stringify(staff))}; path=/; max-age=3600; SameSite=Lax`;
 
           // Log the login event
-          // Unified audit log (DB)
           try {
             await fetch("../../api/endpoints/audit-log.php", {
               method: "POST",
               headers: { "Content-Type": "application/json" },
               body: JSON.stringify({
-                actor: citizen.full_name || citizen.qcitizen_id || email,
+                actor: staff.full_name || staff.email || email,
                 event: "login",
-                details: { email, role: citizen.role, id: citizen.id },
+                details: { email, role: staff.role, id: staff.user_id },
               }),
             });
-          } catch (e) {
-            // Ignore logging errors
-          }
+          } catch (e) {}
 
           okEl.textContent = "Login successful! Redirecting...";
           okEl.style.display = "block";
-
           setTimeout(() => {
             window.location.href = "dashboard.html";
           }, 900);

@@ -20,11 +20,25 @@ function addLog($event, $user = 'system') {
 
 switch ($action) {
     case 'list_users':
-        echo json_encode(['success' => true, 'users' => [
-            ['qcitizen_id' => 'QC-ADMIN-0001', 'full_name' => 'Admin User', 'email' => 'admin@qc.gov.ph', 'role' => 'admin', 'status' => 'active'],
-            ['qcitizen_id' => 'QC-2024-000001', 'full_name' => 'Juan Dela Cruz', 'email' => 'juan.delacruz@email.com', 'role' => 'citizen', 'status' => 'active'],
-            ['qcitizen_id' => 'QC-2024-000002', 'full_name' => 'Cheryl Reyes-Macaraeg', 'email' => 'treasurer@qc.gov.ph', 'role' => 'treasurer', 'status' => 'active']
-        ]]);
+        require_once __DIR__ . '/../../includes/db.php';
+        // Fetch all internal users (staff)
+        $staff = db('rcts_internal_users');
+        $users = [];
+        if ($staff['success'] && !empty($staff['data'])) {
+            foreach ($staff['data'] as $u) {
+                $users[] = [
+                    'user_id' => $u['user_id'],
+                    'full_name' => $u['full_name'],
+                    'email' => $u['email'],
+                    'role' => $u['role'],
+                    'status' => $u['status'],
+                    'created_at' => $u['created_at'],
+                    'updated_at' => $u['updated_at']
+                ];
+            }
+        }
+        // Optionally, fetch citizens if needed (not included in dashboard count)
+        echo json_encode(['success' => true, 'users' => $users]);
         break;
         
     case 'add_user':
