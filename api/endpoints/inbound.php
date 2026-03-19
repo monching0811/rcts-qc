@@ -29,8 +29,19 @@ $caller = require_subsystem_auth();
 $action = $_GET['action'] ?? '';
 $body   = json_decode(file_get_contents('php://input'), true) ?? [];
 
-// Log all inbound signals for audit trail
-log_signal($caller, $action, $body);
+// Log all inbound signals for audit trail (DB audit log)
+if (!function_exists('audit_log')) {
+    function audit_log($actor, $event, $details = null) {
+        $entry = [
+            'actor' => $actor,
+            'event' => $event,
+            'details' => is_array($details) ? json_encode($details) : $details,
+        ];
+        supabase_request('rcts_audit_log', 'POST', [], $entry, true);
+    }
+}
+
+audit_log($caller, $action, $body);
 
 switch ($action) {
 
@@ -225,11 +236,4 @@ switch ($action) {
         ], 400);
 }
 
-// ── Audit log helper ─────────────────────────────────────────────────────────
-function log_signal(string $caller, string $action, array $body): void {
-    $log_dir  = __DIR__ . '/../../logs/';
-    if (!is_dir($log_dir)) mkdir($log_dir, 0755, true);
-    $log_file = $log_dir . 'inbound-signals-' . date('Y-m') . '.log';
-    $entry    = date('c') . ' | FROM: ' . $caller . ' | ACTION: ' . $action . ' | PAYLOAD: ' . json_encode($body) . PHP_EOL;
-    file_put_contents($log_file, $entry, FILE_APPEND | LOCK_EX);
-}
+// (File-based log_signal removed; now using audit_log DB logger)

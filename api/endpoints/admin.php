@@ -49,6 +49,7 @@ switch ($action) {
         $email = $_POST['email'] ?? '';
         $role = $_POST['role'] ?? 'citizen';
         $password = $_POST['password'] ?? '';
+        $actor = $token ?: 'unknown';
         if (!$name || !$email || !$password) {
             echo json_encode(['success' => false, 'message' => 'Missing fields.']);
             break;
@@ -57,6 +58,7 @@ switch ($action) {
             $id = 'QC-USER-' . strtoupper(bin2hex(random_bytes(4)));
             $sql = "INSERT INTO rcts_citizen_registry (qcitizen_id, full_name, email, role, status) VALUES (?,?,?,?, 'active')";
             db_query($sql, [$id, $name, $email, $role]);
+            db_query("INSERT INTO rcts_audit_log (actor, event, details) VALUES (?, ?, ?)", [$actor, 'Add User', $name.' ('.$email.') as '.$role]);
             echo json_encode(['success' => true]);
         } catch (Exception $e) {
             echo json_encode(['success' => true, 'message' => 'User created (demo mode)']);
@@ -65,12 +67,14 @@ switch ($action) {
         
     case 'delete_user':
         $id = $_POST['qcitizen_id'] ?? '';
+        $actor = $token ?: 'unknown';
         if (!$id) {
             echo json_encode(['success' => false, 'message' => 'Missing user ID.']);
             break;
         }
         try {
             db_query("DELETE FROM rcts_citizen_registry WHERE qcitizen_id=?", [$id]);
+            db_query("INSERT INTO rcts_audit_log (actor, event, details) VALUES (?, ?, ?)", [$actor, 'Delete User', $id]);
         } catch (Exception $e) {
             // Ignore in demo mode
         }
@@ -80,12 +84,14 @@ switch ($action) {
     case 'reset_password':
         $id = $_POST['qcitizen_id'] ?? '';
         $pw = $_POST['password'] ?? '';
+        $actor = $token ?: 'unknown';
         if (!$id || !$pw) {
             echo json_encode(['success' => false, 'message' => 'Missing user ID or password.']);
             break;
         }
         try {
             db_query("UPDATE rcts_citizen_registry SET password=? WHERE qcitizen_id=?", [$pw, $id]);
+            db_query("INSERT INTO rcts_audit_log (actor, event, details) VALUES (?, ?, ?)", [$actor, 'Reset Password', $id]);
         } catch (Exception $e) {
             // Ignore in demo mode
         }
@@ -95,16 +101,23 @@ switch ($action) {
     case 'save_settings':
         $rpt_basic = $_POST['RPT_BASIC_RATE'] ?? null;
         $rpt_sef = $_POST['RPT_SEF_RATE'] ?? null;
+        $actor = $token ?: 'unknown';
         try {
             $const_file = __DIR__ . '/../config/constants.php';
             $consts = file_get_contents($const_file);
+            $changes = [];
             if ($rpt_basic !== null) {
-                $consts = preg_replace('/define\(\'RPT_BASIC_RATE\',\s*([0-9.]+)\);/', "define('RPT_BASIC_RATE', $rpt_basic);", $consts);
+                $consts = preg_replace("/define\('RPT_BASIC_RATE',\s*([0-9.]+)\);/", "define('RPT_BASIC_RATE', $rpt_basic);", $consts);
+                $changes[] = 'RPT_BASIC_RATE=' . $rpt_basic;
             }
             if ($rpt_sef !== null) {
-                $consts = preg_replace('/define\(\'RPT_SEF_RATE\',\s*([0-9.]+)\);/', "define('RPT_SEF_RATE', $rpt_sef);", $consts);
+                $consts = preg_replace("/define\('RPT_SEF_RATE',\s*([0-9.]+)\);/", "define('RPT_SEF_RATE', $rpt_sef);", $consts);
+                $changes[] = 'RPT_SEF_RATE=' . $rpt_sef;
             }
             file_put_contents($const_file, $consts);
+            if ($changes) {
+                db_query("INSERT INTO rcts_audit_log (actor, event, details) VALUES (?, ?, ?)", [$actor, 'Save Settings', implode(', ', $changes)]);
+            }
         } catch (Exception $e) {
             // Ignore in demo mode
         }
@@ -121,12 +134,13 @@ switch ($action) {
         break;
         
     case 'list_logs':
-        echo json_encode(['success' => true, 'logs' => [
-            ['ts' => date('Y-m-d H:i:s'), 'event' => 'User login: admin@qc.gov.ph'],
-            ['ts' => date('Y-m-d H:i:s', strtotime('-1 minute')), 'event' => 'Admin viewed dashboard'],
-            ['ts' => date('Y-m-d H:i:s', strtotime('-5 minutes')), 'event' => 'Settings updated'],
-            ['ts' => date('Y-m-d H:i:s', strtotime('-1 hour')), 'event' => 'User created: newuser@email.com'],
-        ]]);
+        try {
+            $sql = "SELECT ts, actor, event, details FROM rcts_audit_log ORDER BY ts DESC LIMIT 100";
+            $rows = db_query($sql)->fetchAll(PDO::FETCH_ASSOC);
+            echo json_encode(['success' => true, 'logs' => $rows]);
+        } catch (Exception $e) {
+            echo json_encode(['success' => false, 'message' => 'Failed to load logs']);
+        }
         break;
         
     case 'rule_log':

@@ -427,6 +427,21 @@
           sessionStorage.setItem("rcts_citizen", JSON.stringify(citizen));
           sessionStorage.setItem("rcts_token", citizen.login_token);
 
+          // Log the login event (unified audit log)
+          try {
+            await fetch("../../api/endpoints/audit-log.php", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({
+                actor: citizen.qcitizen_id || email,
+                event: `login`,
+                details: { email, role: citizen.role },
+              }),
+            });
+          } catch (e) {
+            // Ignore logging errors
+          }
+
           okEl.textContent =
             "Login successful! Redirecting to COA Auditor Portal...";
           okEl.style.display = "block";

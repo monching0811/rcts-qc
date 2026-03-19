@@ -17,8 +17,19 @@ require_once __DIR__ . '/../middleware/cors.php';
 require_once __DIR__ . '/../middleware/auth.php';
 require_once __DIR__ . '/../config/supabase.php';
 require_once __DIR__ . '/../config/constants.php';
+
 require_once __DIR__ . '/../config/payment_gateways.php';
 require_once __DIR__ . '/../lib/PaymentGateway.php';
+
+// Helper: Log audit event to rcts_audit_log
+function audit_log($actor, $event, $details = null) {
+    $entry = [
+        'actor' => $actor,
+        'event' => $event,
+        'details' => is_array($details) ? json_encode($details) : $details,
+    ];
+    supabase_request('rcts_audit_log', 'POST', [], $entry, true);
+}
 
 $action = $_GET['action'] ?? '';
 $rawBody = file_get_contents('php://input');
@@ -1071,12 +1082,14 @@ switch ($action) {
         error_log("===================");
 
         if (!$qcitizen_id || empty($bill_refs)) {
+            audit_log($qcitizen_id ?: 'unknown', 'checkout_failed', ['reason' => 'missing qcitizen_id or bill_refs']);
             api_response(false, 'qcitizen_id and bill_reference_nos[] required', null, 400);
         }
 
         // Step 1: Verify identity (use RCTS local registry, not S1)
         $citizen_check = db_select('rcts_citizen_registry', ['qcitizen_id' => 'eq.' . $qcitizen_id]);
         if (!$citizen_check['success'] || empty($citizen_check['data'])) {
+            audit_log($qcitizen_id, 'checkout_failed', ['reason' => 'citizen not found in registry']);
             api_response(false, 'Citizen not found in RCTS registry', null, 401);
         }
         $citizen = ['data' => ['full_name' => $citizen_check['data'][0]['full_name'] ?? 'Unknown']];
@@ -1182,7 +1195,7 @@ switch ($action) {
             error_log("Checkout: No valid bills found. Debug info:");
             error_log("Requested refs: " . json_encode($bill_refs));
             error_log("Citizen ID: $qcitizen_id");
-            
+            audit_log($qcitizen_id, 'checkout_failed', ['reason' => 'no valid bills found', 'requested_refs' => $bill_refs]);
             // LAST RESORT: If S7 properties were passed but bills still not found,
             // force-create them now
             if (!empty($s7_properties)) {
@@ -1284,6 +1297,7 @@ switch ($action) {
             db_update('rcts_payment_transaction', ['transaction_id' => 'eq.' . $txn_id], ['bank_reference_no' => $bankRefs]);
         }
 
+        audit_log($qcitizen_id, 'checkout', ['bill_refs' => $bill_refs, 'total' => $total]);
         api_response(true, 'Checkout initiated. Proceed to payment confirmation.', [
             'transaction_id' => $txn_id,
             'amount_due'     => round($total, 2),
@@ -1303,8 +1317,10 @@ switch ($action) {
 
         $result = complete_payment_transaction($txn_id, $bank_ref, $body);
         if (!($result['success'] ?? false)) {
+            audit_log('system', 'execute_failed', ['txn_id' => $txn_id, 'reason' => $result['message'] ?? 'Payment processing failed']);
             api_response(false, $result['message'] ?? 'Payment processing failed', $result, 500);
         }
+        audit_log($result['transaction_id'] ?? $txn_id, 'execute', $result);
 
         // If accessed via GET (e.g., mock gateway redirect), redirect to receipt page
         if (empty($rawBody)) {

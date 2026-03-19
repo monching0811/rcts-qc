@@ -431,13 +431,15 @@
           // Store in cookie for server-side auth
           document.cookie = `rcts_citizen=${encodeURIComponent(JSON.stringify(citizen))}; path=/; max-age=3600; SameSite=Lax`;
 
-          // Log the login event
+          // Log the login event (unified audit log)
           try {
-            await fetch("../../api/endpoints/admin-simple.php?action=add_log", {
+            await fetch("../../api/endpoints/audit-log.php", {
               method: "POST",
-              body: new URLSearchParams({
-                event: `User login: ${email} (${citizen.role})`,
-                user: email,
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({
+                actor: citizen.qcitizen_id || email,
+                event: `login`,
+                details: { email, role: citizen.role },
               }),
             });
           } catch (e) {

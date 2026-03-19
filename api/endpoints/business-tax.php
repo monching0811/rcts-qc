@@ -14,7 +14,18 @@
 require_once __DIR__ . '/../middleware/cors.php';
 require_once __DIR__ . '/../middleware/auth.php';
 require_once __DIR__ . '/../config/supabase.php';
+
 require_once __DIR__ . '/../config/constants.php';
+
+// Helper: Log audit event to rcts_audit_log
+function audit_log($actor, $event, $details = null) {
+    $entry = [
+        'actor' => $actor,
+        'event' => $event,
+        'details' => is_array($details) ? json_encode($details) : $details,
+    ];
+    supabase_request('rcts_audit_log', 'POST', [], $entry, true);
+}
 
 $action = $_GET['action'] ?? '';
 $body   = json_decode(file_get_contents('php://input'), true) ?? [];
@@ -22,6 +33,7 @@ $body   = json_decode(file_get_contents('php://input'), true) ?? [];
 switch ($action) {
 
     // ── GET business tax bills for a citizen ────────────────────────────
+
     case 'get_bills':
         $id = $_GET['qcitizen_id'] ?? '';
         if (!$id) api_response(false, 'qcitizen_id required', null, 400);
@@ -31,6 +43,7 @@ switch ($action) {
             'bill_type'   => 'eq.BusinessTax',
             'order'       => 'created_at.desc'
         ]);
+        audit_log($id, 'get_business_tax_bills', ['result_count' => count($result['data'] ?? [])]);
         api_response($result['success'], 'Business tax bills retrieved', $result['data']);
         break;
 
@@ -70,6 +83,7 @@ switch ($action) {
         $inspector      = $body['inspector_name']   ?? '';
 
         if (!$clearance_ref || !$bin || !$status) {
+            audit_log($qcitizen_id ?: $caller, 'clearance_signal_failed', ['reason' => 'missing required fields']);
             api_response(false, 'clearance_ref_id, business_bin, and status_flag are required', null, 400);
         }
 
@@ -86,6 +100,7 @@ switch ($action) {
             'source_subsystem_id' => (int)substr($caller, 1)
         ];
         db_insert('rcts_regulatory_clearance', $clearance_data);
+        audit_log($qcitizen_id ?: $caller, 'clearance_signal_received', $clearance_data);
 
         // If PASSED — check if ALL required clearances are now complete
         if ($status === 'Passed') {
@@ -108,7 +123,7 @@ switch ($action) {
                     'content' => $op_body
                 ]]);
                 $op_response = json_decode(file_get_contents($op_url, false, $ctx), true);
-
+                audit_log($qcitizen_id ?: $caller, 'unified_op_auto_generated', ['bin' => $bin, 'op_response' => $op_response]);
                 api_response(true, 'Clearance signal received. All clearances PASSED. Unified OP auto-generated.', [
                     'clearance_saved'  => true,
                     'all_cleared'      => true,
@@ -193,7 +208,7 @@ switch ($action) {
         ];
 
         $insert = db_insert('rcts_assessment_billing_hub', $bill);
-
+        audit_log($biz['qcitizen_id'], 'generate_unified_op', $bill);
         api_response($insert['success'], 'Unified Order of Payment generated' . ($auto_trigger ? ' (auto-triggered by clearance signals)' : ''), [
             'bill'         => $insert['data'],
             'breakdown'    => [
@@ -217,6 +232,7 @@ switch ($action) {
             ['bill_reference_no' => 'eq.' . $bill_ref],
             ['status' => 'Paid', 'updated_at' => date('c')]
         );
+        audit_log('system', 'business_tax_paid', ['bill_reference_no' => $bill_ref]);
 
         // Send "PAID" signal back to S2 so permit can be released
         // In production: POST to S2_API_URL with payment confirmation

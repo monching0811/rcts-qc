@@ -423,12 +423,16 @@
           document.cookie = `rcts_citizen=${encodeURIComponent(JSON.stringify(citizen))}; path=/; max-age=3600; SameSite=Lax`;
 
           // Log the login event
+          // Unified audit log (DB)
           try {
-            await fetch("../../api/endpoints/admin-simple.php?action=add_log", {
+            await fetch("../../api/endpoints/audit-log.php", {
               method: "POST",
-              body: new URLSearchParams({
-                event: `User login: ${email} (${citizen.role})`,
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({
+                event_type: "login",
                 user: email,
+                role: citizen.role,
+                details: { email, role: citizen.role, id: citizen.id },
               }),
             });
           } catch (e) {

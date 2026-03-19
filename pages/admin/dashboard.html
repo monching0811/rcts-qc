@@ -561,15 +561,7 @@
         <span id="nav-admin-name" style="font-size: 12px; color: #1a1a1a"
           >—</span
         >
-        <button
-          class="btn-logout"
-          onclick="
-            sessionStorage.clear();
-            location.href = '../citizen/login.html';
-          "
-        >
-          Sign Out
-        </button>
+        <button class="btn-logout" onclick="adminLogout()">Sign Out</button>
       </div>
     </nav>
     <main>
@@ -848,6 +840,29 @@
     </div>
 
     <script>
+      // Admin logout with audit log
+      async function adminLogout() {
+        const citizen = JSON.parse(
+          sessionStorage.getItem("rcts_citizen") || "{}",
+        );
+        try {
+          await fetch("../../api/endpoints/logout.php", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              user: citizen.email,
+              role: citizen.role,
+              details: {
+                id: citizen.id,
+                email: citizen.email,
+                role: citizen.role,
+              },
+            }),
+          });
+        } catch (e) {}
+        sessionStorage.clear();
+        location.href = "../citizen/login.html";
+      }
       // Admin check
       const citizen = JSON.parse(
         sessionStorage.getItem("rcts_citizen") || "{}",

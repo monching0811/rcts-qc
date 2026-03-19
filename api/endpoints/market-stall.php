@@ -14,7 +14,18 @@
 require_once __DIR__ . '/../middleware/cors.php';
 require_once __DIR__ . '/../middleware/auth.php';
 require_once __DIR__ . '/../config/supabase.php';
+
 require_once __DIR__ . '/../config/constants.php';
+
+// Helper: Log audit event to rcts_audit_log
+function audit_log($actor, $event, $details = null) {
+    $entry = [
+        'actor' => $actor,
+        'event' => $event,
+        'details' => is_array($details) ? json_encode($details) : $details,
+    ];
+    supabase_request('rcts_audit_log', 'POST', [], $entry, true);
+}
 
 $action = $_GET['action'] ?? '';
 $body   = json_decode(file_get_contents('php://input'), true) ?? [];
@@ -38,6 +49,7 @@ switch ($action) {
                 }
             }
         }
+        audit_log('system', 'get_active_stalls', ['count' => count($stalls)]);
         api_response(true, 'Active market stalls retrieved', $stalls);
         break;
 
@@ -52,6 +64,7 @@ switch ($action) {
             'status'      => 'eq.Pending',
             'order'       => 'created_at.desc'
         ]);
+        audit_log($id, 'get_vendor_bill', ['result_count' => count($result['data'] ?? [])]);
         api_response($result['success'], 'Vendor rental bills retrieved', $result['data']);
         break;
 
@@ -77,6 +90,7 @@ switch ($action) {
                 'updated_at'                  => date('c')
             ]
         );
+        audit_log($caller, 'receive_occupancy_signal', ['stall_id' => $stall_id, 'status' => $status]);
 
         if ($status !== 'Active') {
             api_response(true, 'Occupancy signal received. Stall is ' . $status . '. No invoice generated.', [
@@ -95,6 +109,7 @@ switch ($action) {
         ]]);
         $inv_response = json_decode(file_get_contents($inv_url, false, $ctx), true);
 
+        audit_log($caller, 'auto_generate_invoice', ['stall_id' => $stall_id, 'auto_triggered' => true]);
         api_response(true, 'Occupancy signal received. Stall is Active. Invoice auto-generated.', [
             'stall_id'        => $stall_id,
             'occupancy_status'=> $status,
@@ -168,6 +183,7 @@ switch ($action) {
         ];
 
         $insert = db_insert('rcts_assessment_billing_hub', $bill);
+        audit_log($stall['qcitizen_id'], 'generate_invoice', $bill);
 
         api_response($insert['success'], 'Market rental invoice generated' . ($auto_trigger ? ' (auto-triggered by S10 signal)' : ''), [
             'invoice'     => $insert['data'],
@@ -187,6 +203,7 @@ switch ($action) {
             ['bill_reference_no' => 'eq.' . $bill_ref],
             ['status' => 'Paid', 'updated_at' => date('c')]
         );
+        audit_log('system', 'market_rental_paid', ['bill_reference_no' => $bill_ref]);
 
         // Notify S10: lease renewal confirmed, vendor cleared to stay
         $s10_signal = [

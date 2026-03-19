@@ -114,7 +114,20 @@ const RCTS_AUTH = (() => {
     }
   }
 
-  function logout(redirect = null) {
+  async function logout(redirect = null) {
+    // Attempt to audit logout on server
+    try {
+      const c = getSession();
+      await fetch("../api/endpoints/logout.php", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          qcitizen_id: c.qcitizen_id || c.user_id || "unknown",
+        }),
+      });
+    } catch (e) {
+      // Ignore errors, still clear session
+    }
     clearSession();
     window.location.href = redirect || _loginUrl();
   }

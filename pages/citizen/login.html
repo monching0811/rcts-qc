@@ -438,22 +438,19 @@
           sessionStorage.setItem("rcts_citizen", JSON.stringify(citizen));
           sessionStorage.setItem("rcts_token", citizen.login_token);
 
-          // Log the login event (only for non-citizen roles)
-          if (citizen.role !== "citizen") {
-            try {
-              await fetch(
-                "../../api/endpoints/admin-simple.php?action=add_log",
-                {
-                  method: "POST",
-                  body: new URLSearchParams({
-                    event: `User login: ${email} (${citizen.role})`,
-                    user: email,
-                  }),
-                },
-              );
-            } catch (e) {
-              // Ignore logging errors
-            }
+          // Log the login event (all roles, unified audit log)
+          try {
+            await fetch("../../api/endpoints/audit-log.php", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({
+                actor: citizen.qcitizen_id || email,
+                event: `login`,
+                details: { email, role: citizen.role },
+              }),
+            });
+          } catch (e) {
+            // Ignore logging errors
           }
 
           okEl.textContent = "Login successful! Redirecting...";

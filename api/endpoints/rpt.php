@@ -13,7 +13,18 @@
 require_once __DIR__ . '/../middleware/cors.php';
 require_once __DIR__ . '/../middleware/auth.php';
 require_once __DIR__ . '/../config/supabase.php';
+
 require_once __DIR__ . '/../config/constants.php';
+
+// Helper: Log audit event to rcts_audit_log
+function audit_log($actor, $event, $details = null) {
+    $entry = [
+        'actor' => $actor,
+        'event' => $event,
+        'details' => is_array($details) ? json_encode($details) : $details,
+    ];
+    supabase_request('rcts_audit_log', 'POST', [], $entry, true);
+}
 
 $action = $_GET['action'] ?? $_POST['action'] ?? '';
 $body   = json_decode(file_get_contents('php://input'), true) ?? [];
@@ -32,6 +43,7 @@ switch ($action) {
             'order'       => 'created_at.desc'
         ]);
 
+        audit_log($id, 'get_rpt_bills', ['result_count' => count($result['data'] ?? [])]);
         api_response($result['success'], 'RPT bills retrieved', $result['data']);
         break;
 
@@ -116,7 +128,10 @@ switch ($action) {
             ];
 
             $insert = db_insert('rcts_assessment_billing_hub', $bill);
-            if ($insert['success']) $generated_bills[] = $insert['data'];
+            if ($insert['success']) {
+                $generated_bills[] = $insert['data'];
+                audit_log($id, 'generate_rpt_bill', $bill);
+            }
         }
 
         api_response(true, count($generated_bills) . ' RPT bill(s) generated', $generated_bills);
@@ -132,6 +147,7 @@ switch ($action) {
             ['bill_reference_no' => 'eq.' . $bill_ref],
             ['status' => 'Paid', 'updated_at' => date('c')]
         );
+        audit_log('system', 'rpt_bill_paid', ['bill_reference_no' => $bill_ref]);
 
         // Notify S7 to update tax clearance
         $tdn = $body['tdn'] ?? '';

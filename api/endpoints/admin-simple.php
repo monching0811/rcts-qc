@@ -2,44 +2,20 @@
 // Simple admin API with file-based audit logging
 header('Content-Type: application/json');
 
-$LOG_FILE = __DIR__ . '/../../logs/audit.json';
+
+require_once __DIR__ . '/../config/supabase.php';
 
 $action = $_GET['action'] ?? $_POST['action'] ?? '';
 
-// Helper function to read logs
-function readLogs() {
-    global $LOG_FILE;
-    if (file_exists($LOG_FILE)) {
-        $content = file_get_contents($LOG_FILE);
-        $logs = json_decode($content, true);
-        return $logs ?: [];
-    }
-    return [];
-}
 
-// Helper function to write logs
-function writeLogs($logs) {
-    global $LOG_FILE;
-    $dir = dirname($LOG_FILE);
-    if (!is_dir($dir)) {
-        mkdir($dir, 0755, true);
-    }
-    file_put_contents($LOG_FILE, json_encode($logs, JSON_PRETTY_PRINT));
-}
-
-// Helper function to add log entry
+// Helper function to add log entry to rcts_audit_log (Supabase)
 function addLog($event, $user = 'system') {
-    $logs = readLogs();
-    $logs[] = [
-        'ts' => date('Y-m-d H:i:s'),
+    $entry = [
+        'actor' => $user,
         'event' => $event,
-        'user' => $user
+        'details' => null,
     ];
-    // Keep only last 1000 entries
-    if (count($logs) > 1000) {
-        $logs = array_slice($logs, -1000);
-    }
-    writeLogs($logs);
+    supabase_request('rcts_audit_log', 'POST', [], $entry, true);
 }
 
 switch ($action) {
@@ -92,17 +68,24 @@ switch ($action) {
         break;
         
     case 'list_logs':
-        $logs = readLogs();
-        // If no logs yet, add some demo entries
-        if (empty($logs)) {
-            $logs = [
-                ['ts' => date('Y-m-d H:i:s', strtotime('-1 hour')), 'event' => 'User login: admin@qc.gov.ph', 'user' => 'admin@qc.gov.ph'],
-                ['ts' => date('Y-m-d H:i:s', strtotime('-30 minutes')), 'event' => 'Admin viewed dashboard', 'user' => 'admin@qc.gov.ph'],
-                ['ts' => date('Y-m-d H:i:s', strtotime('-10 minutes')), 'event' => 'User login: treasurer@qc.gov.ph', 'user' => 'treasurer@qc.gov.ph'],
-            ];
-            writeLogs($logs);
+        // Fetch from rcts_audit_log (last 1000 entries, admin only)
+        $result = supabase_request('rcts_audit_log', 'GET', [
+            'select' => 'created_at,actor,event,details',
+            'order' => 'created_at.desc',
+            'limit' => 1000
+        ], [], true);
+        $logs = [];
+        if ($result['success'] && !empty($result['data'])) {
+            foreach ($result['data'] as $row) {
+                $logs[] = [
+                    'ts' => $row['created_at'],
+                    'event' => $row['event'],
+                    'user' => $row['actor'],
+                    'details' => $row['details']
+                ];
+            }
         }
-        echo json_encode(['success' => true, 'logs' => array_reverse($logs)]);
+        echo json_encode(['success' => true, 'logs' => $logs]);
         break;
         
     case 'add_log':

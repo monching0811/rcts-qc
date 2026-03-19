@@ -14,6 +14,18 @@
  */
 
 // Set up error handling before anything else
+
+// Helper: Log audit event to rcts_audit_log
+if (!function_exists('audit_log')) {
+    function audit_log($actor, $event, $details = null) {
+        $entry = [
+            'actor' => $actor,
+            'event' => $event,
+            'details' => is_array($details) ? json_encode($details) : $details,
+        ];
+        supabase_request('rcts_audit_log', 'POST', [], $entry, true);
+    }
+}
 ini_set('display_errors', 1);
 error_reporting(E_ALL);
 
@@ -86,7 +98,11 @@ if (!function_exists('db_select')) {
     send_error_response('db_select function not found. Check supabase.php includes', 500);
 }
 
+
 $action = $_GET['action'] ?? '';
+$actor = $_SESSION['user_id'] ?? $_SESSION['qcitizen_id'] ?? 'system';
+// Log all dashboard actions
+audit_log($actor, $action, array_merge($_GET, $_POST, $_SESSION ?? []));
 
 switch ($action) {
 
