@@ -948,11 +948,14 @@
             : "—";
 
           // Get logs for today count
-          const logs = await apiCall("list_logs");
-          if (logs.success) {
+          const logsRes = await fetch(
+            "../../api/endpoints/audit-log.php?action=list",
+          );
+          const logsData = await logsRes.json();
+          if (logsData.success) {
             const today = new Date().toISOString().split("T")[0];
-            const todayLogs = logs.logs.filter(
-              (l) => l.ts && l.ts.startsWith(today),
+            const todayLogs = logsData.logs.filter(
+              (l) => l.created_at && l.created_at.startsWith(today),
             );
             document.getElementById("k-logs").textContent = todayLogs.length;
           }
@@ -967,7 +970,10 @@
       // Load Recent Activity
       async function loadRecentActivity() {
         try {
-          const data = await apiCall("list_logs");
+          const logsRes = await fetch(
+            "../../api/endpoints/audit-log.php?action=list",
+          );
+          const data = await logsRes.json();
           if (!data.success) throw new Error(data.message);
 
           const logs = data.logs.slice(0, 8);
@@ -1158,11 +1164,17 @@
       let logsData = [];
       async function loadLogs() {
         try {
-          const data = await apiCall("list_logs");
-          if (!data.success)
-            throw new Error(data.message || "Failed to load logs");
+          // Fetch from the audit-log API
+          const response = await fetch(
+            "../../api/endpoints/audit-log.php?action=list",
+          );
+          const data = await response.json();
 
-          logsData = data.logs;
+          if (!data.success) {
+            throw new Error(data.message || "Failed to load logs");
+          }
+
+          logsData = data.logs || [];
           let html = `<table class="table">
             <thead><tr><th>Timestamp</th><th>Event</th></tr></thead>
             <tbody>`;
