@@ -556,15 +556,36 @@
       <div class="nav-right">
         <span class="staff-badge">Treasury Staff</span>
         <span id="nav-name" style="font-size: 12px; color: #1a1a1a">—</span>
-        <button
-          class="btn-logout"
-          onclick="
+        <button class="btn-logout" onclick="treasurerLogout()">Sign Out</button>
+        <script>
+          async function treasurerLogout() {
+            const citizen = JSON.parse(
+              sessionStorage.getItem("rcts_citizen") || "{}",
+            );
+            try {
+              await fetch("../../api/endpoints/logout.php", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                  user_id:
+                    citizen.user_id ||
+                    citizen.qcitizen_id ||
+                    citizen.email ||
+                    "unknown",
+                  email: citizen.email,
+                  role: citizen.role,
+                  details: {
+                    id: citizen.user_id || citizen.qcitizen_id || citizen.email,
+                    email: citizen.email,
+                    role: citizen.role,
+                  },
+                }),
+              });
+            } catch (e) {}
             sessionStorage.clear();
-            location.href = '../treasurer/login.html';
-          "
-        >
-          Sign Out
-        </button>
+            window.location.replace("../treasurer/login.html");
+          }
+        </script>
       </div>
     </nav>
     <main>

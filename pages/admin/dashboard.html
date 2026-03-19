@@ -1178,10 +1178,15 @@
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({
-              user: citizen.email,
+              user_id:
+                citizen.user_id ||
+                citizen.qcitizen_id ||
+                citizen.email ||
+                "unknown",
+              email: citizen.email,
               role: citizen.role,
               details: {
-                id: citizen.id,
+                id: citizen.user_id || citizen.qcitizen_id || citizen.email,
                 email: citizen.email,
                 role: citizen.role,
               },
@@ -1189,7 +1194,6 @@
           });
         } catch (e) {}
         sessionStorage.clear();
-        // Direct redirect to avoid any potential loops
         window.location.replace("../../index.html");
       }
       // Admin check
