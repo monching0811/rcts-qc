@@ -53,6 +53,25 @@ switch ($action) {
         echo json_encode(['success' => true]);
         break;
         
+    case 'update_user':
+        $id = $_POST['qcitizen_id'] ?? '';
+        $name = $_POST['full_name'] ?? '';
+        $role = $_POST['role'] ?? '';
+        $status = $_POST['status'] ?? 'active';
+        
+        if ($id) {
+            $changes = [];
+            if ($name) $changes[] = "name: $name";
+            if ($role) $changes[] = "role: $role";
+            if ($status) $changes[] = "status: $status";
+            
+            addLog("Updated user $id: " . implode(", ", $changes), 'admin');
+            echo json_encode(['success' => true, 'message' => 'User updated successfully']);
+        } else {
+            echo json_encode(['success' => false, 'message' => 'User ID required']);
+        }
+        break;
+        
     case 'save_settings':
         addLog("System settings updated", 'admin');
         echo json_encode(['success' => true]);

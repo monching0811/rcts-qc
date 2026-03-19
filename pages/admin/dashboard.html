@@ -684,6 +684,80 @@
               + Add New User
             </button>
           </div>
+          <p
+            style="
+              font-size: 12px;
+              color: #666;
+              margin-bottom: 16px;
+              padding: 10px;
+              background: #f9f9f9;
+              border-radius: 6px;
+            "
+          >
+            <strong>Note:</strong> Citizen users are managed in
+            <a
+              href="../../mock-data/subsystem1/citizen-registry-api.php"
+              target="_blank"
+              >Subsystem 1 (Citizen Registry)</a
+            >. Use this panel to manage internal staff: Treasurers, Revenue
+            Officers, Auditors, and Admins.
+          </p>
+          <!-- Search and Filters -->
+          <div
+            style="
+              display: flex;
+              gap: 12px;
+              margin-bottom: 16px;
+              flex-wrap: wrap;
+            "
+          >
+            <input
+              type="text"
+              id="userSearch"
+              placeholder="Search by name or email..."
+              style="
+                flex: 1;
+                min-width: 200px;
+                padding: 8px 12px;
+                border: 1px solid #ddd;
+                border-radius: 6px;
+                font-size: 13px;
+              "
+              oninput="filterUsers()"
+            />
+            <select
+              id="statusFilter"
+              onchange="filterUsers()"
+              style="
+                padding: 8px 12px;
+                border: 1px solid #ddd;
+                border-radius: 6px;
+                font-size: 13px;
+                background: #fff;
+              "
+            >
+              <option value="all">All Status</option>
+              <option value="active">Active</option>
+              <option value="inactive">Inactive</option>
+            </select>
+            <select
+              id="roleFilter"
+              onchange="filterUsers()"
+              style="
+                padding: 8px 12px;
+                border: 1px solid #ddd;
+                border-radius: 6px;
+                font-size: 13px;
+                background: #fff;
+              "
+            >
+              <option value="all">All Roles</option>
+              <option value="admin">Admin</option>
+              <option value="treasurer">Treasurer</option>
+              <option value="revenue_officer">Revenue Officer</option>
+              <option value="auditor">Auditor</option>
+            </select>
+          </div>
           <div id="users-container">
             <div class="loading">
               <div class="spinner"></div>
@@ -761,7 +835,11 @@
     <!-- Add User Modal -->
     <div id="addUserModal" class="modal">
       <div class="modal-content">
-        <h2 class="modal-title">Add New User</h2>
+        <h2 class="modal-title">Add Internal User</h2>
+        <p style="font-size: 12px; color: #666; margin-bottom: 16px">
+          Add staff members (Treasurer, Revenue Officer, Auditor, Admin).
+          Citizens are managed in Subsystem 1.
+        </p>
         <div class="form-group">
           <label>Full Name</label>
           <input type="text" id="addUserName" placeholder="Enter full name" />
@@ -773,7 +851,6 @@
         <div class="form-group">
           <label>Role</label>
           <select id="addUserRole">
-            <option value="citizen">Citizen</option>
             <option value="treasurer">Treasurer</option>
             <option value="revenue_officer">Revenue Officer</option>
             <option value="auditor">Auditor</option>
@@ -833,6 +910,60 @@
         <div class="modal-actions">
           <button class="btn" onclick="confirmResetPassword()">Reset</button>
           <button class="btn btn-secondary" onclick="closeResetPasswordModal()">
+            Cancel
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Edit User Modal -->
+    <div id="editUserModal" class="modal">
+      <div class="modal-content">
+        <h2 class="modal-title">Edit User Profile</h2>
+        <p class="text-muted" id="editUserInfo"></p>
+        <div class="form-group">
+          <label>Full Name</label>
+          <input type="text" id="editUserName" placeholder="Enter full name" />
+        </div>
+        <div class="form-group">
+          <label>Email</label>
+          <input
+            type="email"
+            id="editUserEmail"
+            placeholder="Enter email"
+            readonly
+            style="background: #f5f5f5; color: #999"
+          />
+        </div>
+        <div class="form-group">
+          <label>Role</label>
+          <select id="editUserRole">
+            <option value="treasurer">Treasurer</option>
+            <option value="revenue_officer">Revenue Officer</option>
+            <option value="auditor">Auditor</option>
+            <option value="admin">Admin</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Status</label>
+          <select id="editUserStatus">
+            <option value="active">Active</option>
+            <option value="inactive">Inactive</option>
+          </select>
+        </div>
+        <div
+          id="editUserError"
+          class="alert alert-error"
+          style="display: none"
+        ></div>
+        <div
+          id="editUserSuccess"
+          class="alert alert-success"
+          style="display: none"
+        ></div>
+        <div class="modal-actions">
+          <button class="btn" onclick="confirmEditUser()">Save Changes</button>
+          <button class="btn btn-secondary" onclick="closeEditUserModal()">
             Cancel
           </button>
         </div>
@@ -929,10 +1060,13 @@
       // Load Dashboard Stats
       async function loadDashboardStats() {
         try {
-          // Get user count
+          // Get user count (internal users only, excluding citizens)
           const users = await apiCall("list_users");
+          const internalUsers = users.success
+            ? users.users.filter((u) => u.role !== "citizen")
+            : [];
           document.getElementById("k-users").textContent = users.success
-            ? users.users.length
+            ? internalUsers.length
             : "—";
 
           // Get API keys count
@@ -996,35 +1130,78 @@
       }
 
       // Load Users
+      let allInternalUsers = [];
       async function loadUsers() {
         try {
           const data = await apiCall("list_users");
           if (!data.success)
             throw new Error(data.message || "Failed to load users");
 
-          let html = `<table class="table">
-            <thead><tr><th>Name</th><th>Email</th><th>Role</th><th>Status</th><th>Actions</th></tr></thead>
-            <tbody>`;
+          // Filter out citizen users - they are managed in Subsystem 1
+          allInternalUsers = data.users.filter((u) => u.role !== "citizen");
 
-          for (const u of data.users) {
-            const roleClass = `role-${u.role}`;
-            html += `<tr>
-              <td>${u.full_name}</td>
-              <td>${u.email}</td>
-              <td><span class="role-badge ${roleClass}">${u.role}</span></td>
-              <td class="status-${u.status}">${u.status}</td>
-              <td>
-                <button class="btn btn-sm" style="padding:4px 8px;font-size:11px" onclick="openResetPasswordModal('${u.qcitizen_id}', '${u.full_name}')">Reset PW</button>
-                <button class="btn btn-danger btn-sm" style="padding:4px 8px;font-size:11px" onclick="deleteUser('${u.qcitizen_id}', '${u.full_name}')">Delete</button>
-              </td>
-            </tr>`;
-          }
-          html += `</tbody></table>`;
-          document.getElementById("users-container").innerHTML = html;
+          // Apply filters
+          filterUsers();
         } catch (e) {
           document.getElementById("users-container").innerHTML =
             `<div class="alert alert-error">Error: ${e.message}</div>`;
         }
+      }
+
+      // Filter Users (Search & Status)
+      function filterUsers() {
+        const search =
+          document.getElementById("userSearch")?.value?.toLowerCase() || "";
+        const status = document.getElementById("statusFilter")?.value || "all";
+        const role = document.getElementById("roleFilter")?.value || "all";
+
+        const filtered = allInternalUsers.filter((u) => {
+          const matchSearch =
+            !search ||
+            u.full_name?.toLowerCase().includes(search) ||
+            u.email?.toLowerCase().includes(search);
+          const matchStatus = status === "all" || u.status === status;
+          const matchRole = role === "all" || u.role === role;
+          return matchSearch && matchStatus && matchRole;
+        });
+
+        renderUsersTable(filtered);
+      }
+
+      // Render Users Table
+      function renderUsersTable(users) {
+        if (!users.length) {
+          document.getElementById("users-container").innerHTML =
+            '<div style="text-align:center;padding:20px;color:var(--muted)">No users found</div>';
+          return;
+        }
+
+        let html = `<table class="table">
+          <thead><tr><th>Name</th><th>Email</th><th>Role</th><th>Status</th><th>Actions</th></tr></thead>
+          <tbody>`;
+
+        for (const u of users) {
+          const roleClass = `role-${u.role}`;
+          const deactivateBtn =
+            u.status === "active"
+              ? `<button class="btn btn-sm" style="padding:4px 8px;font-size:11px;background:#f5f5f5" onclick="deactivateUser('${u.qcitizen_id}', '${u.full_name}')">Deactivate</button>`
+              : `<button class="btn btn-sm" style="padding:4px 8px;font-size:11px;background:#e8f5e9;color:#2e7d32" onclick="activateUser('${u.qcitizen_id}', '${u.full_name}')">Activate</button>`;
+
+          html += `<tr>
+            <td>${u.full_name}</td>
+            <td>${u.email}</td>
+            <td><span class="role-badge ${roleClass}">${u.role}</span></td>
+            <td class="status-${u.status}">${u.status}</td>
+            <td>
+              <button class="btn btn-sm" style="padding:4px 8px;font-size:11px" onclick="openEditUserModal('${u.qcitizen_id}', '${u.full_name}', '${u.email}', '${u.role}', '${u.status}')">Edit</button>
+              <button class="btn btn-sm" style="padding:4px 8px;font-size:11px" onclick="openResetPasswordModal('${u.qcitizen_id}', '${u.full_name}')">Reset PW</button>
+              ${deactivateBtn}
+              <button class="btn btn-danger btn-sm" style="padding:4px 8px;font-size:11px" onclick="deleteUser('${u.qcitizen_id}', '${u.full_name}')">Delete</button>
+            </td>
+          </tr>`;
+        }
+        html += `</tbody></table>`;
+        document.getElementById("users-container").innerHTML = html;
       }
 
       // Add User
@@ -1077,6 +1254,95 @@
           });
           if (!data.success)
             throw new Error(data.message || "Failed to delete user");
+          loadUsers();
+          loadDashboardStats();
+        } catch (e) {
+          alert("Error: " + e.message);
+        }
+      }
+
+      // Edit User
+      let editUserId = "";
+      function openEditUserModal(id, name, email, role, status) {
+        editUserId = id;
+        document.getElementById("editUserInfo").textContent =
+          `Editing: ${name}`;
+        document.getElementById("editUserName").value = name;
+        document.getElementById("editUserEmail").value = email;
+        document.getElementById("editUserRole").value = role;
+        document.getElementById("editUserStatus").value = status;
+        document.getElementById("editUserError").style.display = "none";
+        document.getElementById("editUserSuccess").style.display = "none";
+        document.getElementById("editUserModal").classList.add("show");
+      }
+      function closeEditUserModal() {
+        document.getElementById("editUserModal").classList.remove("show");
+        editUserId = "";
+      }
+      async function confirmEditUser() {
+        const name = document.getElementById("editUserName").value;
+        const role = document.getElementById("editUserRole").value;
+        const status = document.getElementById("editUserStatus").value;
+
+        if (!name) {
+          showError("editUserError", "Name cannot be empty");
+          return;
+        }
+
+        try {
+          const data = await apiCall("update_user", "POST", {
+            qcitizen_id: editUserId,
+            full_name: name,
+            role: role,
+            status: status,
+          });
+          if (!data.success)
+            throw new Error(data.message || "Failed to update user");
+          showSuccess("editUserSuccess", "User updated successfully");
+          setTimeout(() => {
+            closeEditUserModal();
+            loadUsers();
+            loadDashboardStats();
+          }, 1000);
+        } catch (e) {
+          showError("editUserError", e.message);
+        }
+      }
+
+      // Activate/Deactivate User
+      async function deactivateUser(id, name) {
+        if (
+          !confirm(
+            `Deactivate user "${name}"? This will prevent them from logging in.`,
+          )
+        )
+          return;
+        try {
+          const data = await apiCall("update_user", "POST", {
+            qcitizen_id: id,
+            status: "inactive",
+          });
+          if (!data.success)
+            throw new Error(data.message || "Failed to deactivate user");
+          loadUsers();
+          loadDashboardStats();
+        } catch (e) {
+          alert("Error: " + e.message);
+        }
+      }
+
+      async function activateUser(id, name) {
+        if (
+          !confirm(`Activate user "${name}"? This will allow them to log in.`)
+        )
+          return;
+        try {
+          const data = await apiCall("update_user", "POST", {
+            qcitizen_id: id,
+            status: "active",
+          });
+          if (!data.success)
+            throw new Error(data.message || "Failed to activate user");
           loadUsers();
           loadDashboardStats();
         } catch (e) {
@@ -1279,6 +1545,7 @@
       document.addEventListener("click", (e) => {
         if (e.target.id === "addUserModal") closeAddUserModal();
         if (e.target.id === "resetPasswordModal") closeResetPasswordModal();
+        if (e.target.id === "editUserModal") closeEditUserModal();
       });
 
       // Initial load
