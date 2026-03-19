@@ -852,6 +852,7 @@
       const citizen = JSON.parse(
         sessionStorage.getItem("rcts_citizen") || "{}",
       );
+      console.log("Admin dashboard loaded, citizen:", citizen);
       if (citizen.role !== "admin") {
         alert("Access denied. Admin access required.");
         window.location.href = "../../index.html";
@@ -869,6 +870,7 @@
         });
 
       const token = citizen.login_token || citizen.qcitizen_id;
+      console.log("Using token:", token);
       const AUTH_HEADER = { Authorization: `Bearer ${token}` };
 
       function apiCall(action, method = "GET", body = null) {
