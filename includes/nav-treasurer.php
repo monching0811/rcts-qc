@@ -24,8 +24,12 @@ $base_url    = $base_url ?? '../../';
             'reports'      => ['href' => 'reports.html',        'label' => 'Reports / e-SRE'],
             'funds'        => ['href' => 'fund-management.html','label' => 'Fund Management'],
             'billing'      => ['href' => 'market-billing.html', 'label' => 'Market Billing'],
+            'admin'        => ['href' => 'admin.html',          'label' => 'Admin Panel'],
         ];
+        $c = json_decode($_COOKIE['rcts_citizen'] ?? '{}', true);
+        $is_admin = isset($c['role']) && $c['role'] === 'admin';
         foreach ($links as $key => $link):
+            if ($key === 'admin' && !$is_admin) continue;
             $is_active = ($active_page === $key);
         ?>
         <a href="<?= $link['href'] ?>" style="padding:7px 12px;font-size:12px;color:<?= $is_active ? 'var(--gold)' : 'var(--muted)' ?>;text-decoration:none;border-radius:6px;background:<?= $is_active ? 'rgba(201,168,76,.08)' : 'transparent' ?>">
@@ -34,7 +38,7 @@ $base_url    = $base_url ?? '../../';
         <?php endforeach; ?>
     </div>
     <div style="display:flex;align-items:center;gap:10px">
-        <span style="font-size:10px;padding:2px 8px;border-radius:8px;background:rgba(201,168,76,.15);color:var(--gold);font-weight:600">Treasury Staff</span>
+        <span id="admin-badge" style="font-size:10px;padding:2px 8px;border-radius:8px;background:rgba(201,168,76,.15);color:var(--gold);font-weight:600">Treasury Staff</span>
         <span id="nav-treasurer-name" style="font-size:12px;color:var(--white)">—</span>
         <button onclick="sessionStorage.clear();location.href='<?= $base_url ?>pages/citizen/login.html'"
                 style="background:none;border:1px solid rgba(201,168,76,.25);border-radius:6px;padding:5px 12px;font-size:11px;color:var(--muted);cursor:pointer;font-family:'DM Sans',sans-serif">
@@ -48,5 +52,7 @@ $base_url    = $base_url ?? '../../';
     if (!['treasurer','revenue_officer','admin'].includes(c.role)) { location.href='<?= $base_url ?>pages/citizen/login.html'; return; }
     const el = document.getElementById('nav-treasurer-name');
     if (el) el.textContent = c.full_name || 'Treasury Staff';
+    const badge = document.getElementById('admin-badge');
+    if (badge) badge.textContent = (c.role === 'admin') ? 'Admin' : 'Treasury Staff';
 })();
 </script>

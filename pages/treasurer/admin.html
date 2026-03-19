@@ -1,0 +1,344 @@
+<!-- Treasury Admin Panel (admin.html)
+     Only visible to users with the 'admin' role. -->
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1.0" />
+    <title>Treasury Admin Panel | RCTS-QC</title>
+    <link rel="stylesheet" href="../../public/css/dashboard.css" />
+    <style>
+      .admin-section {
+        background: #fff;
+        border-radius: 10px;
+        padding: 32px;
+        margin: 32px auto;
+        max-width: 800px;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+      }
+      .admin-section h1 {
+        font-size: 2rem;
+        margin-bottom: 18px;
+      }
+      .admin-section h2 {
+        font-size: 1.2rem;
+        margin-top: 32px;
+        margin-bottom: 10px;
+      }
+      .admin-table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-bottom: 24px;
+      }
+      .admin-table th,
+      .admin-table td {
+        border: 1px solid #eee;
+        padding: 8px 12px;
+        text-align: left;
+      }
+      .admin-table th {
+        background: #f5f5f5;
+      }
+      .admin-btn {
+        padding: 6px 14px;
+        border-radius: 6px;
+        border: none;
+        background: var(--gold, #c9a84c);
+        color: #fff;
+        font-weight: 600;
+        cursor: pointer;
+        margin-right: 6px;
+      }
+      .admin-btn.danger {
+        background: #e74c3c;
+      }
+      .admin-badge {
+        background: #c9a84c;
+        color: #fff;
+        border-radius: 8px;
+        padding: 2px 8px;
+        font-size: 11px;
+        font-weight: 600;
+        margin-left: 8px;
+      }
+    </style>
+  </head>
+  <body>
+    <?php $active_page = 'admin'; $base_url = '../../'; require_once __DIR__ .
+    '/../../includes/nav-treasurer.php'; ?>
+    <div class="admin-section">
+      <h1>Treasury Admin Panel <span class="admin-badge">Admin</span></h1>
+      <div id="admin-content">
+        <h2>User Management</h2>
+        <div id="user-table-wrap">Loading users...</div>
+        <button class="admin-btn" onclick="showAddUser()">Add New User</button>
+        <div id="add-user-form" style="display: none; margin-top: 18px">
+          <h3>Add User</h3>
+          <input id="new-name" placeholder="Full Name" />
+          <input id="new-email" placeholder="Email" />
+          <select id="new-role">
+            <option value="treasurer">Treasurer</option>
+            <option value="revenue_officer">Revenue Officer</option>
+            <option value="admin">Admin</option>
+            <option value="auditor">Auditor</option>
+            <option value="citizen">Citizen</option>
+          </select>
+          <input id="new-password" placeholder="Password" type="password" />
+          <button class="admin-btn" onclick="addUser()">Create</button>
+          <button class="admin-btn danger" onclick="hideAddUser()">
+            Cancel
+          </button>
+        </div>
+        <h2>System Settings</h2>
+        <div id="settings-wrap">Loading settings...</div>
+        <h2>
+          Audit Logs
+          <button class="admin-btn" onclick="exportLogs()">Export CSV</button>
+        </h2>
+        <div id="logs-wrap">Loading logs...</div>
+        <h2>Business Rule Change Log</h2>
+        <div id="rulelog-wrap">Loading rule changes...</div>
+        <h2>API Key Management</h2>
+        <div id="apikey-wrap">Loading API keys...</div>
+      </div>
+    </div>
+    <script>
+      // Only allow admin
+      const citizen = JSON.parse(
+        sessionStorage.getItem("rcts_citizen") || "{}",
+      );
+      if (citizen.role !== "admin") {
+        alert("Access denied. Admins only.");
+        location.href = "../citizen/login.html";
+      }
+      // Placeholder: Fetch users/settings/logs from backend API
+      async function loadUsers() {
+        const res = await fetch(
+          "../../api/endpoints/admin.php?action=list_users",
+        );
+        const data = await res.json();
+        if (!data.success) {
+          document.getElementById("user-table-wrap").innerHTML =
+            '<div style="color:red">Failed to load users.</div>';
+          return;
+        }
+        let html =
+          '<table class="admin-table"><tr><th>Name</th><th>Email</th><th>Role</th><th>Status</th><th>Actions</th></tr>';
+        for (const u of data.users) {
+          html += `<tr><td>${u.full_name}</td><td>${u.email}</td><td>${u.role}</td><td>${u.status}</td><td><button class="admin-btn" onclick="showResetPw('${u.qcitizen_id}','${u.full_name}')">Reset Password</button> <button class="admin-btn danger" onclick="deleteUser('${u.qcitizen_id}')">Delete</button></td></tr>`;
+        }
+        html += "</table>";
+        document.getElementById("user-table-wrap").innerHTML = html;
+      }
+      async function loadSettings() {
+        const res = await fetch(
+          "../../api/endpoints/admin.php?action=list_settings",
+        );
+        const data = await res.json();
+        if (!data.success) {
+          document.getElementById("settings-wrap").innerHTML =
+            '<div style="color:red">Failed to load settings.</div>';
+          return;
+        }
+        let html = '<form id="settings-form">';
+        for (const s of data.settings) {
+          html += `<div style='margin-bottom:10px;'><label>${s.key}: <input name="${s.key}" value="${s.value}" style='width:100px;'></label></div>`;
+        }
+        html +=
+          '<button class="admin-btn" type="submit">Save Settings</button></form>';
+        document.getElementById("settings-wrap").innerHTML = html;
+        document.getElementById("settings-form").onsubmit = saveSettings;
+      }
+      async function saveSettings(e) {
+        e.preventDefault();
+        const form = new FormData(e.target);
+        form.append("action", "save_settings");
+        const res = await fetch("../../api/endpoints/admin.php", {
+          method: "POST",
+          body: form,
+        });
+        const data = await res.json();
+        if (data.success) {
+          alert("Settings updated.");
+          loadSettings();
+        } else {
+          alert(
+            "Failed to update settings: " + (data.message || "Unknown error"),
+          );
+        }
+      }
+      async function loadLogs() {
+        const res = await fetch(
+          "../../api/endpoints/admin.php?action=list_logs",
+        );
+        const data = await res.json();
+        if (!data.success) {
+          document.getElementById("logs-wrap").innerHTML =
+            '<div style="color:red">Failed to load logs.</div>';
+          return;
+        }
+        let html = "";
+        for (const l of data.logs) {
+          html += `<div>${l.ts} - ${l.event}</div>`;
+        }
+        document.getElementById("logs-wrap").innerHTML = html;
+        window._logs_csv = data.logs;
+      }
+      function exportLogs() {
+        const logs = window._logs_csv || [];
+        let csv = "Timestamp,Event\n";
+        for (const l of logs) {
+          csv += `"${l.ts}","${l.event.replace(/"/g, '""')}"\n`;
+        }
+        const blob = new Blob([csv], { type: "text/csv" });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = "audit-logs.csv";
+        document.body.appendChild(a);
+        a.click();
+        setTimeout(() => {
+          URL.revokeObjectURL(url);
+          a.remove();
+        }, 1000);
+      }
+
+      // Business Rule Change Log
+      async function loadRuleLog() {
+        const res = await fetch(
+          "../../api/endpoints/admin.php?action=rule_log",
+        );
+        const data = await res.json();
+        if (!data.success) {
+          document.getElementById("rulelog-wrap").innerHTML =
+            '<div style="color:red">Failed to load rule log.</div>';
+          return;
+        }
+        let html = "<ul>";
+        for (const r of data.log) {
+          html += `<li>${r.ts} - ${r.user}: ${r.change}</li>`;
+        }
+        html += "</ul>";
+        document.getElementById("rulelog-wrap").innerHTML = html;
+      }
+
+      // API Key Management
+      async function loadApiKeys() {
+        const res = await fetch(
+          "../../api/endpoints/admin.php?action=list_apikeys",
+        );
+        const data = await res.json();
+        if (!data.success) {
+          document.getElementById("apikey-wrap").innerHTML =
+            '<div style="color:red">Failed to load API keys.</div>';
+          return;
+        }
+        let html =
+          '<table class="admin-table"><tr><th>Subsystem</th><th>API Key</th><th>Actions</th></tr>';
+        for (const k of data.keys) {
+          html += `<tr><td>${k.subsystem}</td><td><input value="${k.key}" readonly style='width:220px'></td><td><button class="admin-btn" onclick="regenKey('${k.subsystem}')">Regenerate</button></td></tr>`;
+        }
+        html += "</table>";
+        document.getElementById("apikey-wrap").innerHTML = html;
+      }
+      async function regenKey(subsystem) {
+        if (!confirm("Regenerate API key for " + subsystem + "?")) return;
+        const form = new FormData();
+        form.append("action", "regen_apikey");
+        form.append("subsystem", subsystem);
+        const res = await fetch("../../api/endpoints/admin.php", {
+          method: "POST",
+          body: form,
+        });
+        const data = await res.json();
+        if (data.success) {
+          loadApiKeys();
+        } else {
+          alert(
+            "Failed to regenerate key: " + (data.message || "Unknown error"),
+          );
+        }
+      }
+      // Password reset modal
+      function showResetPw(qcitizen_id, name) {
+        const pw = prompt("Enter new password for " + name + ":");
+        if (!pw) return;
+        resetPassword(qcitizen_id, pw);
+      }
+      async function resetPassword(qcitizen_id, password) {
+        const form = new FormData();
+        form.append("action", "reset_password");
+        form.append("qcitizen_id", qcitizen_id);
+        form.append("password", password);
+        const res = await fetch("../../api/endpoints/admin.php", {
+          method: "POST",
+          body: form,
+        });
+        const data = await res.json();
+        if (data.success) {
+          alert("Password reset successful.");
+        } else {
+          alert(
+            "Failed to reset password: " + (data.message || "Unknown error"),
+          );
+        }
+      }
+      function showAddUser() {
+        document.getElementById("add-user-form").style.display = "block";
+      }
+      function hideAddUser() {
+        document.getElementById("add-user-form").style.display = "none";
+      }
+      async function addUser() {
+        const name = document.getElementById("new-name").value;
+        const email = document.getElementById("new-email").value;
+        const role = document.getElementById("new-role").value;
+        const password = document.getElementById("new-password").value;
+        if (!name || !email || !password) {
+          alert("All fields required.");
+          return;
+        }
+        const form = new FormData();
+        form.append("action", "add_user");
+        form.append("name", name);
+        form.append("email", email);
+        form.append("role", role);
+        form.append("password", password);
+        const res = await fetch("../../api/endpoints/admin.php", {
+          method: "POST",
+          body: form,
+        });
+        const data = await res.json();
+        if (data.success) {
+          hideAddUser();
+          loadUsers();
+        } else {
+          alert("Failed to add user: " + (data.message || "Unknown error"));
+        }
+      }
+      async function deleteUser(qcitizen_id) {
+        if (!confirm("Delete this user?")) return;
+        const form = new FormData();
+        form.append("action", "delete_user");
+        form.append("qcitizen_id", qcitizen_id);
+        const res = await fetch("../../api/endpoints/admin.php", {
+          method: "POST",
+          body: form,
+        });
+        const data = await res.json();
+        if (data.success) {
+          loadUsers();
+        } else {
+          alert("Failed to delete user: " + (data.message || "Unknown error"));
+        }
+      }
+      window.onload = function () {
+        loadUsers();
+        loadSettings();
+        loadLogs();
+        loadRuleLog();
+        loadApiKeys();
+      };
+    </script>
+  </body>
+</html>
