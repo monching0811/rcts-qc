@@ -9,12 +9,18 @@ require_once __DIR__ . '/../../includes/db.php';
 session_start();
 
 function is_admin() {
-    // For demo: check session or token for admin role
-    $user = $_SESSION['rcts_citizen'] ?? null;
-    if (!$user) {
-        $user = json_decode($_COOKIE['rcts_citizen'] ?? '{}', true);
+    // Check Authorization header for token-based auth
+    $headers = getallheaders();
+    $auth = $headers['Authorization'] ?? '';
+    if (strpos($auth, 'Bearer ') === 0) {
+        $token = substr($auth, 7);
+        // For demo: check if token is admin token
+        // In real app, validate token against database
+        if (strpos($token, 'QC-ADMIN') === 0 || strpos($token, 'QC-STAFF-00001') === 0) {
+            return true;
+        }
     }
-    return isset($user['role']) && $user['role'] === 'admin';
+    return false;
 }
 
 if (!is_admin()) {

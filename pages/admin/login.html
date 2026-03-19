@@ -14,7 +14,7 @@
     </style>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width,initial-scale=1.0" />
-    <title>RCTS-QC | Treasury Login</title>
+    <title>RCTS-QC | Admin Login</title>
     <link
       href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=DM+Sans:wght@300;400;500;600&display=swap"
       rel="stylesheet"
@@ -43,65 +43,34 @@
         color: #1a1a1a;
         min-height: 100vh;
         display: flex;
-        flex-direction: column;
+        align-items: center;
+        justify-content: center;
       }
       body::before {
         content: "";
         position: fixed;
         inset: 0;
-        background-image:
-          repeating-linear-gradient(
-            45deg,
-            transparent,
-            transparent 40px,
-            rgba(201, 168, 76, 0.03) 40px,
-            rgba(201, 168, 76, 0.03) 41px
-          ),
-          repeating-linear-gradient(
-            -45deg,
-            transparent,
-            transparent 40px,
-            rgba(201, 168, 76, 0.03) 40px,
-            rgba(201, 168, 76, 0.03) 41px
-          );
+        background-image: repeating-linear-gradient(
+          45deg,
+          transparent,
+          transparent 40px,
+          rgba(201, 168, 76, 0.03) 40px,
+          rgba(201, 168, 76, 0.03) 41px
+        );
         pointer-events: none;
         z-index: 0;
       }
-      .top-bar {
+      .login-container {
         position: relative;
         z-index: 10;
-        background: var(--gold);
-        padding: 7px 32px;
-        display: flex;
-        align-items: center;
-        gap: 10px;
+        width: 100%;
+        padding: 20px;
       }
-      .top-bar span {
-        font-size: 11px;
-        font-weight: 600;
-        color: #ffffff;
-        letter-spacing: 0.08em;
-        text-transform: uppercase;
-      }
-      .top-bar .dot {
-        width: 4px;
-        height: 4px;
-        border-radius: 50%;
-        background: #ffffff;
-        opacity: 0.5;
-      }
-      .page-wrap {
-        flex: 1;
+      .login-wrapper {
         display: flex;
         align-items: center;
         justify-content: center;
-        padding: 40px 20px;
-        position: relative;
-        z-index: 10;
-      }
-      .login-box {
-        width: 100%;
-        max-width: 420px;
+        min-height: 100vh;
       }
       .back-link {
         display: inline-flex;
@@ -131,6 +100,10 @@
         box-shadow: 0 0 0 3px rgba(201, 168, 76, 0.25);
         margin-bottom: 20px;
       }
+      .login-box {
+        width: 100%;
+        max-width: 420px;
+      }
       .login-box h1 {
         font-family: "Playfair Display", serif;
         font-size: 26px;
@@ -148,57 +121,53 @@
       .form-group {
         margin-bottom: 18px;
       }
-      label {
+      .form-group label {
         display: block;
         font-size: 12px;
         font-weight: 600;
-        color: #666666;
-        letter-spacing: 0.06em;
-        text-transform: uppercase;
-        margin-bottom: 7px;
-      }
-      input {
-        width: 100%;
-        background: #ffffff;
-        border: 1px solid #dddddd;
-        border-radius: 8px;
-        padding: 12px 16px;
+        margin-bottom: 6px;
         color: #1a1a1a;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+      }
+      .form-group input,
+      .form-group select {
+        width: 100%;
+        padding: 11px 13px;
+        border: 1px solid #dddddd;
+        border-radius: 6px;
+        font-size: 13px;
         font-family: "DM Sans", sans-serif;
-        font-size: 14px;
+        transition:
+          border-color 0.2s,
+          box-shadow 0.2s;
+      }
+      .form-group input:focus,
+      .form-group select:focus {
         outline: none;
-        transition: border-color 0.2s;
-      }
-      input:focus {
         border-color: var(--gold);
-      }
-      input::placeholder {
-        color: #999999;
-      }
-      .hint {
-        font-size: 11px;
-        color: #666666;
-        margin-top: 6px;
-      }
-      .hint strong {
-        color: #8a6d3b;
+        box-shadow: 0 0 0 3px rgba(201, 168, 76, 0.1);
       }
       .btn-login {
         width: 100%;
-        background: linear-gradient(135deg, var(--gold), var(--gold2));
+        padding: 11px 16px;
         border: none;
-        border-radius: 8px;
-        padding: 14px;
-        font-family: "DM Sans", sans-serif;
-        font-size: 14px;
-        font-weight: 700;
+        border-radius: 6px;
+        background: var(--gold);
         color: #ffffff;
+        font-size: 13px;
+        font-weight: 600;
         cursor: pointer;
-        letter-spacing: 0.04em;
-        margin-top: 8px;
         transition:
           opacity 0.2s,
           transform 0.15s;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 10px;
+        position: relative;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
       }
       .btn-login:hover {
         opacity: 0.9;
@@ -207,6 +176,20 @@
       .btn-login:disabled {
         opacity: 0.5;
         cursor: not-allowed;
+      }
+      .spinner {
+        display: none;
+        width: 14px;
+        height: 14px;
+        border: 2px solid rgba(255, 255, 255, 0.3);
+        border-top-color: #ffffff;
+        border-radius: 50%;
+        animation: spin 0.6s linear infinite;
+      }
+      @keyframes spin {
+        to {
+          transform: rotate(360deg);
+        }
       }
       .alert {
         border-radius: 8px;
@@ -244,149 +227,95 @@
         text-transform: uppercase;
         letter-spacing: 0.08em;
       }
-      .demo-accounts {
+      .info-box {
         background: #ffffff;
         border: 1px solid #dddddd;
         border-radius: 8px;
         padding: 16px;
+        margin-top: 22px;
       }
-      .demo-accounts h4 {
+      .info-box h4 {
         font-size: 11px;
         color: #8a6d3b;
         letter-spacing: 0.08em;
         text-transform: uppercase;
-        margin-bottom: 12px;
+        margin-bottom: 10px;
       }
-      .demo-row {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        padding: 6px 0;
-        border-bottom: 1px solid #eeeeee;
-        cursor: pointer;
-        transition: opacity 0.2s;
-      }
-      .demo-row:last-child {
-        border-bottom: none;
-      }
-      .demo-row:hover {
-        opacity: 0.8;
-      }
-      .demo-row .name {
+      .info-box p {
         font-size: 12px;
-        color: #1a1a1a;
-      }
-      .demo-row .creds {
-        font-size: 11px;
         color: #666666;
-      }
-      .demo-row .role-tag {
-        font-size: 10px;
-        padding: 2px 8px;
-        border-radius: 10px;
-        font-weight: 600;
-        letter-spacing: 0.05em;
-      }
-      .tag-citizen {
-        background: rgba(52, 152, 219, 0.2);
-        color: #74b9ff;
-      }
-      .tag-treasurer {
-        background: rgba(201, 168, 76, 0.15);
-        color: var(--gold);
-      }
-      .tag-auditor {
-        background: rgba(155, 89, 182, 0.2);
-        color: #a29bfe;
-      }
-      .spinner {
-        display: none;
-        width: 16px;
-        height: 16px;
-        border: 2px solid #dddddd;
-        border-top-color: #1a1a1a;
-        border-radius: 50%;
-        animation: spin 0.7s linear infinite;
-        margin: 0 auto;
-      }
-      @keyframes spin {
-        to {
-          transform: rotate(360deg);
-        }
+        line-height: 1.6;
+        margin: 0;
       }
     </style>
   </head>
   <body>
-    <div class="top-bar">
-      <span>RCTS-QC</span>
-      <div class="dot"></div>
-      <span>Citizen Portal</span>
-      <div class="dot"></div>
-      <span>Secure Login</span>
-    </div>
-    <div class="page-wrap">
-      <div class="login-box">
-        <a class="back-link" href="../../index.html">← Back to Portal Select</a>
-        <div class="seal">QC</div>
-        <h1>Treasury Portal Login</h1>
-        <p class="sub">
-          Revenue Collection &amp; Treasury Services — <span>Department 8</span>
-        </p>
+    <div class="login-container">
+      <a href="../../index.html" class="back-link"
+        >← Back to Portal Selection</a
+      >
+      <div class="login-wrapper">
+        <div class="login-box">
+          <div class="seal">⚙️</div>
+          <h1>Admin Portal</h1>
+          <p class="sub">System Administration & Management</p>
 
-        <div class="alert error" id="err-msg"></div>
-        <div class="alert success" id="ok-msg"></div>
+          <div class="alert error" id="err-msg"></div>
+          <div class="alert success" id="ok-msg"></div>
 
-        <div class="form-group">
-          <label>Email Address</label>
-          <input
-            type="email"
-            id="email"
-            placeholder="your.email@example.com"
-            autocomplete="email"
-          />
-          <div class="hint">
-            Registered email linked to your <strong>QCitizen ID</strong>
-          </div>
-        </div>
-        <div class="form-group">
-          <label>Password</label>
-          <input
-            type="password"
-            id="password"
-            placeholder="Enter your password"
-          />
-        </div>
-
-        <button class="btn-login" id="login-btn" onclick="doLogin()">
-          <span id="btn-text">Sign In to Treasury Portal</span>
-          <div class="spinner" id="spinner"></div>
-        </button>
-
-        <div class="divider"><span>Demo Accounts</span></div>
-
-        <div class="demo-accounts">
-          <h4>Click any row to auto-fill</h4>
-          <div
-            class="demo-row"
-            onclick="fillDemo('treasurer@qc.gov.ph', 'treasurer2025')"
-          >
-            <div>
-              <div class="name">Cheryl Reyes-Macaraeg</div>
-              <div class="creds">treasurer@qc.gov.ph</div>
+          <form onsubmit="doLogin(event)">
+            <div class="form-group">
+              <label>Email Address</label>
+              <input
+                type="email"
+                id="email"
+                placeholder="Enter admin email"
+                required
+              />
             </div>
-            <span class="role-tag tag-treasurer">Treasurer</span>
+            <div class="form-group">
+              <label>Password</label>
+              <input
+                type="password"
+                id="password"
+                placeholder="Enter your password"
+                required
+              />
+            </div>
+
+            <button class="btn-login" id="login-btn" type="submit">
+              <span id="btn-text">Sign In to Admin Panel</span>
+              <div class="spinner" id="spinner"></div>
+            </button>
+          </form>
+
+          <div class="divider"><span>Quick Start</span></div>
+
+          <div class="info-box">
+            <h4>Admin Demo Account</h4>
+            <p style="margin-bottom: 10px">
+              <strong>Email:</strong> admin@qc.gov.ph
+            </p>
+            <p><strong>Password:</strong> admin123</p>
+          </div>
+
+          <div class="info-box" style="margin-top: 16px">
+            <h4>Admin Capabilities</h4>
+            <p>
+              ✓ User & Access Management<br />
+              ✓ System Settings Configuration<br />
+              ✓ Audit Log Monitoring<br />
+              ✓ API Key Management<br />
+              ✓ Business Rule Auditing
+            </p>
           </div>
         </div>
       </div>
     </div>
 
     <script>
-      function fillDemo(email, pw) {
-        document.getElementById("email").value = email;
-        document.getElementById("password").value = pw;
-      }
-
-      async function doLogin() {
+      async function doLogin(event) {
+        event.preventDefault();
         const email = document.getElementById("email").value.trim();
         const pass = document.getElementById("password").value;
         const errEl = document.getElementById("err-msg");
@@ -419,10 +348,9 @@
 
           const citizen = data.data;
 
-          // Check if role is allowed for treasury portal
-          const allowedRoles = ["treasurer", "revenue_officer", "admin"];
-          if (!allowedRoles.includes(citizen.role)) {
-            showErr("Access denied. This portal is for treasury staff only.");
+          // Check if role is admin
+          if (citizen.role !== "admin") {
+            showErr("Access denied. Admin access only.");
             return;
           }
 
@@ -431,14 +359,11 @@
           // Store in cookie for server-side auth
           document.cookie = `rcts_citizen=${encodeURIComponent(JSON.stringify(citizen))}; path=/; max-age=3600; SameSite=Lax`;
 
-          // Redirect based on role
-          const redirectPage =
-            citizen.role === "admin" ? "admin.html" : "dashboard.html";
           okEl.textContent = "Login successful! Redirecting...";
           okEl.style.display = "block";
 
           setTimeout(() => {
-            window.location.href = redirectPage;
+            window.location.href = "dashboard.html";
           }, 900);
         } catch (e) {
           showErr(
@@ -452,14 +377,9 @@
       }
 
       function showErr(msg) {
-        const el = document.getElementById("err-msg");
-        el.textContent = msg;
-        el.style.display = "block";
+        document.getElementById("err-msg").textContent = msg;
+        document.getElementById("err-msg").style.display = "block";
       }
-
-      document.getElementById("password").addEventListener("keydown", (e) => {
-        if (e.key === "Enter") doLogin();
-      });
     </script>
   </body>
 </html>
