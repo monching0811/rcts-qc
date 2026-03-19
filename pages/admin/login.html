@@ -401,9 +401,9 @@
             return;
           }
 
-          sessionStorage.setItem("rcts_admin", JSON.stringify(staff));
+          sessionStorage.setItem("rcts_citizen", JSON.stringify(staff));
           sessionStorage.setItem("rcts_token", staff.login_token);
-          document.cookie = `rcts_admin=${encodeURIComponent(JSON.stringify(staff))}; path=/; max-age=3600; SameSite=Lax`;
+          document.cookie = `rcts_citizen=${encodeURIComponent(JSON.stringify(staff))}; path=/; max-age=3600; SameSite=Lax`;
 
           // Log the login event
           try {
