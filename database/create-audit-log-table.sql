@@ -13,15 +13,17 @@ CREATE TABLE IF NOT EXISTS rcts_audit_log (
 ALTER TABLE rcts_audit_log ENABLE ROW LEVEL SECURITY;
 
 -- Allow public read access for now (can be restricted later)
+DROP POLICY IF EXISTS "Allow read access to audit log" ON rcts_audit_log;
 CREATE POLICY "Allow read access to audit log" ON rcts_audit_log
     FOR SELECT USING (true);
 
 -- Allow service role to insert (for API endpoints)
+DROP POLICY IF EXISTS "Allow service role insert to audit log" ON rcts_audit_log;
 CREATE POLICY "Allow service role insert to audit log" ON rcts_audit_log
     FOR INSERT WITH CHECK (true);
 
--- Create index for faster timestamp queries
+-- Create index for faster timestamp queries (if not exists)
 CREATE INDEX IF NOT EXISTS idx_audit_log_ts ON rcts_audit_log(ts DESC);
 
--- Create index for actor queries
+-- Create index for actor queries (if not exists)
 CREATE INDEX IF NOT EXISTS idx_audit_log_actor ON rcts_audit_log(actor);

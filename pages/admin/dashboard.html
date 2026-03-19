@@ -955,7 +955,7 @@
           if (logsData.success) {
             const today = new Date().toISOString().split("T")[0];
             const todayLogs = logsData.logs.filter(
-              (l) => l.created_at && l.created_at.startsWith(today),
+              (l) => l.ts && l.ts.startsWith(today),
             );
             document.getElementById("k-logs").textContent = todayLogs.length;
           }
@@ -983,9 +983,9 @@
             return;
           }
 
-          let html = `<table class="table"><thead><tr><th>Timestamp</th><th>Event</th></tr></thead><tbody>`;
+          let html = `<table class="table"><thead><tr><th>Timestamp</th><th>User</th><th>Event</th></tr></thead><tbody>`;
           for (const log of logs) {
-            html += `<tr><td>${log.ts}</td><td>${log.event}</td></tr>`;
+            html += `<tr><td>${log.ts}</td><td>${log.actor}</td><td>${log.event}</td></tr>`;
           }
           html += `</tbody></table>`;
           document.getElementById("recent-activity").innerHTML = html;
@@ -1176,10 +1176,10 @@
 
           logsData = data.logs || [];
           let html = `<table class="table">
-            <thead><tr><th>Timestamp</th><th>Event</th></tr></thead>
+            <thead><tr><th>Timestamp</th><th>User</th><th>Event</th></tr></thead>
             <tbody>`;
           for (const log of data.logs) {
-            html += `<tr><td>${log.ts}</td><td>${log.event}</td></tr>`;
+            html += `<tr><td>${log.ts}</td><td>${log.actor}</td><td>${log.event}</td></tr>`;
           }
           html += `</tbody></table>`;
           document.getElementById("logs-container").innerHTML = html;
@@ -1193,9 +1193,9 @@
           alert("No logs to export");
           return;
         }
-        let csv = "Timestamp,Event\n";
+        let csv = "Timestamp,User,Event\n";
         for (const log of logsData) {
-          csv += `"${log.ts}","${log.event.replace(/"/g, '""')}"\n`;
+          csv += `"${log.ts}","${log.actor}","${log.event.replace(/"/g, '""')}"\n`;
         }
         const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
         const link = document.createElement("a");
