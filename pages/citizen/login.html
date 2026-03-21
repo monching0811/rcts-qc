@@ -398,7 +398,13 @@
           <div class="spinner" id="spinner"></div>
         </button>
 
-        <!-- ...existing code... -->
+        <div class="divider"><span>Demo Accounts</span></div>
+        <div class="demo-accounts">
+          <h4>Click any row to auto-fill</h4>
+          <div id="demo-accounts-list">
+            <div class="spinner" id="demo-spinner" style="display: block"></div>
+          </div>
+        </div>
       </div>
     </div>
 
@@ -479,6 +485,72 @@
         el.textContent = msg;
         el.style.display = "block";
       }
+
+      // ── Demo Accounts Functions ─────────────────────────────────────────────
+      async function loadDemoAccounts() {
+        const listEl = document.getElementById("demo-accounts-list");
+        const spinner = document.getElementById("demo-spinner");
+
+        try {
+          const url = `../../mock-data/subsystem1/citizen-registry-api.php?action=get_all_citizens`;
+          const res = await fetch(url);
+          const data = await res.json();
+
+          if (!data.success) {
+            listEl.innerHTML =
+              '<div style="text-align: center; color: var(--text-gray); font-size: 12px; padding: 10px;">Failed to load demo accounts</div>';
+            return;
+          }
+
+          const citizens = data.data || [];
+          if (citizens.length === 0) {
+            listEl.innerHTML =
+              '<div style="text-align: center; color: var(--text-gray); font-size: 12px; padding: 10px;">No demo accounts available</div>';
+            return;
+          }
+
+          // Build demo rows
+          const rows = citizens
+            .slice(0, 10)
+            .map((citizen) => {
+              const role = citizen.role || "citizen";
+              const roleClass = `tag-${role.toLowerCase().replace("_", "-")}`;
+              const displayName =
+                citizen.full_name ||
+                `${citizen.first_name} ${citizen.last_name}`.trim() ||
+                "Unknown Citizen";
+
+              return `
+              <div class="demo-row" onclick="fillDemo('${citizen.email}', 'demo123')">
+                <div>
+                  <div class="name">${displayName}</div>
+                  <div class="creds">${citizen.email}</div>
+                </div>
+                <span class="role-tag ${roleClass}">${role.replace("_", " ").toUpperCase()}</span>
+              </div>
+            `;
+            })
+            .join("");
+
+          listEl.innerHTML = rows;
+        } catch (e) {
+          listEl.innerHTML =
+            '<div style="text-align: center; color: var(--text-gray); font-size: 12px; padding: 10px;">Could not connect to citizen registry</div>';
+        } finally {
+          spinner.style.display = "none";
+        }
+      }
+
+      function fillDemo(email, password) {
+        document.getElementById("email").value = email;
+        document.getElementById("password").value = password;
+        // Clear any previous error messages
+        document.getElementById("err-msg").style.display = "none";
+        document.getElementById("ok-msg").style.display = "none";
+      }
+
+      // Load demo accounts when page loads
+      document.addEventListener("DOMContentLoaded", loadDemoAccounts);
 
       document.getElementById("password").addEventListener("keydown", (e) => {
         if (e.key === "Enter") doLogin();

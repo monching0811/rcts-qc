@@ -206,26 +206,52 @@ switch ($action) {
     // ── Get All Citizens ───────────────────────────────────────────────────────
     case 'get_all_citizens':
         $result = fetch_all_s1_citizens();
+        $supabase_citizens = [];
 
-        if (!$result['success']) {
-            echo json_encode(['success' => false, 'message' => 'Failed to fetch citizens']);
-            exit;
+        if ($result['success']) {
+            $supabase_citizens = array_map(function($profile) {
+                return [
+                    'qcitizen_id' => $profile['user_id'],
+                    'full_name' => build_full_name($profile),
+                    'first_name' => $profile['first_name'] ?? '',
+                    'last_name' => $profile['last_name'] ?? '',
+                    'email' => $profile['email'],
+                    'phone' => $profile['phone'] ?? '',
+                    'role' => determine_citizen_role($profile),
+                    'created_at' => $profile['created_at'],
+                    '_source' => 'supabase'
+                ];
+            }, $result['data'] ?? []);
         }
 
-        $citizens = array_map(function($profile) {
+        // Include local citizens from JSON
+        $local_citizens = array_map(function($citizen) {
             return [
-                'qcitizen_id' => $profile['user_id'],
-                'full_name' => build_full_name($profile),
-                'first_name' => $profile['first_name'] ?? '',
-                'last_name' => $profile['last_name'] ?? '',
-                'email' => $profile['email'],
-                'phone' => $profile['phone'] ?? '',
-                'role' => determine_citizen_role($profile),
-                'created_at' => $profile['created_at']
+                'qcitizen_id' => $citizen['qcitizen_id'],
+                'full_name' => $citizen['full_name'],
+                'first_name' => explode(' ', $citizen['full_name'])[0],
+                'last_name' => end(explode(' ', $citizen['full_name'])),
+                'email' => $citizen['email'],
+                'phone' => $citizen['mobile_no'] ?? '',
+                'role' => $citizen['role'] ?? 'citizen',
+                'created_at' => null,
+                '_source' => 'local'
             ];
-        }, $result['data'] ?? []);
+        }, load_local_citizens());
 
-        echo json_encode(['success' => true, 'data' => $citizens]);
+        // Merge and remove duplicates by email
+        $all_citizens = array_merge($supabase_citizens, $local_citizens);
+        $unique_citizens = [];
+        $emails_seen = [];
+
+        foreach ($all_citizens as $citizen) {
+            if (!in_array($citizen['email'], $emails_seen)) {
+                $emails_seen[] = $citizen['email'];
+                $unique_citizens[] = $citizen;
+            }
+        }
+
+        echo json_encode(['success' => true, 'data' => $unique_citizens]);
         break;
 
     // ── Get Citizen by ID ─────────────────────────────────────────────────────
