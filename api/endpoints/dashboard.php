@@ -569,7 +569,40 @@ switch ($action) {
             'qcitizen_id' => 'eq.' . $qcitizen_id,
             'order'       => 'apprehension_date.desc'
         ]);
-        api_response($result['success'], 'Traffic violations retrieved', $result['data']);
+
+        $violations = $result['data'] ?? [];
+
+        // Fallback: if no direct traffic_violation rows exist, include traffic fine bills as violations
+        if (empty($violations)) {
+            $billResult = db_select('rcts_assessment_billing_hub', [
+                'qcitizen_id' => 'eq.' . $qcitizen_id,
+                'bill_type'   => 'eq.TrafficFine',
+                'status'      => 'eq.Pending'
+            ]);
+
+            $billRows = $billResult['data'] ?? [];
+            $violations = array_map(function ($b) {
+                return [
+                    'violation_ticket_id' => $b['asset_id'] ?? $b['bill_reference_no'],
+                    'qcitizen_id'         => $b['qcitizen_id'],
+                    'vehicle_plate_no'    => $b['asset_id'] ?? null,
+                    'violation_type'      => 'Traffic Fine',
+                    'fine_amount'         => $b['total_amount_due'] ?? $b['base_amount'] ?? 0,
+                    'apprehension_date'   => $b['due_date'] ?? null,
+                    'total_amount_due'    => $b['total_amount_due'] ?? $b['base_amount'] ?? 0,
+                    'bill_reference_no'   => $b['bill_reference_no'],
+                    'payment_status'      => $b['status'] ?? 'Pending',
+                    'source_subsystem_id' => 9,
+                ];
+            }, $billRows);
+
+            // Preserve response success if bill query succeeded
+            if ($billResult['success']) {
+                $result['success'] = true;
+            }
+        }
+
+        api_response($result['success'], 'Traffic violations retrieved', $violations);
         break;
 
     default:

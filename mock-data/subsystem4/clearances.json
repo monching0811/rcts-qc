@@ -59,6 +59,66 @@
       "issued_by": "BFP-QC",
       "inspection_date": "2024-02-16",
       "valid_until": "2025-12-31"
+    },
+    {
+      "bin_number": "BIN-QC-2024-CARLO-001",
+      "qcitizen_id": "QC-2024-000009",
+      "business_name": "Carlo's Import & Export Trading",
+      "clearance_type": "Health",
+      "clearance_status": "Passed",
+      "issued_by": "QC Health Dept",
+      "inspection_date": "2024-02-05",
+      "valid_until": "2025-12-31"
+    },
+    {
+      "bin_number": "BIN-QC-2024-CARLO-001",
+      "qcitizen_id": "QC-2024-000009",
+      "business_name": "Carlo's Import & Export Trading",
+      "clearance_type": "Sanitary",
+      "clearance_status": "Passed",
+      "issued_by": "QC Sanitation Office",
+      "inspection_date": "2024-02-05",
+      "valid_until": "2025-12-31"
+    },
+    {
+      "bin_number": "BIN-QC-2024-CARLO-001",
+      "qcitizen_id": "QC-2024-000009",
+      "business_name": "Carlo's Import & Export Trading",
+      "clearance_type": "Fire",
+      "clearance_status": "Passed",
+      "issued_by": "BFP-QC",
+      "inspection_date": "2024-02-06",
+      "valid_until": "2025-12-31"
+    },
+    {
+      "bin_number": "BIN-QC-2024-CARLO-002",
+      "qcitizen_id": "QC-2024-000009",
+      "business_name": "Carlo's Construction Materials Supply",
+      "clearance_type": "Health",
+      "clearance_status": "Passed",
+      "issued_by": "QC Health Dept",
+      "inspection_date": "2024-03-15",
+      "valid_until": "2025-12-31"
+    },
+    {
+      "bin_number": "BIN-QC-2024-CARLO-002",
+      "qcitizen_id": "QC-2024-000009",
+      "business_name": "Carlo's Construction Materials Supply",
+      "clearance_type": "Sanitary",
+      "clearance_status": "Passed",
+      "issued_by": "QC Sanitation Office",
+      "inspection_date": "2024-03-15",
+      "valid_until": "2025-12-31"
+    },
+    {
+      "bin_number": "BIN-QC-2024-CARLO-002",
+      "qcitizen_id": "QC-2024-000009",
+      "business_name": "Carlo's Construction Materials Supply",
+      "clearance_type": "Fire",
+      "clearance_status": "Passed",
+      "issued_by": "BFP-QC",
+      "inspection_date": "2024-03-16",
+      "valid_until": "2025-12-31"
     }
   ]
 }

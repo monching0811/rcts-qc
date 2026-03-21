@@ -402,6 +402,57 @@ switch ($action) {
         ]);
         break;
 
+    // ── POST generate market rental bills for a citizen (manual allocation) ──
+    case 'generate_bill':
+        $id = $body['qcitizen_id'] ?? '';
+        if (!$id) api_response(false, 'qcitizen_id required', null, 400);
+
+        // Fetch active stalls for the citizen
+        $stall_result = db_select('rcts_public_asset_stall', ['qcitizen_id' => 'eq.' . $id, 'occupancy_status_flag' => 'eq.Active']);
+        if (empty($stall_result['data'])) api_response(false, 'No active stalls found for this citizen', null, 404);
+
+        $generated_bills = [];
+        foreach ($stall_result['data'] as $stall) {
+            // Check if bill already exists for this month
+            $month_start = date('Y-m-01');
+            $existing = db_select('rcts_assessment_billing_hub', [
+                'asset_id'  => 'eq.' . $stall['stall_asset_id'],
+                'bill_type' => 'eq.MarketRental',
+                'status'    => 'eq.Pending',
+                'created_at' => 'gte.' . $month_start
+            ]);
+            if (!empty($existing['data'])) continue;
+
+            $base_amount = (float)$stall['monthly_rental_rate'];
+            $penalty_rate = 0.0;
+            $total_penalty = 0.0;
+            $total_amount_due = $base_amount;
+
+            $bill_ref = 'RCTS-MS-' . date('Ym') . '-' . strtoupper(substr(uniqid(), -6));
+            $bill = [
+                'bill_reference_no'   => $bill_ref,
+                'qcitizen_id'         => $id,
+                'bill_type'           => 'MarketRental',
+                'originating_dept_id' => 10,
+                'asset_id'            => $stall['stall_asset_id'],
+                'tax_year'            => CURRENT_YEAR,
+                'base_amount'         => $base_amount,
+                'discount_rate'       => 0.0,
+                'penalty_rate'        => $penalty_rate,
+                'total_amount_due'    => $total_amount_due,
+                'status'              => 'Pending',
+                'due_date'            => date('Y-m-t')
+            ];
+
+            $insert = db_insert('rcts_assessment_billing_hub', $bill);
+            if ($insert['success']) {
+                $generated_bills[] = $insert['data'];
+                audit_log($id, 'generate_market_rental_bill', $bill);
+            }
+        }
+        api_response(true, count($generated_bills) . ' market rental bill(s) generated', $generated_bills);
+        break;
+
     default:
-        api_response(false, 'Unknown action', ['available' => ['get_active_stalls','get_vendor_bill','receive_occupancy_signal','generate_invoice','mark_paid']], 400);
+        api_response(false, 'Unknown action', ['available' => ['get_active_stalls','get_vendor_bill','receive_occupancy_signal','generate_invoice','mark_paid','generate_bill']], 400);
 }

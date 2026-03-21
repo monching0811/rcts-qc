@@ -47,6 +47,71 @@ switch ($action) {
         api_response($result['success'], 'Business tax bills retrieved', $result['data']);
         break;
 
+    // ── GET all bill types for a citizen (BusinessTax + TrafficFine + MarketRental + RPT etc.)
+    case 'get_all_bills':
+        $id = $_GET['qcitizen_id'] ?? '';
+        if (!$id) api_response(false, 'qcitizen_id required', null, 400);
+
+        $result = db_select('rcts_assessment_billing_hub', [
+            'qcitizen_id' => 'eq.' . $id,
+            'order'       => 'created_at.desc'
+        ]);
+        audit_log($id, 'get_all_bills', ['result_count' => count($result['data'] ?? [])]);
+        api_response($result['success'], 'All bills retrieved for citizen', $result['data']);
+        break;
+
+    // ── POST generate business tax bills for a citizen (manual allocation) ──
+    case 'generate_bill':
+        $id = $body['qcitizen_id'] ?? '';
+        if (!$id) api_response(false, 'qcitizen_id required', null, 400);
+
+        // Fetch all businesses for the citizen
+        $biz_result = db_select('rcts_business_entity', ['qcitizen_id' => 'eq.' . $id]);
+        if (empty($biz_result['data'])) api_response(false, 'No businesses found for this citizen', null, 404);
+
+        $generated_bills = [];
+        foreach ($biz_result['data'] as $biz) {
+            // Check if bill already exists
+            $existing = db_select('rcts_assessment_billing_hub', [
+                'asset_id'  => 'eq.' . $biz['bin_number'],
+                'bill_type' => 'eq.BusinessTax',
+                'tax_year'  => 'eq.' . CURRENT_YEAR,
+                'status'    => 'eq.Pending'
+            ]);
+            if (!empty($existing['data'])) continue;
+
+            // Compute business tax
+            $gross_sales = (float)$biz['gross_sales_declared'];
+            $rate        = get_biz_tax_rate($biz['nature_of_business']);
+            $base_tax    = round($gross_sales * $rate, 2);
+            $reg_fees    = FEE_SANITARY_PERMIT + FEE_GARBAGE_COLLECTION + FEE_FIRE_INSPECTION;
+            $total_base  = $base_tax + $reg_fees;
+
+            $bill_ref = 'RCTS-BT-' . CURRENT_YEAR . '-' . strtoupper(substr(uniqid(), -6));
+            $bill = [
+                'bill_reference_no'   => $bill_ref,
+                'qcitizen_id'         => $id,
+                'bill_type'           => 'BusinessTax',
+                'originating_dept_id' => 2,
+                'asset_id'            => $biz['bin_number'],
+                'tax_year'            => CURRENT_YEAR,
+                'base_amount'         => $total_base,
+                'discount_rate'       => 0.0,
+                'penalty_rate'        => 0.0,
+                'total_amount_due'    => $total_base,
+                'status'              => 'Pending',
+                'due_date'            => CURRENT_YEAR . '-01-20'
+            ];
+
+            $insert = db_insert('rcts_assessment_billing_hub', $bill);
+            if ($insert['success']) {
+                $generated_bills[] = $insert['data'];
+                audit_log($id, 'generate_business_tax_bill', $bill);
+            }
+        }
+        api_response(true, count($generated_bills) . ' business tax bill(s) generated', $generated_bills);
+        break;
+
     // ── GET current clearance status for a business ──────────────────────
     case 'clearance_status':
         $bin = $_GET['bin'] ?? '';

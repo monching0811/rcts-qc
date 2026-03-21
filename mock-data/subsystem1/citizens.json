@@ -233,6 +233,27 @@
       "role": "admin",
       "status": "active",
       "profile_photo": null
+    },
+    {
+      "qcitizen_id": "QC-2024-000009",
+      "full_name": "Carlo Nicolas",
+      "date_of_birth": "1988-02-14",
+      "age": 38,
+      "address": "456 Eugenio Lopez Jr Ave., Barrio Fiesta, Quezon City",
+      "barangay": "Barrio Fiesta",
+      "district": "5th District",
+      "email": "jackbobert24@gmail.com",
+      "mobile_no": "09280234567",
+      "digital_wallet_link": "GCASH-09280234567",
+      "is_senior_citizen": false,
+      "is_pwd": false,
+      "is_solo_parent": false,
+      "discount_eligible": false,
+      "discount_type": null,
+      "discount_rate": 0,
+      "role": "citizen",
+      "status": "active",
+      "profile_photo": null
     }
   ]
 }

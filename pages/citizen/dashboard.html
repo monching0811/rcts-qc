@@ -726,7 +726,7 @@
           rpt: "rpt-payment.html",
           business: "business-tax.html",
           market: "market-stall.html",
-          traffic: "business-tax.html", // Temporarily routes to business-tax (includes unified billing)
+          traffic: "traffic-fines.html", // Fixed: route to traffic-fines.html
         };
 
         const page = routes[module];
@@ -826,6 +826,26 @@
             }
           }
 
+          // Also get traffic violations and add to counts
+          const trafficRes = await fetch(
+            `../../api/endpoints/dashboard.php?action=get_traffic_violations&qcitizen_id=${citizen.qcitizen_id}&t=${Date.now()}`,
+          );
+          const trafficData = await trafficRes.json();
+          console.log("[Dashboard] Traffic violations response:", trafficData);
+          const trafficViolations = trafficData.data || [];
+
+          // Add traffic violations as pseudo-bills for display purposes
+          const trafficBills = trafficViolations.map((v) => ({
+            bill_type: "TrafficFine",
+            bill_reference_no: v.violation_ticket_id,
+            total_amount_due: v.total_amount_due || v.fine_amount,
+            due_date: null, // violations don't have due dates in the same way
+            asset_id: v.vehicle_plate_no,
+          }));
+
+          // Create allBills as combination of regular bills and traffic violations
+          const allBills = [...bills, ...trafficBills];
+
           const total = bills.reduce(
             (sum, b) => sum + Number(b.total_amount_due || b.base_amount || 0),
             0,
@@ -844,6 +864,9 @@
           bills.forEach((b) => {
             if (counts[b.bill_type] !== undefined) counts[b.bill_type]++;
           });
+
+          // Add traffic violations to the count
+          counts.TrafficFine += trafficViolations.length;
           document.getElementById("k-rpt").textContent = counts.RPT;
           document.getElementById("k-biz").textContent = counts.BusinessTax;
           document.getElementById("k-mkt").textContent = counts.MarketRental;
