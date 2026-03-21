@@ -28,6 +28,7 @@ switch ($action) {
             foreach ($staff['data'] as $u) {
                 $users[] = [
                     'user_id' => $u['user_id'],
+                    'qcitizen_id' => $u['user_id'],
                     'full_name' => $u['full_name'],
                     'email' => $u['email'],
                     'role' => $u['role'],
@@ -82,17 +83,33 @@ switch ($action) {
         
     case 'delete_user':
         $id = $_POST['qcitizen_id'] ?? '';
-        if ($id) {
-            addLog("Deleted user: $id", 'admin');
+        if (!$id) {
+            echo json_encode(['success' => false, 'message' => 'User ID required']);
+            break;
         }
+        $result = db_delete('rcts_internal_users', ['user_id' => 'eq.' . $id]);
+        if (!$result['success']) {
+            echo json_encode(['success' => false, 'message' => 'Failed to delete user']);
+            break;
+        }
+        addLog("Deleted user: $id", 'admin');
         echo json_encode(['success' => true]);
         break;
         
     case 'reset_password':
         $id = $_POST['qcitizen_id'] ?? '';
-        if ($id) {
-            addLog("Password reset for user: $id", 'admin');
+        $password = $_POST['password'] ?? '';
+        if (!$id || !$password) {
+            echo json_encode(['success' => false, 'message' => 'User ID and password required']);
+            break;
         }
+        $hash = password_hash($password, PASSWORD_DEFAULT);
+        $result = db_patch('rcts_internal_users', ['user_id' => 'eq.' . $id], ['password_hash' => $hash]);
+        if (!$result['success']) {
+            echo json_encode(['success' => false, 'message' => 'Failed to reset password']);
+            break;
+        }
+        addLog("Password reset for user: $id", 'admin');
         echo json_encode(['success' => true]);
         break;
         
@@ -100,19 +117,38 @@ switch ($action) {
         $id = $_POST['qcitizen_id'] ?? '';
         $name = $_POST['full_name'] ?? '';
         $role = $_POST['role'] ?? '';
-        $status = $_POST['status'] ?? 'active';
-        
-        if ($id) {
-            $changes = [];
-            if ($name) $changes[] = "name: $name";
-            if ($role) $changes[] = "role: $role";
-            if ($status) $changes[] = "status: $status";
-            
-            addLog("Updated user $id: " . implode(", ", $changes), 'admin');
-            echo json_encode(['success' => true, 'message' => 'User updated successfully']);
-        } else {
+        $status = $_POST['status'] ?? '';
+
+        if (!$id) {
             echo json_encode(['success' => false, 'message' => 'User ID required']);
+            break;
         }
+
+        $patchData = [];
+        $changes = [];
+        if ($name) {
+            $patchData['full_name'] = $name;
+            $changes[] = "full_name: $name";
+        }
+        if ($role) {
+            $patchData['role'] = $role;
+            $changes[] = "role: $role";
+        }
+        if ($status) {
+            $patchData['status'] = $status;
+            $changes[] = "status: $status";
+        }
+
+        if (!empty($patchData)) {
+            $result = db_patch('rcts_internal_users', ['user_id' => 'eq.' . $id], $patchData);
+            if (!$result['success']) {
+                echo json_encode(['success' => false, 'message' => 'Failed to update user']);
+                break;
+            }
+        }
+
+        addLog("Updated user $id: " . implode(", ", $changes), 'admin');
+        echo json_encode(['success' => true, 'message' => 'User updated successfully']);
         break;
         
     case 'save_settings':
