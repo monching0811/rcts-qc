@@ -996,9 +996,25 @@ switch ($action) {
             'order' => 'transaction_timestamp.desc'
         ], [], true);
 
+        $transactions = $result['data'] ?? [];
+        
+        // Get bill_type from eOR table for each transaction
+        foreach ($transactions as &$txn) {
+            $eor_result = supabase_request('rcts_eor', 'GET', [
+                'transaction_id' => 'eq.' . $txn['transaction_id']
+            ], [], true);
+            
+            if (!empty($eor_result['data'])) {
+                $txn['bill_type'] = $eor_result['data'][0]['bill_type'] ?? 'Multiple';
+            } else {
+                $txn['bill_type'] = 'Multiple';
+            }
+        }
+        unset($txn);
+
         api_response($result['success'], 'Transaction history retrieved', [
-            'transactions' => $result['data'],
-            'count'        => count($result['data'] ?? [])
+            'transactions' => $transactions,
+            'count'        => count($transactions)
         ]);
         break;
 

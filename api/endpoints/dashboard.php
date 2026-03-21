@@ -306,15 +306,12 @@ switch ($action) {
             $status_filter = $_GET['status'] ?? null;
             $search_term = $_GET['search'] ?? null;
 
-            // Build query - use service key to bypass RLS
-            $filters = [
+            // Get all bills - use supabase request with service key to bypass RLS
+            $result = supabase_request('rcts_assessment_billing_hub', 'GET', [
                 'select' => 'bill_reference_no,qcitizen_id,bill_type,asset_id,status,total_amount_due,due_date,created_at',
                 'order' => 'created_at.desc',
-                'limit' => 100
-            ];
-
-            // Get all bills using service key (bypasses RLS)
-            $result = supabase_request('rcts_assessment_billing_hub', 'GET', $filters, [], true); // true = use service key
+                'limit' => 200
+            ], [], true);
 
             if (!$result['success']) {
                 api_response(false, 'Query failed: ' . ($result['error'] ?? 'Unknown'), [
@@ -343,25 +340,43 @@ switch ($action) {
             }
             $citizen_ids = array_unique($citizen_ids);
 
-            // Fetch citizens using service key
+            // Fetch citizens from local database using db_select (not Supabase)
+            // This ensures we get the correct names for QC-2024-XXXXXX format IDs
             $citizens = [];
             if (!empty($citizen_ids)) {
-                $citizen_ids_csv = '"' . implode('","', $citizen_ids) . '"';
-                $cit_result = supabase_request('rcts_citizen_registry', 'GET', [
-                    'qcitizen_id' => 'in.(' . $citizen_ids_csv . ')',
-                    'select' => 'qcitizen_id,full_name'
-                ], [], true);
-                
-                if ($cit_result['success'] && !empty($cit_result['data'])) {
-                    foreach ($cit_result['data'] as $c) {
-                        $citizens[$c['qcitizen_id']] = $c['full_name'];
+                foreach ($citizen_ids as $cid) {
+                    // Query each citizen individually using db_select
+                    $cit_result = db_select('rcts_citizen_registry', [
+                        'qcitizen_id' => 'eq.' . $cid,
+                        'select' => 'full_name'
+                    ]);
+                    if ($cit_result['success'] && !empty($cit_result['data'])) {
+                        $citizens[$cid] = $cit_result['data'][0]['full_name'];
                     }
                 }
             }
 
             // Add citizen names and format amounts
             foreach ($bills as &$bill) {
-                $bill['citizen_name'] = $citizens[$bill['qcitizen_id']] ?? ($bill['qcitizen_id'] ?? 'Unknown');
+                $citizen_id = $bill['qcitizen_id'] ?? '';
+                $bill['citizen_name'] = $citizens[$citizen_id] ?? null;
+                
+                // If no citizen name found from registry, try property owner as fallback
+                if (!$bill['citizen_name'] && !empty($citizen_id)) {
+                    // Try RPT properties
+                    $prop_result = db_select('rcts_real_property', [
+                        'qcitizen_id' => 'eq.' . $citizen_id,
+                        'select' => 'owner_name'
+                    ]);
+                    if ($prop_result['success'] && !empty($prop_result['data'])) {
+                        $bill['citizen_name'] = $prop_result['data'][0]['owner_name'] ?? null;
+                    }
+                }
+                
+                // Final fallback - show formatted unknown
+                if (!$bill['citizen_name']) {
+                    $bill['citizen_name'] = 'Unknown (' . $citizen_id . ')';
+                }
                 $bill['amount'] = $bill['total_amount_due'] ?? 0;
             }
             unset($bill);
