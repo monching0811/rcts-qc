@@ -1,327 +1,70 @@
 <!doctype html>
 <html lang="en">
   <head>
-    <link
-      href="https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@400;500;700&display=swap"
-      rel="stylesheet"
-    />
-    <style>
-      .num-font {
-        font-family:
-          "Roboto Mono", "Courier New", Courier, monospace !important;
-        letter-spacing: 0.01em;
-      }
-    </style>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@400;500;700&display=swap" rel="stylesheet" />
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width,initial-scale=1.0" />
     <title>RCTS-QC | Treasury Login</title>
-    <link
-      href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=DM+Sans:wght@300;400;500;600&display=swap"
-      rel="stylesheet"
-    />
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet" />
     <style>
-      :root {
-        --navy: #ffffff;
-        --navy2: #f5f5f5;
-        --gold: #c9a84c;
-        --gold2: #e8c878;
-        --white: #1a1a1a;
-        --muted: #666666;
-        --green: #2ecc71;
-        --red: #e74c3c;
-      }
-      *,
-      *::before,
-      *::after {
-        box-sizing: border-box;
-        margin: 0;
-        padding: 0;
-      }
-      body {
-        font-family: "DM Sans", sans-serif;
-        background: #f5f5f5;
-        color: #1a1a1a;
-        min-height: 100vh;
-        display: flex;
-        flex-direction: column;
-      }
+      :root { --gold: #c9a84c; --gold2: #e8c878; --green: #2ecc71; --red: #e74c3c; }
+      *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+      body { font-family: "DM Sans", sans-serif; background: #f5f5f5; color: #1a1a1a; min-height: 100vh; display: flex; flex-direction: column; }
       body::before {
-        content: "";
-        position: fixed;
-        inset: 0;
+        content: ""; position: fixed; inset: 0;
         background-image:
-          repeating-linear-gradient(
-            45deg,
-            transparent,
-            transparent 40px,
-            rgba(201, 168, 76, 0.03) 40px,
-            rgba(201, 168, 76, 0.03) 41px
-          ),
-          repeating-linear-gradient(
-            -45deg,
-            transparent,
-            transparent 40px,
-            rgba(201, 168, 76, 0.03) 40px,
-            rgba(201, 168, 76, 0.03) 41px
-          );
-        pointer-events: none;
-        z-index: 0;
+          repeating-linear-gradient(45deg, transparent, transparent 40px, rgba(201,168,76,0.03) 40px, rgba(201,168,76,0.03) 41px),
+          repeating-linear-gradient(-45deg, transparent, transparent 40px, rgba(201,168,76,0.03) 40px, rgba(201,168,76,0.03) 41px);
+        pointer-events: none; z-index: 0;
       }
-      .top-bar {
-        position: relative;
-        z-index: 10;
-        background: var(--gold);
-        padding: 7px 32px;
-        display: flex;
-        align-items: center;
-        gap: 10px;
-      }
-      .top-bar span {
-        font-size: 11px;
-        font-weight: 600;
-        color: #ffffff;
-        letter-spacing: 0.08em;
-        text-transform: uppercase;
-      }
-      .top-bar .dot {
-        width: 4px;
-        height: 4px;
-        border-radius: 50%;
-        background: #ffffff;
-        opacity: 0.5;
-      }
-      .page-wrap {
-        flex: 1;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        padding: 40px 20px;
-        position: relative;
-        z-index: 10;
-      }
-      .login-box {
-        width: 100%;
-        max-width: 420px;
-      }
-      .back-link {
-        display: inline-flex;
-        align-items: center;
-        gap: 6px;
-        font-size: 12px;
-        color: #666666;
-        text-decoration: none;
-        margin-bottom: 28px;
-        transition: color 0.2s;
-      }
-      .back-link:hover {
-        color: var(--gold);
-      }
-      .seal {
-        width: 56px;
-        height: 56px;
-        border-radius: 50%;
-        background: linear-gradient(135deg, var(--gold), var(--gold2));
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-size: 22px;
-        font-weight: 700;
-        color: #ffffff;
-        font-family: "Playfair Display", serif;
-        box-shadow: 0 0 0 3px rgba(201, 168, 76, 0.25);
-        margin-bottom: 20px;
-      }
-      .login-box h1 {
-        font-family: "Playfair Display", serif;
-        font-size: 26px;
-        color: #1a1a1a;
-        margin-bottom: 4px;
-      }
-      .login-box .sub {
-        font-size: 13px;
-        color: #666666;
-        margin-bottom: 32px;
-      }
-      .login-box .sub span {
-        color: var(--gold);
-      }
-      .form-group {
-        margin-bottom: 18px;
-      }
-      label {
-        display: block;
-        font-size: 12px;
-        font-weight: 600;
-        color: #666666;
-        letter-spacing: 0.06em;
-        text-transform: uppercase;
-        margin-bottom: 7px;
-      }
-      input {
-        width: 100%;
-        background: #ffffff;
-        border: 1px solid #dddddd;
-        border-radius: 8px;
-        padding: 12px 16px;
-        color: #1a1a1a;
-        font-family: "DM Sans", sans-serif;
-        font-size: 14px;
-        outline: none;
-        transition: border-color 0.2s;
-      }
-      input:focus {
-        border-color: var(--gold);
-      }
-      input::placeholder {
-        color: #999999;
-      }
-      .hint {
-        font-size: 11px;
-        color: #666666;
-        margin-top: 6px;
-      }
-      .hint strong {
-        color: #8a6d3b;
-      }
-      .btn-login {
-        width: 100%;
-        background: linear-gradient(135deg, var(--gold), var(--gold2));
-        border: none;
-        border-radius: 8px;
-        padding: 14px;
-        font-family: "DM Sans", sans-serif;
-        font-size: 14px;
-        font-weight: 700;
-        color: #ffffff;
-        cursor: pointer;
-        letter-spacing: 0.04em;
-        margin-top: 8px;
-        transition:
-          opacity 0.2s,
-          transform 0.15s;
-      }
-      .btn-login:hover {
-        opacity: 0.9;
-        transform: translateY(-1px);
-      }
-      .btn-login:disabled {
-        opacity: 0.5;
-        cursor: not-allowed;
-      }
-      .alert {
-        border-radius: 8px;
-        padding: 12px 16px;
-        font-size: 13px;
-        margin-bottom: 18px;
-        display: none;
-      }
-      .alert.error {
-        background: rgba(231, 76, 60, 0.1);
-        border: 1px solid rgba(231, 76, 60, 0.3);
-        color: #ff8a80;
-      }
-      .alert.success {
-        background: rgba(46, 204, 113, 0.1);
-        border: 1px solid rgba(46, 204, 113, 0.3);
-        color: var(--green);
-      }
-      .divider {
-        display: flex;
-        align-items: center;
-        gap: 12px;
-        margin: 22px 0;
-      }
-      .divider::before,
-      .divider::after {
-        content: "";
-        flex: 1;
-        height: 1px;
-        background: rgba(201, 168, 76, 0.15);
-      }
-      .divider span {
-        font-size: 11px;
-        color: #666666;
-        text-transform: uppercase;
-        letter-spacing: 0.08em;
-      }
-      .demo-accounts {
-        background: #ffffff;
-        border: 1px solid #dddddd;
-        border-radius: 8px;
-        padding: 16px;
-      }
-      .demo-accounts h4 {
-        font-size: 11px;
-        color: #8a6d3b;
-        letter-spacing: 0.08em;
-        text-transform: uppercase;
-        margin-bottom: 12px;
-      }
-      .demo-row {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        padding: 6px 0;
-        border-bottom: 1px solid #eeeeee;
-        cursor: pointer;
-        transition: opacity 0.2s;
-      }
-      .demo-row:last-child {
-        border-bottom: none;
-      }
-      .demo-row:hover {
-        opacity: 0.8;
-      }
-      .demo-row .name {
-        font-size: 12px;
-        color: #1a1a1a;
-      }
-      .demo-row .creds {
-        font-size: 11px;
-        color: #666666;
-      }
-      .demo-row .role-tag {
-        font-size: 10px;
-        padding: 2px 8px;
-        border-radius: 10px;
-        font-weight: 600;
-        letter-spacing: 0.05em;
-      }
-      .tag-citizen {
-        background: rgba(52, 152, 219, 0.2);
-        color: #74b9ff;
-      }
-      .tag-treasurer {
-        background: rgba(201, 168, 76, 0.15);
-        color: var(--gold);
-      }
-      .tag-auditor {
-        background: rgba(155, 89, 182, 0.2);
-        color: #a29bfe;
-      }
-      .spinner {
-        display: none;
-        width: 16px;
-        height: 16px;
-        border: 2px solid #dddddd;
-        border-top-color: #1a1a1a;
-        border-radius: 50%;
-        animation: spin 0.7s linear infinite;
-        margin: 0 auto;
-      }
-      @keyframes spin {
-        to {
-          transform: rotate(360deg);
-        }
-      }
+      .top-bar { position: relative; z-index: 10; background: var(--gold); padding: 7px 32px; display: flex; align-items: center; gap: 10px; }
+      .top-bar span { font-size: 11px; font-weight: 600; color: #fff; letter-spacing: .08em; text-transform: uppercase; }
+      .top-bar .dot { width: 4px; height: 4px; border-radius: 50%; background: #fff; opacity: .5; }
+      .page-wrap { flex: 1; display: flex; align-items: center; justify-content: center; padding: 40px 20px; position: relative; z-index: 10; }
+      .login-box { width: 100%; max-width: 420px; }
+      .back-link { display: inline-flex; align-items: center; gap: 6px; font-size: 12px; color: #666; text-decoration: none; margin-bottom: 28px; transition: color .2s; }
+      .back-link:hover { color: var(--gold); }
+      .seal { width: 56px; height: 56px; border-radius: 50%; background: linear-gradient(135deg, var(--gold), var(--gold2)); display: flex; align-items: center; justify-content: center; font-size: 22px; font-weight: 700; color: #fff; font-family: "Playfair Display", serif; box-shadow: 0 0 0 3px rgba(201,168,76,.25); margin-bottom: 20px; }
+      h1 { font-family: "Playfair Display", serif; font-size: 26px; color: #1a1a1a; margin-bottom: 4px; }
+      .sub { font-size: 13px; color: #666; margin-bottom: 32px; }
+      .sub span { color: var(--gold); }
+      .form-group { margin-bottom: 18px; }
+      label { display: block; font-size: 12px; font-weight: 600; color: #666; letter-spacing: .06em; text-transform: uppercase; margin-bottom: 7px; }
+      input { width: 100%; background: #fff; border: 1px solid #ddd; border-radius: 8px; padding: 12px 16px; color: #1a1a1a; font-family: "DM Sans", sans-serif; font-size: 14px; outline: none; transition: border-color .2s; }
+      input:focus { border-color: var(--gold); }
+      input::placeholder { color: #999; }
+      #otp-input { font-family: "Roboto Mono","Courier New",monospace; font-size: 28px; letter-spacing: .35em; text-align: center; padding: 16px; border: 2px solid #ddd; }
+      #otp-input:focus { border-color: var(--gold); }
+      .hint { font-size: 11px; color: #666; margin-top: 6px; }
+      .hint strong { color: #8a6d3b; }
+      .btn-login { width: 100%; background: linear-gradient(135deg, var(--gold), var(--gold2)); border: none; border-radius: 8px; padding: 14px; font-family: "DM Sans", sans-serif; font-size: 14px; font-weight: 700; color: #fff; cursor: pointer; letter-spacing: .04em; margin-top: 8px; transition: opacity .2s, transform .15s; }
+      .btn-login:hover { opacity: .9; transform: translateY(-1px); }
+      .btn-login:disabled { opacity: .5; cursor: not-allowed; transform: none; }
+      .btn-secondary { width: 100%; background: transparent; border: 1px solid #ddd; border-radius: 8px; padding: 12px; font-family: "DM Sans", sans-serif; font-size: 13px; font-weight: 500; color: #666; cursor: pointer; margin-top: 10px; transition: border-color .2s, color .2s; }
+      .btn-secondary:hover { border-color: var(--gold); color: var(--gold); }
+      .btn-secondary:disabled { opacity: .4; cursor: not-allowed; }
+      .alert { border-radius: 8px; padding: 12px 16px; font-size: 13px; margin-bottom: 18px; display: none; }
+      .alert.error   { background: rgba(231,76,60,.1);  border: 1px solid rgba(231,76,60,.3);  color: #e74c3c; }
+      .alert.success { background: rgba(46,204,113,.1); border: 1px solid rgba(46,204,113,.3); color: var(--green); }
+      .alert.warning { background: rgba(243,156,18,.1); border: 1px solid rgba(243,156,18,.3); color: #e67e22; }
+      .attempts-bar { display: none; margin-bottom: 16px; background: #fff; border: 1px solid #ddd; border-radius: 8px; padding: 10px 14px; font-size: 12px; color: #666; }
+      .attempts-bar .dots { display: flex; gap: 6px; margin-top: 6px; }
+      .dot-attempt { width: 10px; height: 10px; border-radius: 50%; background: #eee; border: 1px solid #ddd; transition: background .3s; }
+      .dot-attempt.used { background: #e74c3c; border-color: #e74c3c; }
+      .resend-info { font-size: 12px; color: #888; text-align: center; margin-top: 10px; }
+      .resend-info a { color: var(--gold); cursor: pointer; text-decoration: underline; }
+      .step-indicator { display: flex; gap: 8px; align-items: center; margin-bottom: 20px; }
+      .step-dot { width: 8px; height: 8px; border-radius: 50%; background: #ddd; transition: background .3s; }
+      .step-dot.active { background: var(--gold); }
+      .step-dot.done { background: var(--green); }
+      .spinner { display: none; width: 16px; height: 16px; border: 2px solid rgba(255,255,255,.4); border-top-color: #fff; border-radius: 50%; animation: spin .7s linear infinite; margin: 0 auto; }
+      @keyframes spin { to { transform: rotate(360deg); } }
     </style>
   </head>
   <body>
     <div class="top-bar">
-      <span>RCTS-QC</span>
-      <div class="dot"></div>
-      <span>Citizen Portal</span>
-      <div class="dot"></div>
+      <span>RCTS-QC</span><div class="dot"></div>
+      <span>Citizen Portal</span><div class="dot"></div>
       <span>Secure Login</span>
     </div>
     <div class="page-wrap">
@@ -329,170 +72,281 @@
         <a class="back-link" href="../../index.html">← Back to Portal Select</a>
         <div class="seal">QC</div>
         <h1>Treasury Portal Login</h1>
-        <p class="sub">
-          Revenue Collection &amp; Treasury Services — <span>Department 8</span>
-        </p>
+        <p class="sub">Revenue Collection &amp; Treasury Services — <span>Department 8</span></p>
 
-        <div class="alert error" id="err-msg"></div>
+        <div class="step-indicator">
+          <div class="step-dot active" id="step1-dot"></div>
+          <div style="flex:1;height:1px;background:#eee;"></div>
+          <div class="step-dot" id="step2-dot"></div>
+        </div>
+
+        <div class="alert error"   id="err-msg"></div>
         <div class="alert success" id="ok-msg"></div>
+        <div class="alert warning" id="warn-msg"></div>
 
-        <div class="form-group">
-          <label>Email Address</label>
-          <input
-            type="email"
-            id="email"
-            placeholder="your.email@example.com"
-            autocomplete="email"
-          />
-          <div class="hint">
-            Registered email linked to your <strong>QCitizen ID</strong>
+        <div class="attempts-bar" id="attempts-bar">
+          <span id="attempts-text">Failed attempts this session</span>
+          <div class="dots" id="attempts-dots"></div>
+        </div>
+
+        <!-- ── STEP 1 ── -->
+        <div id="step-credentials">
+          <div class="form-group">
+            <label>Email Address</label>
+            <input type="email" id="email" placeholder="your.email@example.com" autocomplete="email" />
+            <div class="hint">Registered email linked to your <strong>QCitizen ID</strong></div>
           </div>
-        </div>
-        <div class="form-group">
-          <label>Password</label>
-          <input
-            type="password"
-            id="password"
-            placeholder="Enter your password"
-          />
+          <div class="form-group">
+            <label>Password</label>
+            <input type="password" id="password" placeholder="Enter your password" />
+          </div>
+          <button class="btn-login" id="login-btn" onclick="doLogin()">
+            <span id="btn-text">Sign In to Treasury Portal</span>
+            <div class="spinner" id="spinner"></div>
+          </button>
         </div>
 
-        <button class="btn-login" id="login-btn" onclick="doLogin()">
-          <span id="btn-text">Sign In to Treasury Portal</span>
-          <div class="spinner" id="spinner"></div>
-        </button>
-
-        <!-- Demo Accounts section removed -->
+        <!-- ── STEP 2 ── -->
+        <div id="step-otp" style="display:none;">
+          <p style="font-size:13px;color:#666;margin-bottom:20px;">
+            A 6-digit verification code has been sent to <strong id="otp-email-display"></strong>.
+            Enter it below to complete sign-in.
+          </p>
+          <div class="form-group">
+            <label>Verification Code</label>
+            <input type="text" id="otp-input" maxlength="6" placeholder="000000"
+              inputmode="numeric" pattern="\d{6}" autocomplete="one-time-code" />
+          </div>
+          <button class="btn-login" id="otp-btn" onclick="doVerifyOtp()">
+            <span id="otp-btn-text">Verify Code</span>
+            <div class="spinner" id="otp-spinner"></div>
+          </button>
+          <button class="btn-secondary" id="resend-btn" onclick="resendOtp()" disabled>
+            Resend Code
+          </button>
+          <p class="resend-info" id="resend-countdown"></p>
+          <p class="resend-info" style="margin-top:8px;">
+            <a onclick="backToCredentials()">← Use a different account</a>
+          </p>
+        </div>
       </div>
     </div>
 
     <script>
-      function fillDemo(email, pw) {
-        document.getElementById("email").value = email;
-        document.getElementById("password").value = pw;
-      }
+      let pendingStaff = null;
+      let failedAttempts = 0;
+      let resendTimer = null;
+      const MAX_VISIBLE_ATTEMPTS = 5;
 
       async function doLogin() {
-        const email = document.getElementById("email").value.trim();
-        const pass = document.getElementById("password").value;
-        const errEl = document.getElementById("err-msg");
-        const okEl = document.getElementById("ok-msg");
-        const btn = document.getElementById("login-btn");
-        const txt = document.getElementById("btn-text");
-        const spin = document.getElementById("spinner");
-
-        errEl.style.display = "none";
-        okEl.style.display = "none";
-
-        if (!email || !pass) {
-          showErr("Please enter both email and password.");
-          return;
-        }
-
-        btn.disabled = true;
-        txt.style.display = "none";
-        spin.style.display = "block";
+        const email = document.getElementById('email').value.trim();
+        const pass  = document.getElementById('password').value;
+        clearAlerts();
+        if (!email || !pass) { showErr('Please enter both email and password.'); return; }
+        setLoading('login-btn', 'btn-text', 'spinner', true);
 
         try {
-          console.log("[DEBUG] doLogin called, email:", email);
-          // 1. Try staff login (internal users)
-          const staffUrl = "../../api/endpoints/internal-user-auth.php";
-          console.log("[DEBUG] Fetching staff login:", staffUrl);
-          const formData = new FormData();
-          formData.append("email", email);
-          formData.append("password", pass);
-          let staffRes = await fetch(staffUrl, {
-            method: "POST",
-            body: formData,
-          });
-          let staffData = await staffRes.json();
-          console.log("[DEBUG] Staff login response:", staffData);
-          if (staffData.success) {
-            const staff = staffData.data;
-            sessionStorage.setItem("rcts_citizen", JSON.stringify(staff));
-            sessionStorage.setItem("rcts_token", staff.login_token);
-            document.cookie = `rcts_citizen=${encodeURIComponent(JSON.stringify(staff))}; path=/; max-age=3600; SameSite=Lax`;
-            try {
-              await fetch("../../api/endpoints/audit-log.php", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({
-                  actor: staff.full_name || staff.user_id || email,
-                  event: `login`,
-                  details: { email, role: staff.role },
-                }),
-              });
-            } catch (e) {}
-            const redirectPage =
-              staff.role === "admin" ? "admin.html" : "dashboard.html";
-            okEl.textContent = "Login successful! Redirecting...";
-            okEl.style.display = "block";
-            setTimeout(() => {
-              window.location.href = redirectPage;
-            }, 900);
-            btn.disabled = false;
-            txt.style.display = "block";
-            spin.style.display = "none";
+          // 1. Try internal staff auth first
+          const fd = new FormData();
+          fd.append('email', email);
+          fd.append('password', pass);
+          const res  = await fetch('../../api/endpoints/internal-user-auth.php', { method: 'POST', body: fd });
+          const data = await res.json();
+
+          if (data.success) {
+            if (data.otp_required) {
+              pendingStaff = data.pending_staff;
+              const otpFd = new FormData();
+              otpFd.append('email', email);
+              otpFd.append('purpose', 'login');
+              await fetch('../../api/endpoints/otp-send.php', { method: 'POST', body: otpFd });
+              showOtpStep(email);
+              return;
+            }
+            finalizeSession(data.data);
             return;
           }
 
-          // 2. Fallback: Try citizen registry
-          const url = `../../mock-data/subsystem1/citizen-registry-api.php?action=verify_login&email=${encodeURIComponent(email)}&password=${encodeURIComponent(pass)}`;
-          console.log("[DEBUG] Fetching citizen registry login:", url);
-          const res = await fetch(url);
-          const data = await res.json();
-          console.log("[DEBUG] Citizen registry response:", data);
+          // 2. Fallback: citizen registry (non-OTP path for citizen roles)
           if (!data.success) {
-            showErr(data.message || "Login failed.");
+            const url = `../../mock-data/subsystem1/citizen-registry-api.php?action=verify_login&email=${encodeURIComponent(email)}&password=${encodeURIComponent(pass)}`;
+            const res2  = await fetch(url);
+            const data2 = await res2.json();
+
+            if (!data2.success) {
+              failedAttempts++;
+              updateAttemptsBar(failedAttempts);
+              showErr(data2.message || 'Invalid email or password.');
+              return;
+            }
+
+            const citizen = data2.data;
+            const allowedRoles = ['treasurer','revenue_officer','admin'];
+            if (!allowedRoles.includes(citizen.role)) {
+              showErr('Access denied. This portal is for treasury staff only.');
+              return;
+            }
+
+            // Staff found in citizen registry — OTP still required
+            pendingStaff = {
+              ...citizen,
+              login_token: btoa(citizen.user_id + '|' + citizen.email + '|' + Date.now()),
+            };
+            const otpFd = new FormData();
+            otpFd.append('email', email);
+            otpFd.append('purpose', 'login');
+            await fetch('../../api/endpoints/otp-send.php', { method: 'POST', body: otpFd });
+            showOtpStep(email);
             return;
           }
-          const citizen = data.data;
-          const allowedRoles = ["treasurer", "revenue_officer", "admin"];
-          if (!allowedRoles.includes(citizen.role)) {
-            showErr("Access denied. This portal is for treasury staff only.");
-            return;
-          }
-          sessionStorage.setItem("rcts_citizen", JSON.stringify(citizen));
-          sessionStorage.setItem("rcts_token", citizen.login_token);
-          document.cookie = `rcts_citizen=${encodeURIComponent(JSON.stringify(citizen))}; path=/; max-age=3600; SameSite=Lax`;
-          try {
-            await fetch("../../api/endpoints/audit-log.php", {
-              method: "POST",
-              headers: { "Content-Type": "application/json" },
-              body: JSON.stringify({
-                actor: citizen.full_name || citizen.qcitizen_id || email,
-                event: `login`,
-                details: { email, role: citizen.role },
-              }),
-            });
-          } catch (e) {}
-          const redirectPage =
-            citizen.role === "admin" ? "admin.html" : "dashboard.html";
-          okEl.textContent = "Login successful! Redirecting...";
-          okEl.style.display = "block";
-          setTimeout(() => {
-            window.location.href = redirectPage;
-          }, 900);
+
+          failedAttempts++;
+          updateAttemptsBar(failedAttempts);
+          showErr(data.message || 'Login failed.');
+
         } catch (e) {
-          console.error("[DEBUG] Login error:", e);
-          showErr(
-            "Could not connect to authentication service. Make sure XAMPP is running.",
-          );
+          showErr('Could not connect to authentication service. Make sure XAMPP is running.');
         } finally {
-          btn.disabled = false;
-          txt.style.display = "block";
-          spin.style.display = "none";
+          setLoading('login-btn', 'btn-text', 'spinner', false);
         }
       }
 
-      function showErr(msg) {
-        const el = document.getElementById("err-msg");
-        el.textContent = msg;
-        el.style.display = "block";
+      async function doVerifyOtp() {
+        const email = document.getElementById('email').value.trim();
+        const otp   = document.getElementById('otp-input').value.trim();
+        clearAlerts();
+        if (otp.length !== 6 || !/^\d{6}$/.test(otp)) {
+          showErr('Please enter the 6-digit code from your email.');
+          return;
+        }
+        setLoading('otp-btn', 'otp-btn-text', 'otp-spinner', true);
+        try {
+          const fd = new FormData();
+          fd.append('email', email);
+          fd.append('otp', otp);
+          fd.append('purpose', 'login');
+          const res  = await fetch('../../api/endpoints/otp-verify.php', { method: 'POST', body: fd });
+          const data = await res.json();
+          if (!data.success) { showErr(data.message || 'Invalid code.'); return; }
+          finalizeSession(pendingStaff);
+        } catch (e) {
+          showErr('Could not verify code. Make sure XAMPP is running.');
+        } finally {
+          setLoading('otp-btn', 'otp-btn-text', 'otp-spinner', false);
+        }
       }
 
-      document.getElementById("password").addEventListener("keydown", (e) => {
-        if (e.key === "Enter") doLogin();
+      async function resendOtp() {
+        const email = document.getElementById('email').value.trim();
+        clearAlerts();
+        document.getElementById('resend-btn').disabled = true;
+        try {
+          const fd = new FormData();
+          fd.append('email', email);
+          fd.append('purpose', 'login');
+          const res  = await fetch('../../api/endpoints/otp-send.php', { method: 'POST', body: fd });
+          const data = await res.json();
+          if (data.success) {
+            showWarn('A new code has been sent.');
+            document.getElementById('otp-input').value = '';
+            startResendCountdown(60);
+          } else {
+            showErr(data.message || 'Could not resend code.');
+          }
+        } catch (e) { showErr('Resend failed.'); }
+      }
+
+      async function finalizeSession(staff) {
+        sessionStorage.setItem('rcts_citizen', JSON.stringify(staff));
+        sessionStorage.setItem('rcts_token', staff.login_token);
+        document.cookie = `rcts_citizen=${encodeURIComponent(JSON.stringify(staff))}; path=/; max-age=3600; SameSite=Lax`;
+        try {
+          await fetch('../../api/endpoints/audit-log.php', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              actor: staff.full_name || staff.email,
+              event: 'login',
+              details: { email: staff.email, role: staff.role },
+            }),
+          });
+        } catch (e) {}
+        showOk('Login successful! Redirecting...');
+        const redirectPage = staff.role === 'admin' ? 'admin.html' : 'dashboard.html';
+        setTimeout(() => { window.location.href = redirectPage; }, 900);
+      }
+
+      function showOtpStep(email) {
+        document.getElementById('step-credentials').style.display = 'none';
+        document.getElementById('step-otp').style.display = 'block';
+        document.getElementById('otp-email-display').textContent = maskEmail(email);
+        document.getElementById('step1-dot').className = 'step-dot done';
+        document.getElementById('step2-dot').className = 'step-dot active';
+        document.getElementById('otp-input').focus();
+        startResendCountdown(60);
+      }
+
+      function backToCredentials() {
+        document.getElementById('step-credentials').style.display = 'block';
+        document.getElementById('step-otp').style.display = 'none';
+        document.getElementById('step1-dot').className = 'step-dot active';
+        document.getElementById('step2-dot').className = 'step-dot';
+        clearAlerts(); pendingStaff = null;
+        if (resendTimer) clearInterval(resendTimer);
+      }
+
+      function startResendCountdown(seconds) {
+        const btn = document.getElementById('resend-btn');
+        const info = document.getElementById('resend-countdown');
+        btn.disabled = true; let remaining = seconds;
+        if (resendTimer) clearInterval(resendTimer);
+        resendTimer = setInterval(() => {
+          remaining--;
+          info.textContent = `Resend available in ${remaining}s`;
+          if (remaining <= 0) { clearInterval(resendTimer); btn.disabled = false; info.textContent = ''; }
+        }, 1000);
+      }
+
+      function updateAttemptsBar(count) {
+        const bar = document.getElementById('attempts-bar');
+        const dots = document.getElementById('attempts-dots');
+        const txt = document.getElementById('attempts-text');
+        bar.style.display = 'block'; dots.innerHTML = '';
+        for (let i = 0; i < MAX_VISIBLE_ATTEMPTS; i++) {
+          const d = document.createElement('div');
+          d.className = 'dot-attempt' + (i < count ? ' used' : '');
+          dots.appendChild(d);
+        }
+        const remaining = MAX_VISIBLE_ATTEMPTS - count;
+        txt.textContent = remaining > 0
+          ? `${count} failed attempt${count > 1 ? 's' : ''} — ${remaining} remaining before lockout`
+          : 'Account locked. Too many failed attempts.';
+      }
+
+      function maskEmail(email) {
+        const [user, domain] = email.split('@');
+        return user.slice(0,2) + '*'.repeat(Math.max(0, user.length-2)) + '@' + domain;
+      }
+
+      function setLoading(btnId, txtId, spinId, on) {
+        document.getElementById(btnId).disabled = on;
+        document.getElementById(txtId).style.display = on ? 'none' : 'inline';
+        document.getElementById(spinId).style.display = on ? 'block' : 'none';
+      }
+
+      function clearAlerts() {
+        ['err-msg','ok-msg','warn-msg'].forEach(id => {
+          const el = document.getElementById(id); el.style.display='none'; el.textContent='';
+        });
+      }
+      function showErr(msg)  { const el=document.getElementById('err-msg');  el.textContent=msg; el.style.display='block'; }
+      function showOk(msg)   { const el=document.getElementById('ok-msg');   el.textContent=msg; el.style.display='block'; }
+      function showWarn(msg) { const el=document.getElementById('warn-msg'); el.textContent=msg; el.style.display='block'; }
+
+      document.addEventListener('keydown', e => {
+        if (e.key !== 'Enter') return;
+        const otpVisible = document.getElementById('step-otp').style.display !== 'none';
+        if (otpVisible) doVerifyOtp(); else doLogin();
       });
     </script>
   </body>
