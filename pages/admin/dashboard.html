@@ -597,13 +597,6 @@
           <h1>Admin Portal</h1>
           <p id="admin-date">System Administration & Management</p>
         </div>
-        <a
-          href="../treasurer/dashboard.html"
-          target="_blank"
-          class="btn btn-purple"
-        >
-          📊 Open Treasury Dashboard →
-        </a>
       </div>
 
       <!-- Dashboard Section -->
@@ -1407,10 +1400,17 @@
 
         for (const u of users) {
           const roleClass = `role-${u.role}`;
+          // Properly escape special characters for JavaScript strings
+          // Convert to String first to ensure replace() works
+          const safeId = String(u.user_id || "").replace(/'/g, "\\'");
+          const safeName = String(u.full_name || "").replace(/'/g, "\\'");
+          const safeEmail = String(u.email || "").replace(/'/g, "\\'");
+          const safeRole = String(u.role || "").replace(/'/g, "\\'");
+          const safeStatus = String(u.status || "").replace(/'/g, "\\'");
           const deactivateBtn =
             u.status === "active"
-              ? `<button class="btn btn-sm" style="padding:4px 8px;font-size:11px;background:#f5f5f5" onclick="deactivateUser('${u.user_id}', '${u.full_name}')">Deactivate</button>`
-              : `<button class="btn btn-sm" style="padding:4px 8px;font-size:11px;background:#e8f5e9;color:#2e7d32" onclick="activateUser('${u.user_id}', '${u.full_name}')">Activate</button>`;
+              ? `<button class="btn btn-sm" style="padding:4px 8px;font-size:11px;background:#f5f5f5" onclick="deactivateUser('${safeId}', '${safeName}')">Deactivate</button>`
+              : `<button class="btn btn-sm" style="padding:4px 8px;font-size:11px;background:#e8f5e9;color:#2e7d32" onclick="activateUser('${safeId}', '${safeName}')">Activate</button>`;
 
           html += `<tr>
             <td>${u.full_name}</td>
@@ -1418,10 +1418,10 @@
             <td><span class="role-badge ${roleClass}">${u.role}</span></td>
             <td class="status-${u.status}">${u.status}</td>
             <td>
-              <button class="btn btn-sm" style="padding:4px 8px;font-size:11px" onclick="openEditUserModal('${u.user_id}', '${u.full_name}', '${u.email}', '${u.role}', '${u.status}')">Edit</button>
-              <button class="btn btn-sm" style="padding:4px 8px;font-size:11px" onclick="openResetPasswordModal('${u.user_id}', '${u.full_name}')">Reset PW</button>
+              <button class="btn btn-sm" style="padding:4px 8px;font-size:11px" onclick="openEditUserModal('${safeId}', '${safeName}', '${safeEmail}', '${safeRole}', '${safeStatus}')">Edit</button>
+              <button class="btn btn-sm" style="padding:4px 8px;font-size:11px" onclick="openResetPasswordModal('${safeId}', '${safeName}')">Reset PW</button>
               ${deactivateBtn}
-              <button class="btn btn-danger btn-sm" style="padding:4px 8px;font-size:11px" onclick="deleteUser('${u.user_id}', '${u.full_name}')">Delete</button>
+              <button class="btn btn-danger btn-sm" style="padding:4px 8px;font-size:11px" onclick="deleteUser('${safeId}', '${safeName}')">Delete</button>
             </td>
           </tr>`;
         }
@@ -1515,12 +1515,38 @@
         }
 
         try {
-          const data = await apiCall("update_user", "POST", {
-            qcitizen_id: editUserId,
-            full_name: name,
-            role: role,
-            status: status,
-          });
+          const response = await fetch(
+            "../../api/endpoints/admin-simple.php?action=update_user",
+            {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/x-www-form-urlencoded",
+                ...AUTH_HEADER,
+              },
+              body: new URLSearchParams({
+                qcitizen_id: editUserId,
+                full_name: name,
+                role: role,
+                status: status,
+              }),
+            },
+          );
+
+          const text = await response.text();
+          console.log("Edit user response status:", response.status);
+          console.log("Edit user response text:", text);
+          let data;
+          if (!text || text.trim() === "") {
+            throw new Error(
+              "Empty response from server (HTTP " + response.status + ")",
+            );
+          }
+          try {
+            data = JSON.parse(text);
+          } catch (parseErr) {
+            throw new Error("Invalid JSON response: " + text.substring(0, 200));
+          }
+
           if (!data.success)
             throw new Error(data.message || "Failed to update user");
           showSuccess("editUserSuccess", "User updated successfully");

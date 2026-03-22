@@ -88,11 +88,46 @@ function db_paginate(string $table, array $params, int $page = 0, int $size = 20
     $result = db_select($table, $params);
     $rows   = $result['data'] ?? [];
     $has_more = count($rows) > $size;
-    if ($has_more) array_pop($rows); // remove the extra row
+    if ($has_more) array_pop($rows);
     return [
         'data'     => $rows,
         'page'     => $page,
         'size'     => $size,
         'has_more' => $has_more
     ];
+}
+
+/**
+ * Get system setting value by key
+ * 
+ * @param string $key Setting key (e.g., 'RPT_BASIC_RATE')
+ * @param mixed $default Default value if setting not found
+ * @return mixed Setting value or default
+ */
+function get_setting(string $key, $default = null) {
+    $result = db_select('rcts_system_settings', [
+        'setting_key' => 'eq.' . $key
+    ], 'setting_value');
+    
+    if ($result['success'] && !empty($result['data'])) {
+        return $result['data'][0]['setting_value'];
+    }
+    return $default;
+}
+
+/**
+ * Get all system settings as key-value array
+ * 
+ * @return array Key-value pairs of all settings
+ */
+function get_all_settings(): array {
+    $result = db_select('rcts_system_settings', [], 'setting_key,setting_value');
+    
+    $settings = [];
+    if ($result['success'] && !empty($result['data'])) {
+        foreach ($result['data'] as $row) {
+            $settings[$row['setting_key']] = $row['setting_value'];
+        }
+    }
+    return $settings;
 }

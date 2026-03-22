@@ -14,6 +14,13 @@
 
 require_once __DIR__ . '/../middleware/cors.php';
 require_once __DIR__ . '/../config/supabase.php';
+require_once __DIR__ . '/../../includes/db.php';
+
+// Get RPT tax rates from database (with fallback defaults)
+$rpt_basic_rate = get_setting('RPT_BASIC_RATE', '0.025');
+$rpt_sef_rate = get_setting('RPT_SEF_RATE', '0.01');
+$early_discount_rate = get_setting('EARLY_PAYMENT_DISCOUNT_RATE', '0.10');
+$early_discount_deadline = get_setting('EARLY_PAYMENT_DISCOUNT_DEADLINE', '01-31');
 
 $action = $_GET['action'] ?? '';
 
@@ -297,24 +304,28 @@ switch ($action) {
             
             // Add rpt_computation for RPT API compatibility
             $assessed_value = floatval($prop['assessed_value'] ?? 0);
-            $base_tax = $assessed_value * 0.02; // 2% Basic RPT
-            $sef_tax = $assessed_value * 0.01; // 1% SEF
+            $base_tax = $assessed_value * floatval($rpt_basic_rate); // Basic RPT (configurable)
+            $sef_tax = $assessed_value * floatval($rpt_sef_rate); // SEF (configurable)
             $total_base_tax = $base_tax + $sef_tax;
             
             $month = (int)date('m');
-            $is_early_bird = ($month >= 1 && $month <= 3);
-            $is_late = ($month > 3);
-            $months_late = $is_late ? ($month - 3) : 0;
+            $deadline_month = (int)substr($early_discount_deadline, 0, 2);
+            $is_early_bird = ($month <= $deadline_month);
+            $is_late = ($month > $deadline_month);
+            $months_late = $is_late ? ($month - $deadline_month) : 0;
+            $discount_rate = floatval($early_discount_rate);
             
             $prop['rpt_computation'] = [
                 'is_early_bird' => $is_early_bird,
                 'is_late' => $is_late,
                 'months_late' => $months_late,
+                'basic_rpt_rate' => floatval($rpt_basic_rate),
+                'sef_rate' => floatval($rpt_sef_rate),
                 'basic_rpt' => round($base_tax, 2),
                 'sef_tax' => round($sef_tax, 2),
                 'total_base_tax' => round($total_base_tax, 2),
-                'discount_applied' => $is_early_bird ? '20% Early Bird Discount (Q1)' : 'None',
-                'discount_amount' => $is_early_bird ? round($total_base_tax * 0.20, 2) : 0
+                'discount_applied' => $is_early_bird ? (($discount_rate * 100) . '% Early Bird Discount') : 'None',
+                'discount_amount' => $is_early_bird ? round($total_base_tax * $discount_rate, 2) : 0
             ];
             
             return $prop;
@@ -399,26 +410,36 @@ switch ($action) {
         
         foreach ($properties as $prop) {
             $zoning = $mock_zoning[$prop['zoning_classification']] ?? ['tax_rate' => 0.20];
-            $base_tax = $prop['assessed_value'] * ($zoning['tax_rate'] / 100);
+            $assessed_value = floatval($prop['assessed_value']);
+            $basic_rate = floatval($rpt_basic_rate);
+            $sef_rate = floatval($rpt_sef_rate);
+            $base_tax = $assessed_value * $basic_rate;
+            $sef_tax = $assessed_value * $sef_rate;
+            $total_base_tax = $base_tax + $sef_tax;
             
             $month = (int)date('m');
+            $discount_rate = floatval($early_discount_rate);
+            $deadline_month = (int)substr($early_discount_deadline, 0, 2);
             $discount = 0;
             $discount_label = 'None';
             
-            if ($month >= 1 && $month <= 3) {
-                $discount = $base_tax * 0.20;
-                $discount_label = '20% Early Bird Discount (Q1)';
+            if ($month <= $deadline_month) {
+                $discount = $total_base_tax * $discount_rate;
+                $discount_label = ($discount_rate * 100) . '% Early Bird Discount';
             }
             
-            $net_tax = $base_tax - $discount;
+            $net_tax = $total_base_tax - $discount;
             
             $calculations[] = [
                 'tdn_number' => $prop['tdn_number'],
                 'property_type' => $prop['property_type'],
-                'assessed_value' => $prop['assessed_value'],
+                'assessed_value' => $assessed_value,
                 'zoning_classification' => $prop['zoning_classification'],
-                'tax_rate' => $zoning['tax_rate'],
-                'base_tax' => round($base_tax, 2),
+                'basic_rpt_rate' => $basic_rate,
+                'sef_rate' => $sef_rate,
+                'basic_rpt' => round($base_tax, 2),
+                'sef_tax' => round($sef_tax, 2),
+                'total_base_tax' => round($total_base_tax, 2),
                 'discount_applied' => $discount_label,
                 'discount_amount' => round($discount, 2),
                 'net_tax_due' => round($net_tax, 2),

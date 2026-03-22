@@ -340,21 +340,27 @@ switch ($action) {
             }
             $citizen_ids = array_unique($citizen_ids);
 
-            // Fetch citizens from local database using db_select (not Supabase)
-            // This ensures we get the correct names for QC-2024-XXXXXX format IDs
+            // Fetch ALL citizens from registry at once for efficiency
+            // This ensures we get the correct names for BOTH UUID and QC-2024-XXXXXX format IDs
+            $all_citizens_result = db_select('rcts_citizen_registry', [
+                'select' => 'qcitizen_id,full_name'
+            ]);
+            
+            // Build a map of ALL citizen IDs to names (supports both UUID and QC-2024 formats)
             $citizens = [];
-            if (!empty($citizen_ids)) {
-                foreach ($citizen_ids as $cid) {
-                    // Query each citizen individually using db_select
-                    $cit_result = db_select('rcts_citizen_registry', [
-                        'qcitizen_id' => 'eq.' . $cid,
-                        'select' => 'full_name'
-                    ]);
-                    if ($cit_result['success'] && !empty($cit_result['data'])) {
-                        $citizens[$cid] = $cit_result['data'][0]['full_name'];
+            if ($all_citizens_result['success'] && !empty($all_citizens_result['data'])) {
+                foreach ($all_citizens_result['data'] as $citizen) {
+                    $cid = $citizen['qcitizen_id'] ?? '';
+                    $name = $citizen['full_name'] ?? '';
+                    if ($cid && $name) {
+                        $citizens[$cid] = $name;
                     }
                 }
             }
+            
+            // Debug: log what we found
+            error_log('Bill Status Overview - Citizen IDs found in bills: ' . implode(', ', $citizen_ids));
+            error_log('Bill Status Overview - Citizens in registry: ' . implode(', ', array_keys($citizens)));
 
             // Add citizen names and format amounts
             foreach ($bills as &$bill) {

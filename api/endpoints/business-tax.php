@@ -14,8 +14,16 @@
 require_once __DIR__ . '/../middleware/cors.php';
 require_once __DIR__ . '/../middleware/auth.php';
 require_once __DIR__ . '/../config/supabase.php';
+require_once __DIR__ . '/../../includes/db.php';
 
 require_once __DIR__ . '/../config/constants.php';
+
+// Override constants with dynamic settings from database
+$BIZ_TAX_RATE_RESTAURANT = get_setting('BIZ_TAX_RATE_RESTAURANT', BIZ_TAX_RATE_RESTAURANT);
+$BIZ_TAX_RATE_RETAIL = get_setting('BIZ_TAX_RATE_RETAIL', BIZ_TAX_RATE_RETAIL);
+$BIZ_TAX_RATE_SERVICE = get_setting('BIZ_TAX_RATE_SERVICE', BIZ_TAX_RATE_SERVICE);
+$BIZ_TAX_RATE_MANUFACTURING = get_setting('BIZ_TAX_RATE_MFR', BIZ_TAX_RATE_MANUFACTURING);
+$BIZ_TAX_RATE_DEFAULT = get_setting('BIZ_TAX_RATE_DEFAULT', BIZ_TAX_RATE_DEFAULT);
 
 // Helper: Log audit event to rcts_audit_log
 function audit_log($actor, $event, $details = null) {
@@ -406,10 +414,11 @@ switch ($action) {
 
 // ── Helper: business tax rate by nature of business ────────────────────────
 function get_biz_tax_rate(string $nature): float {
+    global $BIZ_TAX_RATE_RESTAURANT, $BIZ_TAX_RATE_RETAIL, $BIZ_TAX_RATE_SERVICE, $BIZ_TAX_RATE_MANUFACTURING, $BIZ_TAX_RATE_DEFAULT;
     $nature = strtolower($nature);
-    if (str_contains($nature, 'food') || str_contains($nature, 'restaurant')) return BIZ_TAX_RATE_RESTAURANT;
-    if (str_contains($nature, 'retail') || str_contains($nature, 'store'))    return BIZ_TAX_RATE_RETAIL;
-    if (str_contains($nature, 'service'))                                      return BIZ_TAX_RATE_SERVICE;
-    if (str_contains($nature, 'manufactur'))                                   return BIZ_TAX_RATE_MANUFACTURING;
-    return BIZ_TAX_RATE_DEFAULT;
+    if (str_contains($nature, 'food') || str_contains($nature, 'restaurant')) return floatval($BIZ_TAX_RATE_RESTAURANT);
+    if (str_contains($nature, 'retail') || str_contains($nature, 'store'))    return floatval($BIZ_TAX_RATE_RETAIL);
+    if (str_contains($nature, 'service'))                                      return floatval($BIZ_TAX_RATE_SERVICE);
+    if (str_contains($nature, 'manufactur'))                                   return floatval($BIZ_TAX_RATE_MANUFACTURING);
+    return floatval($BIZ_TAX_RATE_DEFAULT);
 }

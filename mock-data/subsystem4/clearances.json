@@ -63,61 +63,91 @@
     {
       "bin_number": "BIN-QC-2024-CARLO-001",
       "qcitizen_id": "QC-2024-000009",
-      "business_name": "Carlo's Import & Export Trading",
+      "business_name": "Nicolas Printing Services",
       "clearance_type": "Health",
       "clearance_status": "Passed",
       "issued_by": "QC Health Dept",
-      "inspection_date": "2024-02-05",
+      "inspection_date": "2024-02-10",
       "valid_until": "2025-12-31"
     },
     {
       "bin_number": "BIN-QC-2024-CARLO-001",
       "qcitizen_id": "QC-2024-000009",
-      "business_name": "Carlo's Import & Export Trading",
+      "business_name": "Nicolas Printing Services",
       "clearance_type": "Sanitary",
       "clearance_status": "Passed",
       "issued_by": "QC Sanitation Office",
-      "inspection_date": "2024-02-05",
+      "inspection_date": "2024-02-10",
       "valid_until": "2025-12-31"
     },
     {
       "bin_number": "BIN-QC-2024-CARLO-001",
       "qcitizen_id": "QC-2024-000009",
-      "business_name": "Carlo's Import & Export Trading",
+      "business_name": "Nicolas Printing Services",
       "clearance_type": "Fire",
       "clearance_status": "Passed",
       "issued_by": "BFP-QC",
-      "inspection_date": "2024-02-06",
+      "inspection_date": "2024-02-11",
       "valid_until": "2025-12-31"
     },
     {
       "bin_number": "BIN-QC-2024-CARLO-002",
       "qcitizen_id": "QC-2024-000009",
-      "business_name": "Carlo's Construction Materials Supply",
+      "business_name": "Nicolas Tech Solutions",
       "clearance_type": "Health",
       "clearance_status": "Passed",
       "issued_by": "QC Health Dept",
-      "inspection_date": "2024-03-15",
+      "inspection_date": "2024-03-01",
       "valid_until": "2025-12-31"
     },
     {
       "bin_number": "BIN-QC-2024-CARLO-002",
       "qcitizen_id": "QC-2024-000009",
-      "business_name": "Carlo's Construction Materials Supply",
+      "business_name": "Nicolas Tech Solutions",
       "clearance_type": "Sanitary",
       "clearance_status": "Passed",
       "issued_by": "QC Sanitation Office",
-      "inspection_date": "2024-03-15",
+      "inspection_date": "2024-03-01",
       "valid_until": "2025-12-31"
     },
     {
       "bin_number": "BIN-QC-2024-CARLO-002",
       "qcitizen_id": "QC-2024-000009",
-      "business_name": "Carlo's Construction Materials Supply",
+      "business_name": "Nicolas Tech Solutions",
       "clearance_type": "Fire",
       "clearance_status": "Passed",
       "issued_by": "BFP-QC",
-      "inspection_date": "2024-03-16",
+      "inspection_date": "2024-03-02",
+      "valid_until": "2025-12-31"
+    },
+    {
+      "bin_number": "BIN-QC-2024-CARLO-003",
+      "qcitizen_id": "QC-2024-000009",
+      "business_name": "Nicolas Mini Mart",
+      "clearance_type": "Health",
+      "clearance_status": "Passed",
+      "issued_by": "QC Health Dept",
+      "inspection_date": "2024-02-20",
+      "valid_until": "2025-12-31"
+    },
+    {
+      "bin_number": "BIN-QC-2024-CARLO-003",
+      "qcitizen_id": "QC-2024-000009",
+      "business_name": "Nicolas Mini Mart",
+      "clearance_type": "Sanitary",
+      "clearance_status": "Passed",
+      "issued_by": "QC Sanitation Office",
+      "inspection_date": "2024-02-20",
+      "valid_until": "2025-12-31"
+    },
+    {
+      "bin_number": "BIN-QC-2024-CARLO-003",
+      "qcitizen_id": "QC-2024-000009",
+      "business_name": "Nicolas Mini Mart",
+      "clearance_type": "Fire",
+      "clearance_status": "Passed",
+      "issued_by": "BFP-QC",
+      "inspection_date": "2024-02-21",
       "valid_until": "2025-12-31"
     }
   ]
