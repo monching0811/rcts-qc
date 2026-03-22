@@ -350,6 +350,96 @@
           transform: rotate(360deg);
         }
       }
+      /* OTP Step Styles */
+      #otp-input {
+        font-family: "Roboto Mono", "Courier New", monospace;
+        font-size: 28px;
+        letter-spacing: 0.35em;
+        text-align: center;
+        padding: 16px;
+        border: 2px solid #ddd;
+      }
+      #otp-input:focus {
+        border-color: var(--gold);
+      }
+      .otp-hint {
+        font-size: 12px;
+        color: var(--text-gray);
+        margin-top: 8px;
+        text-align: center;
+      }
+      .otp-hint a {
+        color: var(--gold);
+        cursor: pointer;
+        text-decoration: none;
+      }
+      .otp-hint a:hover {
+        text-decoration: underline;
+      }
+      .countdown {
+        font-size: 12px;
+        color: var(--text-gray);
+        margin-top: 8px;
+        text-align: center;
+      }
+      .resend-link {
+        color: var(--gold);
+        cursor: pointer;
+        text-decoration: none;
+      }
+      .resend-link:hover {
+        text-decoration: underline;
+      }
+      .resend-link.disabled {
+        color: var(--text-gray);
+        cursor: not-allowed;
+        text-decoration: none;
+      }
+      .back-to-login {
+        display: inline-block;
+        margin-top: 16px;
+        font-size: 13px;
+        color: var(--text-gray);
+        cursor: pointer;
+        text-decoration: none;
+      }
+      .back-to-login:hover {
+        color: var(--gold);
+      }
+      .step-indicator {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 12px;
+        margin-bottom: 24px;
+      }
+      .step-dot {
+        width: 10px;
+        height: 10px;
+        border-radius: 50%;
+        background: #ddd;
+        transition: background 0.3s;
+      }
+      .step-dot.active {
+        background: var(--gold);
+      }
+      .step-dot.done {
+        background: var(--green);
+      }
+      .step-label {
+        font-size: 11px;
+        color: var(--text-gray);
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+      }
+      .step-connector {
+        width: 40px;
+        height: 2px;
+        background: #ddd;
+      }
+      .step-connector.done {
+        background: var(--green);
+      }
     </style>
   </head>
   <body>
@@ -372,31 +462,78 @@
         <div class="alert error" id="err-msg"></div>
         <div class="alert success" id="ok-msg"></div>
 
-        <div class="form-group">
-          <label>Email Address</label>
-          <input
-            type="email"
-            id="email"
-            placeholder="your.email@example.com"
-            autocomplete="email"
-          />
-          <div class="hint">
-            Registered email linked to your <strong>QCitizen ID</strong>
-          </div>
-        </div>
-        <div class="form-group">
-          <label>Password</label>
-          <input
-            type="password"
-            id="password"
-            placeholder="Enter your password"
-          />
+        <!-- Step Indicator -->
+        <div class="step-indicator" id="step-indicator">
+          <span class="step-label">Credentials</span>
+          <div class="step-connector" id="step-connector"></div>
+          <div class="step-dot active" id="step1-dot"></div>
+          <div class="step-dot" id="step2-dot"></div>
+          <span class="step-label">Verification</span>
         </div>
 
-        <button class="btn-login" id="login-btn" onclick="doLogin()">
-          <span id="btn-text">Sign In to QCitizen Portal</span>
-          <div class="spinner" id="spinner"></div>
-        </button>
+        <!-- Step 1: Credentials -->
+        <div id="step-credentials">
+          <div class="form-group">
+            <label>Email Address</label>
+            <input
+              type="email"
+              id="email"
+              placeholder="your.email@example.com"
+              autocomplete="email"
+            />
+            <div class="hint">
+              Registered email linked to your <strong>QCitizen ID</strong>
+            </div>
+          </div>
+          <div class="form-group">
+            <label>Password</label>
+            <input
+              type="password"
+              id="password"
+              placeholder="Enter your password"
+            />
+          </div>
+
+          <button class="btn-login" id="login-btn" onclick="doLogin()">
+            <span id="btn-text">Sign In to QCitizen Portal</span>
+            <div class="spinner" id="spinner"></div>
+          </button>
+        </div>
+
+        <!-- Step 2: OTP Verification -->
+        <div id="step-otp" style="display: none">
+          <p style="font-size: 13px; color: #666; margin-bottom: 20px">
+            A 6-digit verification code has been sent to
+            <strong id="otp-email-display"></strong>. Enter it below to complete
+            sign-in.
+          </p>
+          <div class="form-group">
+            <label>Verification Code</label>
+            <input
+              type="text"
+              id="otp-input"
+              maxlength="6"
+              placeholder="000000"
+              inputmode="numeric"
+              pattern="\d{6}"
+              autocomplete="one-time-code"
+            />
+          </div>
+          <button class="btn-login" id="otp-btn" onclick="doVerifyOtp()">
+            <span id="otp-btn-text">Verify Code</span>
+            <div class="spinner" id="otp-spinner"></div>
+          </button>
+          <div class="countdown" id="countdown"></div>
+          <p class="otp-hint">
+            Didn't receive the code?
+            <a class="resend-link" id="resend-link" onclick="resendOtp()"
+              >Resend</a
+            >
+          </p>
+          <a class="back-to-login" onclick="showCredentialsStep()"
+            >← Back to login</a
+          >
+        </div>
 
         <div class="divider"><span>Demo Accounts</span></div>
         <div class="demo-accounts">
@@ -409,6 +546,11 @@
     </div>
 
     <script>
+      // Global state for pending citizen data
+      let pendingCitizen = null;
+      let currentEmail = "";
+
+      // ── LOGIN: Step 1 - Verify Credentials ─────────────────────────────────────
       async function doLogin() {
         const email = document.getElementById("email").value.trim();
         const pass = document.getElementById("password").value;
@@ -418,8 +560,7 @@
         const txt = document.getElementById("btn-text");
         const spin = document.getElementById("spinner");
 
-        errEl.style.display = "none";
-        okEl.style.display = "none";
+        clearAlerts();
 
         if (!email || !pass) {
           showErr("Please enter both email and password.");
@@ -440,35 +581,30 @@
             return;
           }
 
-          const citizen = data.data;
-          sessionStorage.setItem("rcts_citizen", JSON.stringify(citizen));
-          sessionStorage.setItem("rcts_token", citizen.login_token);
+          // Store pending citizen data temporarily (will be persisted after OTP)
+          pendingCitizen = data.data;
+          currentEmail = email;
 
-          // Log the login event (all roles, unified audit log)
-          // Fire and forget - don't await to avoid blocking redirect
-          fetch("../../api/endpoints/audit-log.php", {
+          // Send OTP to the user's email
+          const otpFd = new FormData();
+          otpFd.append("email", email);
+          otpFd.append("purpose", "login");
+
+          const otpRes = await fetch("../../api/endpoints/otp-send.php", {
             method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-              actor: citizen.qcitizen_id || email,
-              event: `login`,
-              details: { email, role: citizen.role },
-            }),
-          }).catch(() => {}); // Ignore errors
+            body: otpFd,
+          });
+          const otpData = await otpRes.json();
 
-          okEl.textContent = "Login successful! Redirecting...";
+          if (!otpData.success) {
+            showErr(otpData.message || "Failed to send OTP. Please try again.");
+            return;
+          }
+
+          // Show OTP step
+          showOtpStep(email);
+          okEl.textContent = "OTP sent! Please check your email.";
           okEl.style.display = "block";
-
-          setTimeout(() => {
-            if (
-              citizen.role === "treasurer" ||
-              citizen.role === "revenue_officer"
-            )
-              window.location.replace("../treasurer/dashboard.html");
-            else if (citizen.role === "auditor")
-              window.location.replace("../auditor/portal.html");
-            else window.location.replace("dashboard.html");
-          }, 900);
         } catch (e) {
           showErr(
             "Could not connect to authentication service. Make sure XAMPP is running.",
@@ -480,10 +616,189 @@
         }
       }
 
+      // ── OTP VERIFY: Step 2 - Verify OTP Code ───────────────────────────────────
+      async function doVerifyOtp() {
+        const email = currentEmail;
+        const otp = document.getElementById("otp-input").value.trim();
+        const errEl = document.getElementById("err-msg");
+        const okEl = document.getElementById("ok-msg");
+
+        clearAlerts();
+
+        if (otp.length !== 6 || !/^\d{6}$/.test(otp)) {
+          showErr("Please enter the 6-digit code from your email.");
+          return;
+        }
+
+        setLoading("otp-btn", "otp-btn-text", "otp-spinner", true);
+
+        try {
+          const fd = new FormData();
+          fd.append("email", email);
+          fd.append("otp", otp);
+          fd.append("purpose", "login");
+
+          const res = await fetch("../../api/endpoints/otp-verify.php", {
+            method: "POST",
+            body: fd,
+          });
+          const data = await res.json();
+
+          if (!data.success) {
+            showErr(
+              data.message || "Invalid OTP code. Please check and try again.",
+            );
+            return;
+          }
+
+          // OTP verified - now persist the session
+          const citizen = pendingCitizen;
+          sessionStorage.setItem("rcts_citizen", JSON.stringify(citizen));
+          sessionStorage.setItem("rcts_token", citizen.login_token);
+
+          // Log the login event (fire and forget)
+          fetch("../../api/endpoints/audit-log.php", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              actor: citizen.qcitizen_id || email,
+              event: "login",
+              details: { email, role: citizen.role },
+            }),
+          }).catch(() => {});
+
+          okEl.textContent = "Login successful! Redirecting...";
+          okEl.style.display = "block";
+
+          setTimeout(() => {
+            if (
+              citizen.role === "treasurer" ||
+              citizen.role === "revenue_officer"
+            ) {
+              window.location.replace("../treasurer/dashboard.html");
+            } else if (citizen.role === "auditor") {
+              window.location.replace("../auditor/portal.html");
+            } else {
+              window.location.replace("dashboard.html");
+            }
+          }, 900);
+        } catch (e) {
+          showErr("Could not verify OTP. Please try again.");
+        } finally {
+          setLoading("otp-btn", "otp-btn-text", "otp-spinner", false);
+        }
+      }
+
+      // ── RESEND OTP ──────────────────────────────────────────────────────────────
+      async function resendOtp() {
+        const resendLink = document.getElementById("resend-link");
+        if (resendLink.classList.contains("disabled")) return;
+
+        clearAlerts();
+
+        const fd = new FormData();
+        fd.append("email", currentEmail);
+        fd.append("purpose", "login");
+
+        try {
+          const res = await fetch("../../api/endpoints/otp-send.php", {
+            method: "POST",
+            body: fd,
+          });
+          const data = await res.json();
+
+          if (data.success) {
+            showOk("A new code has been sent.");
+            document.getElementById("otp-input").value = "";
+            startResendCountdown(60);
+          } else {
+            showErr(data.message || "Failed to resend OTP.");
+          }
+        } catch (e) {
+          showErr("Could not resend OTP. Please try again.");
+        }
+      }
+
+      // ── UI HELPERS ─────────────────────────────────────────────────────────────
+      function showOtpStep(email) {
+        document.getElementById("step-credentials").style.display = "none";
+        document.getElementById("step-otp").style.display = "block";
+        document.getElementById("otp-email-display").textContent =
+          maskEmail(email);
+        document.getElementById("step1-dot").className = "step-dot done";
+        document.getElementById("step2-dot").className = "step-dot active";
+        document.getElementById("step-connector").className =
+          "step-connector done";
+        document.getElementById("otp-input").focus();
+        startResendCountdown(60);
+      }
+
+      function showCredentialsStep() {
+        document.getElementById("step-credentials").style.display = "block";
+        document.getElementById("step-otp").style.display = "none";
+        document.getElementById("step1-dot").className = "step-dot active";
+        document.getElementById("step2-dot").className = "step-dot";
+        document.getElementById("step-connector").className = "step-connector";
+        clearAlerts();
+      }
+
+      function maskEmail(email) {
+        const parts = email.split("@");
+        if (parts.length !== 2) return email;
+        const user = parts[0];
+        const domain = parts[1];
+        if (user.length <= 2) return user[0] + "***@" + domain;
+        return user.substring(0, 2) + "***@" + domain;
+      }
+
+      function startResendCountdown(seconds) {
+        const countdownEl = document.getElementById("countdown");
+        const resendLink = document.getElementById("resend-link");
+        let remaining = seconds;
+
+        resendLink.classList.add("disabled");
+        resendLink.style.pointerEvents = "none";
+
+        const interval = setInterval(() => {
+          remaining--;
+          countdownEl.textContent = `Resend available in ${remaining}s`;
+
+          if (remaining <= 0) {
+            clearInterval(interval);
+            countdownEl.textContent = "";
+            resendLink.classList.remove("disabled");
+            resendLink.style.pointerEvents = "auto";
+          }
+        }, 1000);
+      }
+
+      function setLoading(btnId, textId, spinnerId, loading) {
+        const btn = document.getElementById(btnId);
+        const txt = document.getElementById(textId);
+        const spin = document.getElementById(spinnerId);
+
+        btn.disabled = loading;
+        txt.style.display = loading ? "none" : "block";
+        spin.style.display = loading ? "block" : "none";
+      }
+
+      function clearAlerts() {
+        document.getElementById("err-msg").style.display = "none";
+        document.getElementById("ok-msg").style.display = "none";
+      }
+
       function showErr(msg) {
         const el = document.getElementById("err-msg");
         el.textContent = msg;
         el.style.display = "block";
+        document.getElementById("ok-msg").style.display = "none";
+      }
+
+      function showOk(msg) {
+        const el = document.getElementById("ok-msg");
+        el.textContent = msg;
+        el.style.display = "block";
+        document.getElementById("err-msg").style.display = "none";
       }
 
       // ── Demo Accounts Functions ─────────────────────────────────────────────
@@ -554,6 +869,11 @@
 
       document.getElementById("password").addEventListener("keydown", (e) => {
         if (e.key === "Enter") doLogin();
+      });
+
+      // Allow Enter key to submit OTP
+      document.getElementById("otp-input").addEventListener("keydown", (e) => {
+        if (e.key === "Enter") doVerifyOtp();
       });
     </script>
   </body>
